@@ -298,6 +298,7 @@
   .status-management { background: #FFE0E0; color: #C0392B; }
   .status-new        { background: #D6EDD4; color: #1A6B10; }
   .status-leave      { background: #FFF3CD; color: #9A6B00; }
+  .status-parttime   { background: #EAD8F5; color: #5B2D8C; }
 
   /* ── EMPTY STATE ── */
   .empty-state {
@@ -378,7 +379,7 @@
       <h1>Pod <span>Finder</span></h1>
       <p class="header-sub">Search for any colleague to instantly see which pod they belong to, their Teams channel, and how to reach them.</p>
       <div class="header-meta">
-        <span class="meta-pill"><strong>Go-live:</strong> May 5, 2026</span>
+        <span class="meta-pill"><strong>Go-live:</strong> April 27, 2026</span>
         <span class="meta-pill"><strong>Status:</strong> Living Document</span>
         <span class="meta-pill"><strong>Contact:</strong> Agnes Lech</span>
       </div>
@@ -432,6 +433,7 @@
     <span><span class="status-badge status-management">Mgmt</span> <span style="font-size:13px;color:#5A6A7A;">Management</span></span>
     <span><span class="status-badge status-new">New</span> <span style="font-size:13px;color:#5A6A7A;">New member</span></span>
     <span><span class="status-badge status-leave">Leave</span> <span style="font-size:13px;color:#5A6A7A;">Currently on leave</span></span>
+    <span><span class="status-badge status-parttime">PT</span> <span style="font-size:13px;color:#5A6A7A;">Part-time</span></span>
   </div>
 </div>
 
@@ -481,14 +483,14 @@ const POD_CONFIG = {
     subchannels: ["General", "Support Queue", "Product Release Notes", "DMI"],
     description: "Oliver Connect / CLA — Integrations, initiatives, and platform usage"
   },
-  "Ollie TPA": {
+  "Ollie PPA": {
     color: "#C25A1A",
     light: "#FAE5D3",
     textDark: "#7A3410",
     icon: "🛡️",
-    channel: "Oliver TPA",
+    channel: "Oliver PPA",
     subchannels: ["General", "Support Queue", "Product Release Notes", "Client channels TBA"],
-    description: "Administration — TPA workflows and client needs. Members TBA."
+    description: "Administration — PPA workflows and client needs. Members TBA."
   },
   "Leadership": {
     color: "#1A2330",
@@ -506,7 +508,7 @@ const POD_CONFIG = {
     icon: "🤝",
     channel: "Oliver Basecamp",
     subchannels: ["Announcements", "General", "Team", "Events"],
-    description: "Infrastructure · Operations · Enablement · Finance · HR · Sales · Marketing"
+    description: "Infrastructure · Ops · Enablement · Finance (GH) · HR (GH) · Sales (Vacant) · Marketing (Forge and Spark)"
   }
 };
 
@@ -534,15 +536,14 @@ const PEOPLE = [
   { name: "Chris Lin",                title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
   { name: "Ramana Guduru",            title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
   { name: "Gregory Pereira",          title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
-  { name: "Marcos Martini",           title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Marcos Martini",           title: "Dev & QA",                     pod: "Admin",               role: "Part-Time" },
   { name: "Tiago Steil",              title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
-  { name: "Marcelo Akira",            title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Marcelo Akira",            title: "Dev & QA",                     pod: "Admin",               role: "Part-Time" },
   { name: "Kaue Castellani",          title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
   { name: "Carlos Alberto Ventura Junior", title: "Dev & QA",                pod: "Admin",               role: "Management" },
 
   /* ── OLIVER MULTI / PENSION ── */
   { name: "Don Fermin",               title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
-  { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
   { name: "Sharmila Gajendran",       title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
   { name: "Yeshwanth Perumalla",      title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
   { name: "Elena Tikhonova",          title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
@@ -553,6 +554,7 @@ const PEOPLE = [
 
   /* ── OLIVER GH ── */
   { name: "Jason Ho",                 title: "Client Experience & Support",  pod: "Oliver GroupHEALTH", role: "Client Experience / Support" },
+  { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Oliver GroupHEALTH", role: "Management" },
   { name: "Charlon Ignacio",          title: "BA",                           pod: "Oliver GroupHEALTH", role: "Business Analysis" },
   { name: "Hsin Chieh (Alice) Chien", title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
   { name: "Torsten Lenk",             title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
@@ -563,7 +565,6 @@ const PEOPLE = [
   { name: "Viktor Pak",               title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Management" },
 
   /* ── OLIVER CONNECT / CLA ── */
-  { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Oliver Connect",      role: "Management" },
   { name: "Sri Raga Madhuri Velpula", title: "BA",                           pod: "Oliver Connect",      role: "Business Analysis" },
   { name: "Jagpreet Sidhu (Johal)",   title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
   { name: "Daniel Talash",            title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
@@ -575,14 +576,14 @@ const PEOPLE = [
   { name: "Rafael Trevisan",          title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
   { name: "Pamela Naval",             title: "Dev & QA",                     pod: "Oliver Connect",      role: "Management" },
 
-  /* ── OLIVER TPA ── */
-  /* No members assigned yet — TPA is included in pod browse */
+  /* ── OLLIE PPA ── */
+  /* No members assigned yet — PPA is included in pod browse */
 
   /* ── SHARED FUNCTIONS ── */
   { name: "Fabio Pan",                title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
   { name: "Siri Sagi",                title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
   { name: "Luis Ernandes",            title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
-  { name: "Nicole Calderon",          title: "Operations / Enablement",      pod: "Shared Functions",    role: "Operations" },
+  { name: "Nicole Calderon",          title: "Operations",                   pod: "Shared Functions",    role: "Operations" },
   { name: "Agnes Lech",               title: "Enablement",                   pod: "Shared Functions",    role: "Enablement" },
 ];
 
@@ -616,6 +617,7 @@ function getStatusBadge(role) {
   if (role === "Management") return '<span class="status-badge status-management">Mgmt</span>';
   if (role === "New Member") return '<span class="status-badge status-new">New</span>';
   if (role === "On Leave")   return '<span class="status-badge status-leave">Leave</span>';
+  if (role === "Part-Time")  return '<span class="status-badge status-parttime">PT</span>';
   return '';
 }
 
