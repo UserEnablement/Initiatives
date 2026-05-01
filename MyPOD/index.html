@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oliver — Pod Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #1A4C77;
+    --teal:   #038C8C;
+    --teal2:  #2D846C;
+    --blue:   #3273AC;
+    --purple: #6D275F;
+    --ltblue: #D6E4F0;
+    --ltteal: #D4EDE8;
+    --white:  #FFFFFF;
+    --grey:   #F4F6F9;
+    --mid:    #5A6A7A;
+    --text:   #1A2330;
+    --border: #E0E8F2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #EEF2F7;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    padding: 52px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    background: rgba(50,115,172,0.18);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 25%;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(3,140,140,0.12);
+  }
+  .header-inner {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 32px;
+    flex-wrap: wrap;
+  }
+  .header-text {}
+  .header-eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #7EB3D8; margin-bottom: 14px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px; font-weight: 700;
+    color: var(--white); line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  header h1 span { color: #7EB3D8; }
+  .header-sub {
+    font-size: 15px; font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6; max-width: 480px;
+  }
+  .header-meta {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .meta-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.7);
+  }
+  .meta-pill strong { color: var(--white); font-weight: 600; }
+
+  /* ── MAIN ── */
+  .page {
+    max-width: 900px; margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* ── SEARCH BOX ── */
+  .search-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .search-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .search-card p {
+    font-size: 14px; color: var(--mid);
+    margin-bottom: 20px; line-height: 1.5;
+  }
+  .search-wrap {
+    position: relative;
+  }
+  .search-icon {
+    position: absolute; left: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--mid); font-size: 16px;
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 14px 16px 14px 46px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px; color: var(--text);
+    background: var(--grey);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .search-input:focus {
+    border-color: var(--blue);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(50,115,172,0.1);
+  }
+  .search-input::placeholder { color: #9AA8B5; }
+
+  /* ── SUGGESTIONS ── */
+  .suggestions-box {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-top: 6px;
+    overflow: hidden;
+    display: none;
+    box-shadow: 0 8px 24px rgba(26,44,60,0.1);
+  }
+  .suggestion-item {
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.highlighted { background: var(--grey); }
+  .sug-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .sug-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .sug-pod { font-size: 12px; color: var(--mid); margin-top: 1px; }
+
+  /* ── RESULT CARD ── */
+  .result-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: none;
+    animation: fadeUp 0.25s ease;
+  }
+  .result-card.visible { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Person result */
+  .result-person-top {
+    display: flex; align-items: center;
+    gap: 16px; margin-bottom: 20px;
+  }
+  .result-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600; flex-shrink: 0;
+  }
+  .result-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 600; color: var(--text);
+  }
+  .result-title { font-size: 14px; color: var(--mid); margin-top: 3px; }
+
+  .pod-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 24px;
+    font-size: 14px; font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .pod-badge-icon { font-size: 16px; }
+
+  .result-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 20px;
+  }
+  .result-field {
+    background: var(--grey); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .result-field-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--mid); margin-bottom: 4px;
+  }
+  .result-field-value {
+    font-size: 14px; font-weight: 500; color: var(--text);
+  }
+
+  .channels-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--mid); margin-bottom: 10px;
+  }
+  .channels-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .channel-tag {
+    font-size: 12px; padding: 4px 12px;
+    border-radius: 14px;
+    background: var(--grey);
+    color: var(--mid);
+    border: 1px solid var(--border);
+  }
+  .pod-desc {
+    margin-top: 16px;
+    font-size: 13px; color: var(--mid);
+    font-style: italic;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Pod result */
+  .pod-result-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pod-icon-box {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .pod-result-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600;
+  }
+  .pod-result-desc { font-size: 13px; color: var(--mid); margin-top: 3px; }
+  .pod-channel-badge {
+    margin-left: auto; font-size: 12px; font-weight: 600;
+    padding: 5px 14px; border-radius: 14px;
+  }
+  .members-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--mid); margin-bottom: 10px;
+  }
+  .members-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 20px;
+  }
+  .member-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--grey); border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .member-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
+  }
+  .member-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .member-role { font-size: 12px; color: var(--mid); }
+  .status-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 8px; margin-left: 6px;
+    vertical-align: middle; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .status-management { background: #FFE0E0; color: #C0392B; }
+  .status-new        { background: #D6EDD4; color: #1A6B10; }
+  .status-leave      { background: #FFF3CD; color: #9A6B00; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 36px 24px;
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid var(--border);
+    margin-bottom: 28px; display: none;
+  }
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; color: var(--mid); line-height: 1.6; }
+  .empty-state strong { color: var(--text); }
+
+  /* ── POD BROWSE ── */
+  .browse-section { }
+  .browse-label {
+    font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--mid); margin-bottom: 14px;
+  }
+  .pods-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .pod-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .pod-card:hover {
+    border-color: #A8C4E0;
+    box-shadow: 0 4px 16px rgba(26,44,60,0.1);
+    transform: translateY(-2px);
+  }
+  .pod-card-icon { font-size: 26px; margin-bottom: 10px; }
+  .pod-card-name {
+    font-size: 13px; font-weight: 600;
+    color: var(--text); line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .pod-card-count {
+    font-size: 12px; color: var(--mid);
+  }
+  .pod-card-count span {
+    display: inline-block;
+    background: var(--grey); border-radius: 10px;
+    padding: 2px 10px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 24px;
+    font-size: 12px; color: var(--mid);
+    border-top: 1px solid var(--border);
+    background: var(--white);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header { padding: 36px 20px 32px; }
+    header h1 { font-size: 28px; }
+    .page { padding: 24px 16px 60px; }
+    .search-card, .result-card { padding: 20px; }
+    .result-grid, .members-grid { grid-template-columns: 1fr; }
+    .pods-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-text">
+      <div class="header-eyebrow">Oliver · Pod-Aligned Collaboration</div>
+      <h1>Pod <span>Finder</span></h1>
+      <p class="header-sub">Search for any colleague to instantly see which pod they belong to, their Teams channel, and how to reach them.</p>
+      <div class="header-meta">
+        <span class="meta-pill"><strong>Go-live:</strong> April 27, 2026</span>
+        <span class="meta-pill"><strong>Status:</strong> Living Document</span>
+        <span class="meta-pill"><strong>Contact:</strong> Agnes Lech</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Search -->
+  <div class="search-card">
+    <h2>Find a colleague</h2>
+    <p>Start typing a name to see their pod, Teams channel, and role at Oliver.</p>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Type a name…"
+        oninput="handleSearch()"
+        onkeydown="handleKey(event)"
+        autocomplete="off"
+      />
+    </div>
+    <div class="suggestions-box" id="suggestions"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🔎</div>
+    <p>No one found matching <strong id="emptyQuery"></strong>.<br>
+    Try a different spelling, or browse by pod below.<br>
+    Once your employee list is loaded, all names will appear here.</p>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="resultCard"></div>
+
+  <!-- Browse by pod -->
+  <div class="browse-section" id="browseSection">
+    <div class="browse-label">Browse by pod</div>
+    <div class="pods-grid" id="podsGrid"></div>
+  </div>
+
+</div>
+
+<div style="max-width:900px;margin:0 auto 32px;padding:0 32px;">
+  <div style="background:#fff;border:1.5px solid #E0E8F2;border-radius:14px;padding:16px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+    <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#5A6A7A;">Key</span>
+    <span><span class="status-badge status-management">Mgmt</span> <span style="font-size:13px;color:#5A6A7A;">Management</span></span>
+    <span><span class="status-badge status-new">New</span> <span style="font-size:13px;color:#5A6A7A;">New member</span></span>
+    <span><span class="status-badge status-leave">Leave</span> <span style="font-size:13px;color:#5A6A7A;">Currently on leave</span></span>
+  </div>
+</div>
+
+<footer>
+  Oliver &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; Maintained by Agnes Lech
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   POD CONFIGURATION
+   To update pods: edit name, color, channels
+═══════════════════════════════════════════ */
+const POD_CONFIG = {
+  "Admin": {
+    color: "#1A4C77",
+    light: "#D6E8F7",
+    textDark: "#0C3554",
+    icon: "⚙️",
+    channel: "Oliver Admin",
+    subchannels: ["General", "Support Queue", "Product Release Notes", "Client channels"],
+    description: "Group Billing — Admin product features, issues, and updates"
+  },
+  "Multiplan": {
+    color: "#2D6A27",
+    light: "#D6EDD4",
+    textDark: "#1A4018",
+    icon: "📋",
+    channel: "Oliver Multi",
+    subchannels: ["General", "Support Queue", "Product Release Notes", "Client channels"],
+    description: "Hour Bank & Pension — Multiplan / Pension product development and support"
+  },
+  "Oliver GroupHEALTH": {
+    color: "#038C8C",
+    light: "#C8EDEC",
+    textDark: "#014040",
+    icon: "🏥",
+    channel: "Oliver GH",
+    subchannels: ["General", "Support Queue", "Product Release Notes", "GroupHEALTH", "GroupSource", "CBIG", "Underwriting"],
+    description: "GH products — WEBS, CRM, Partner Portal, MIRA, Sage Intact"
+  },
+  "Oliver Connect": {
+    color: "#5B2D8C",
+    light: "#EAD8F5",
+    textDark: "#3A1A60",
+    icon: "🔗",
+    channel: "Oliver Connect",
+    subchannels: ["General", "Support Queue", "Product Release Notes", "DMI"],
+    description: "Oliver Connect / CLA — Integrations, initiatives, and platform usage"
+  },
+  "Ollie TPA": {
+    color: "#C25A1A",
+    light: "#FAE5D3",
+    textDark: "#7A3410",
+    icon: "🛡️",
+    channel: "Oliver TPA",
+    subchannels: ["General", "Support Queue", "Product Release Notes", "Client channels TBA"],
+    description: "Administration — TPA workflows and client needs. Members TBA."
+  },
+  "Leadership": {
+    color: "#1A2330",
+    light: "#E4E8EE",
+    textDark: "#0C1420",
+    icon: "🏢",
+    channel: "Oliver Basecamp",
+    subchannels: ["Announcements", "General", "Team", "Events"],
+    description: "Steering Committee — Gerald Cole, Corwyn Amendt, Riyaad Ammantoola, Rao Thudi, Andrew MacLean"
+  },
+  "Shared Functions": {
+    color: "#5A6A7A",
+    light: "#E8ECF0",
+    textDark: "#2C3A4A",
+    icon: "🤝",
+    channel: "Oliver Basecamp",
+    subchannels: ["Announcements", "General", "Team", "Events"],
+    description: "Infrastructure · Operations · Enablement · Finance · HR · Sales · Marketing"
+  }
+};
+
+/* ═══════════════════════════════════════════
+   PEOPLE DATA
+   ⚠ Replace these placeholders with real names.
+   Each entry: { name, title, pod, role }
+   pod must match a key in POD_CONFIG exactly.
+═══════════════════════════════════════════ */
+const PEOPLE = [
+  /* ── LEADERSHIP ── */
+  { name: "Gerald Cole",              title: "Leadership",                   pod: "Leadership",          role: "Leadership" },
+  { name: "Corwyn Amendt",            title: "Leadership",                   pod: "Leadership",          role: "Leadership" },
+  { name: "Riyaad Ammantoola",        title: "Leadership / Sponsor",         pod: "Leadership",          role: "Executive Sponsor" },
+  { name: "Rao Thudi",                title: "Leadership",                   pod: "Leadership",          role: "Leadership" },
+  { name: "Andrew MacLean",           title: "Leadership",                   pod: "Leadership",          role: "Leadership" },
+
+  /* ── OLIVER ADMIN ── */
+  { name: "Lara Bell",                title: "Client Experience & Support",  pod: "Admin",               role: "Client Experience / Support" },
+  { name: "Soliat Yahaya",            title: "Client Experience & Support",  pod: "Admin",               role: "Client Experience / Support" },
+  { name: "Phillip Price",            title: "Client Experience & Support",  pod: "Admin",               role: "Management" },
+  { name: "Bhumika Bhardwaj",         title: "BA",                           pod: "Admin",               role: "Business Analysis" },
+  { name: "Odiong Eneh",              title: "BA",                           pod: "Admin",               role: "Business Analysis" },
+  { name: "Luciana Gomes Ferraz Fernandes Dias", title: "Dev & QA",          pod: "Admin",               role: "Development & QA" },
+  { name: "Chris Lin",                title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Ramana Guduru",            title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Gregory Pereira",          title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Marcos Martini",           title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Tiago Steil",              title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Marcelo Akira",            title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Kaue Castellani",          title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
+  { name: "Carlos Alberto Ventura Junior", title: "Dev & QA",                pod: "Admin",               role: "Management" },
+
+  /* ── OLIVER MULTI / PENSION ── */
+  { name: "Don Fermin",               title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
+  { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
+  { name: "Sharmila Gajendran",       title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
+  { name: "Yeshwanth Perumalla",      title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
+  { name: "Elena Tikhonova",          title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
+  { name: "Krishna Alloori",          title: "Dev & QA",                     pod: "Multiplan",           role: "New Member" },
+  { name: "Dinesh Reddy Medipally",   title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
+  { name: "Cleomar Kerber",           title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
+  { name: "Vinicius Rutsatz",         title: "Dev & QA",                     pod: "Multiplan",           role: "New Member" },
+
+  /* ── OLIVER GH ── */
+  { name: "Jason Ho",                 title: "Client Experience & Support",  pod: "Oliver GroupHEALTH", role: "Client Experience / Support" },
+  { name: "Charlon Ignacio",          title: "BA",                           pod: "Oliver GroupHEALTH", role: "Business Analysis" },
+  { name: "Hsin Chieh (Alice) Chien", title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
+  { name: "Torsten Lenk",             title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
+  { name: "Jerry Zhu",                title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
+  { name: "Graem Clark",              title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
+  { name: "Harneet Deol",             title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "On Leave" },
+  { name: "Aroldo Goulart",           title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
+  { name: "Viktor Pak",               title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Management" },
+
+  /* ── OLIVER CONNECT / CLA ── */
+  { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Oliver Connect",      role: "Management" },
+  { name: "Sri Raga Madhuri Velpula", title: "BA",                           pod: "Oliver Connect",      role: "Business Analysis" },
+  { name: "Jagpreet Sidhu (Johal)",   title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Daniel Talash",            title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Andre Fernandes Dias",     title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Augusto Consani",          title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Nychollas Della Monica",   title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Rodrigo Paris",            title: "Dev & QA",                     pod: "Oliver Connect",      role: "New Member" },
+  { name: "Vinicius Florencio",       title: "Dev & QA",                     pod: "Oliver Connect",      role: "New Member" },
+  { name: "Rafael Trevisan",          title: "Dev & QA",                     pod: "Oliver Connect",      role: "Development & QA" },
+  { name: "Pamela Naval",             title: "Dev & QA",                     pod: "Oliver Connect",      role: "Management" },
+
+  /* ── OLIVER TPA ── */
+  /* No members assigned yet — TPA is included in pod browse */
+
+  /* ── SHARED FUNCTIONS ── */
+  { name: "Fabio Pan",                title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
+  { name: "Siri Sagi",                title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
+  { name: "Luis Ernandes",            title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
+  { name: "Nicole Calderon",          title: "Operations / Enablement",      pod: "Shared Functions",    role: "Operations" },
+  { name: "Agnes Lech",               title: "Enablement",                   pod: "Shared Functions",    role: "Enablement" },
+];
+
+/* ═══════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════ */
+function getInitials(name) {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+}
+
+/* ═══════════════════════════════════════════
+   RENDER POD BROWSE CARDS
+═══════════════════════════════════════════ */
+function renderPodCards() {
+  const grid = document.getElementById('podsGrid');
+  const counts = {};
+  PEOPLE.forEach(p => { counts[p.pod] = (counts[p.pod] || 0) + 1; });
+  grid.innerHTML = Object.entries(POD_CONFIG).map(([name, cfg]) => `
+    <div class="pod-card" onclick="showPodView('${name}')">
+      <div class="pod-card-icon">${cfg.icon}</div>
+      <div class="pod-card-name">${name}</div>
+      <div class="pod-card-count"><span>${counts[name] || 0} members</span></div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════
+   SHOW POD VIEW
+═══════════════════════════════════════════ */
+function getStatusBadge(role) {
+  if (role === "Management") return '<span class="status-badge status-management">Mgmt</span>';
+  if (role === "New Member") return '<span class="status-badge status-new">New</span>';
+  if (role === "On Leave")   return '<span class="status-badge status-leave">Leave</span>';
+  return '';
+}
+
+function showPodView(podName) {
+  const cfg = POD_CONFIG[podName];
+  const members = PEOPLE.filter(p => p.pod === podName);
+  document.getElementById('searchInput').value = '';
+  document.getElementById('suggestions').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card visible';
+  card.innerHTML = `
+    <div class="pod-result-header">
+      <div class="pod-icon-box" style="background:${cfg.light};">${cfg.icon}</div>
+      <div>
+        <div class="pod-result-name" style="color:${cfg.textDark};">${podName}</div>
+        <div class="pod-result-desc">${cfg.description}</div>
+      </div>
+      <div class="pod-channel-badge" style="background:${cfg.light};color:${cfg.textDark};">${cfg.channel}</div>
+    </div>
+    <div class="members-label">Team members</div>
+    <div class="members-grid">
+      ${members.length === 0
+        ? `<div style="grid-column:1/-1;padding:16px;background:var(--grey);border-radius:10px;font-size:13px;color:var(--mid);text-align:center;">No members assigned yet — coming soon.</div>`
+        : members.map(m => `
+        <div class="member-row">
+          <div class="member-avatar" style="background:${cfg.light};color:${cfg.textDark};">${getInitials(m.name)}</div>
+          <div>
+            <div class="member-name">${m.name}${getStatusBadge(m.role)}</div>
+            <div class="member-role">${m.title}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="channels-label">Teams subchannels</div>
+    <div class="channels-row">
+      ${cfg.subchannels.map(s => `<span class="channel-tag">${s}</span>`).join('')}
+    </div>
+  `;
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ═══════════════════════════════════════════
+   SHOW PERSON RESULT
+═══════════════════════════════════════════ */
+function showPerson(person) {
+  const cfg = POD_CONFIG[person.pod];
+  document.getElementById('emptyState').style.display = 'none';
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card visible';
+  card.innerHTML = `
+    <div class="result-person-top">
+      <div class="result-avatar" style="background:${cfg.light};color:${cfg.textDark};">${getInitials(person.name)}</div>
+      <div>
+        <div class="result-name">${person.name}</div>
+        <div class="result-title">${person.title}</div>
+      </div>
+    </div>
+    <div class="pod-badge" style="background:${cfg.light};color:${cfg.textDark};">
+      <span class="pod-badge-icon">${cfg.icon}</span>
+      <span>${person.pod}</span>
+    </div>
+    <div class="result-grid">
+      <div class="result-field">
+        <div class="result-field-label">Teams channel</div>
+        <div class="result-field-value">${cfg.channel}</div>
+      </div>
+      <div class="result-field">
+        <div class="result-field-label">Role / Function</div>
+        <div class="result-field-value">${person.role}</div>
+      </div>
+    </div>
+    <div class="channels-label">Subchannels for this pod</div>
+    <div class="channels-row">
+      ${cfg.subchannels.map(s => `<span class="channel-tag">${s}</span>`).join('')}
+    </div>
+    <div class="pod-desc">${cfg.description}</div>
+  `;
+}
+
+/* ═══════════════════════════════════════════
+   SEARCH LOGIC
+═══════════════════════════════════════════ */
+let currentMatches = [];
+let selectedIndex = -1;
+
+function handleSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const sugEl = document.getElementById('suggestions');
+  const resultCard = document.getElementById('resultCard');
+  const emptyEl = document.getElementById('emptyState');
+  selectedIndex = -1;
+
+  if (!q) {
+    sugEl.style.display = 'none';
+    resultCard.className = 'result-card';
+    emptyEl.style.display = 'none';
+    return;
+  }
+
+  currentMatches = PEOPLE.filter(p => p.name.toLowerCase().includes(q));
+
+  if (currentMatches.length === 0) {
+    sugEl.style.display = 'none';
+    resultCard.className = 'result-card';
+    document.getElementById('emptyQuery').textContent = '"' + document.getElementById('searchInput').value + '"';
+    emptyEl.style.display = 'block';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+
+  if (currentMatches.length === 1) {
+    sugEl.style.display = 'none';
+    showPerson(currentMatches[0]);
+    return;
+  }
+
+  // Multiple matches: show suggestions
+  resultCard.className = 'result-card';
+  sugEl.style.display = 'block';
+  sugEl.innerHTML = currentMatches.slice(0, 8).map((p, i) => {
+    const cfg = POD_CONFIG[p.pod];
+    return `<div class="suggestion-item" data-idx="${i}" onclick="selectSuggestion(${i})">
+      <div class="sug-avatar" style="background:${cfg.light};color:${cfg.textDark};">${getInitials(p.name)}</div>
+      <div>
+        <div class="sug-name">${p.name}</div>
+        <div class="sug-pod">${cfg.icon} ${p.pod}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectSuggestion(idx) {
+  const person = currentMatches[idx];
+  document.getElementById('searchInput').value = person.name;
+  document.getElementById('suggestions').style.display = 'none';
+  showPerson(person);
+}
+
+function handleKey(e) {
+  const sugEl = document.getElementById('suggestions');
+  const items = sugEl.querySelectorAll('.suggestion-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+    updateHighlight(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    selectedIndex = Math.max(selectedIndex - 1, 0);
+    updateHighlight(items);
+  } else if (e.key === 'Enter' && selectedIndex >= 0) {
+    selectSuggestion(selectedIndex);
+  } else if (e.key === 'Escape') {
+    sugEl.style.display = 'none';
+  }
+}
+
+function updateHighlight(items) {
+  items.forEach((item, i) => {
+    item.classList.toggle('highlighted', i === selectedIndex);
+  });
+}
+
+/* ── Close suggestions on outside click ── */
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-card')) {
+    document.getElementById('suggestions').style.display = 'none';
+  }
+});
+
+/* ── Init ── */
+renderPodCards();
+</script>
+</body>
+</html>
