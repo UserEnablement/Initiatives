@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Korn Ferry Leadership Competencies</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Brand gradient palette from style guide */
+    --navy-dark: #1D5277;
+    --navy-mid: #081E3C;
+    --teal-bright: #45BF9D;
+    --teal-dark: #038C8C;
+    --blue-light: #B3D8F8;
+    --blue-mid: #3273AC;
+    --mint-light: #8CFFDF;
+    --mint-mid: #45BF9D;
+
+    /* Semantic tokens */
+    --ink: #081E3C;
+    --ink-mid: #1D5277;
+    --ink-light: #3273AC;
+    --paper: #f4f9fc;
+    --paper-warm: #eaf4f8;
+    --paper-deep: #d0e8f2;
+    --accent: #038C8C;
+    --accent-light: #e0f5f5;
+    --accent-mid: #45BF9D;
+    --skilled: #038C8C;
+    --skilled-bg: #e0f5f2;
+    --less: #1D5277;
+    --less-bg: #e8f2fa;
+    --talented: #3273AC;
+    --talented-bg: #deeef9;
+    --overused: #081E3C;
+    --overused-bg: #e4edf5;
+    --sidebar-w: 300px;
+    --header-h: 64px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  header {
+    height: var(--header-h);
+    background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-dark) 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+    flex: 1;
+  }
+  header span.sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--blue-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .counter-badge {
+    background: var(--teal-bright);
+    color: var(--navy-mid);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  aside {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--paper-warm);
+    border-right: 1px solid var(--paper-deep);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .search-wrap {
+    padding: 16px;
+    border-bottom: 1px solid var(--paper-deep);
+    flex-shrink: 0;
+  }
+  .search-wrap input {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--paper);
+    border: 1px solid var(--paper-deep);
+    border-radius: 6px;
+    padding: 8px 12px 8px 32px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a857f' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+  }
+  .search-wrap input:focus { border-color: var(--accent-mid); }
+  .search-wrap input::placeholder { color: var(--ink-light); }
+
+  .sort-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--paper-deep);
+  }
+  .sort-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    flex-shrink: 0;
+  }
+  .sort-btns { display: flex; gap: 4px; }
+  .sort-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid var(--paper-deep);
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink-mid);
+    transition: all 0.15s;
+  }
+  .sort-btn:hover { background: var(--paper-deep); }
+  .sort-btn.active { background: linear-gradient(135deg, var(--navy-dark), var(--navy-mid)); color: #fff; border-color: transparent; }
+
+  .cluster-nav {
+    padding: 8px 16px 10px;
+    flex-shrink: 0;
+  }
+  /* List item factor dot */
+  .item-factor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Detail card tags */
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .detail-cluster {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    background: var(--paper-warm);
+    color: var(--ink-mid);
+    border: 1px solid var(--paper-deep);
+  }
+  .detail-facet {
+    background: var(--paper-warm);
+    color: var(--ink-light);
+    border-color: var(--paper-deep);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+
+  /* Group labels in cluster sort */
+  .factor-group-label {
+    padding: 14px 16px 2px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    font-weight: 600;
+    border-top: 1px solid var(--paper-deep);
+    margin-top: 4px;
+  }
+  .factor-group-label:first-child { border-top: none; margin-top: 0; }
+  .facet-group-label {
+    padding: 4px 16px 4px 24px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .competency-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0 16px;
+  }
+  .competency-list::-webkit-scrollbar { width: 4px; }
+  .competency-list::-webkit-scrollbar-track { background: transparent; }
+  .competency-list::-webkit-scrollbar-thumb { background: var(--paper-deep); border-radius: 4px; }
+
+  .cluster-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    padding: 12px 16px 4px;
+  }
+
+  .comp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .comp-item:hover { background: var(--paper-deep); }
+  .comp-item.active {
+    background: var(--accent-light);
+    border-left-color: var(--teal-bright);
+  }
+  .comp-num {
+    font-size: 10px;
+    color: var(--ink-light);
+    font-weight: 300;
+    min-width: 18px;
+  }
+  .comp-item.active .comp-num { color: var(--teal-dark); }
+  .comp-name {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .comp-item.active .comp-name { font-weight: 500; color: var(--teal-dark); }
+  .comp-item.hidden { display: none; }
+
+  /* MAIN CONTENT */
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 48px;
+  }
+  main::-webkit-scrollbar { width: 4px; }
+  main::-webkit-scrollbar-track { background: transparent; }
+  main::-webkit-scrollbar-thumb { background: var(--paper-deep); border-radius: 4px; }
+
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    gap: 16px;
+    color: var(--ink-light);
+  }
+  .welcome-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+  .welcome h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .welcome p { font-size: 14px; line-height: 1.7; max-width: 340px; }
+
+  .comp-detail { display: none; }
+  .comp-detail.visible { display: block; animation: fadeUp 0.25s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--paper-deep);
+  }
+  .detail-num {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-dark);
+    margin-bottom: 8px;
+  }
+  .detail-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .definition-block {
+    background: var(--paper-warm);
+    border: 1px solid var(--paper-deep);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+  .definition-block p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    font-style: italic;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+  }
+
+  .expand-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--teal-dark);
+    border: 1.5px solid var(--teal-dark);
+    background: transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 32px;
+  }
+  .expand-btn:hover { background: var(--accent-light); }
+  .expand-btn svg { transition: transform 0.25s; flex-shrink: 0; }
+  .expand-btn.open svg { transform: rotate(180deg); }
+
+  .detail-panels {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    animation: fadeUp 0.2s ease;
+  }
+  .detail-panels.open { display: grid; }
+
+  .panel {
+    border-radius: 10px;
+    padding: 20px 22px;
+    border: 1px solid transparent;
+  }
+  .panel-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .panel ul { list-style: none; padding: 0; }
+  .panel ul li {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 5px 0;
+    padding-left: 14px;
+    position: relative;
+    color: var(--ink);
+  }
+  .panel ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  .panel.skilled { background: var(--skilled-bg); border-color: #9adece; }
+  .panel.skilled .panel-title { color: var(--skilled); }
+  .panel.skilled .panel-dot { background: var(--skilled); }
+
+  .panel.less { background: var(--less-bg); border-color: #a8c4de; }
+  .panel.less .panel-title { color: var(--less); }
+  .panel.less .panel-dot { background: var(--less); }
+
+  .panel.talented { background: var(--talented-bg); border-color: #90bce8; }
+  .panel.talented .panel-title { color: var(--talented); }
+  .panel.talented .panel-dot { background: var(--talented); }
+
+  .panel.overused { background: var(--overused-bg); border-color: #b0c8e0; }
+  .panel.overused .panel-title { color: var(--overused); }
+  .panel.overused .panel-dot { background: var(--overused); }
+
+  .no-results {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--ink-light);
+    font-size: 13px;
+    display: none;
+  }
+
+  @media (max-width: 700px) {
+    :root { --sidebar-w: 220px; }
+    main { padding: 24px 20px; }
+    .detail-title { font-size: 26px; }
+    .detail-panels { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Leadership Competency Library</h1>
+  <span class="sub">Korn Ferry</span>
+  <span class="counter-badge">38 competencies</span>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Search competencies..." autocomplete="off">
+    </div>
+    <div class="cluster-nav">
+      <div class="sort-row">
+        <span class="sort-label">Sort:</span>
+        <div class="sort-btns">
+          <button class="sort-btn active" data-sort="alpha" title="Alphabetical">A→Z</button>
+          <button class="sort-btn" data-sort="numeric" title="By number">#</button>
+          <button class="sort-btn" data-sort="cluster" title="By category">⊞</button>
+        </div>
+      </div>
+    </div>
+    <div class="competency-list" id="compList"></div>
+    <div class="no-results" id="noResults">No competencies match your search.</div>
+  </aside>
+
+  <main id="mainContent">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">◎</div>
+      <h2>Select a competency</h2>
+      <p>Choose from 38 leadership competencies on the left to explore its definition, skilled behaviours, and more.</p>
+    </div>
+    <div id="detailContainer"></div>
+  </main>
+</div>
+
+<script>
+const data = [
+  {
+    id: 1, name: "Ensures Accountability", cluster: "Executing",
+    definition: "Holding self and others accountable to meet commitments.",
+    skilled: ["Follows through on commitments and makes sure others do the same.", "Acts with a clear sense of ownership.", "Takes personal responsibility for decisions, actions, and failures.", "Establishes clear responsibilities and processes for monitoring work and measuring results.", "Designs feedback loops into work."],
+    less: ["Fails to accept a fair share of personal responsibility.", "Gathers little information about how things are going.", "Provides inadequate feedback; fails to help others adjust course midstream.", "Prefers to be one of many accountable for an assignment."],
+    talented: ["Assumes responsibility for the outcomes of others.", "Promotes a sense of urgency and establishes and enforces individual accountability in the team.", "Works with people to establish explicit performance standards.", "Is completely on top of what is going on and knows where things stand.", "Provides balanced feedback at the most critical times."],
+    overused: ["May not give appropriate credit to others.", "Strictly enforces accountability; doesn't consider situations beyond individuals' control.", "Focuses too much on numbers and hard data; measurement becomes a goal in itself."]
+  },
+  {
+    id: 2, name: "Action Oriented", cluster: "Executing",
+    definition: "Taking on new opportunities and tough challenges with a sense of urgency, high energy, and enthusiasm.",
+    skilled: ["Readily takes action on challenges, without unnecessary planning.", "Identifies and seizes new opportunities.", "Displays a can-do attitude in good and bad times.", "Steps up to handle tough issues."],
+    less: ["Is slow to act on an opportunity.", "Spends too much time planning and looking for information.", "May be overly methodical, taking too long to act on a problem.", "Is reluctant to step up to challenges; waits for someone else to take action."],
+    talented: ["Quickly and decisively takes action in fast-changing, unpredictable situations.", "Shows a tremendous amount of initiative in tough situations; is exceptional at spotting and seizing opportunities."],
+    overused: ["Pushes solutions before adequate analysis.", "May waste energy by immediately tackling an issue, forcing rework along the way.", "Is so ready to act alone, misses counsel from others."]
+  },
+  {
+    id: 3, name: "Manages Ambiguity", cluster: "Thought Leadership",
+    definition: "Operating effectively, even when things are not certain or the way forward is not clear.",
+    skilled: ["Deals comfortably with the uncertainty of change.", "Effectively handles risk.", "Can decide and act without the total picture.", "Is calm and productive, even when things are up in the air.", "Deals constructively with problems that do not have clear solutions or outcomes."],
+    less: ["Needs direction and structure to function effectively.", "Avoids situations where outcomes are unclear.", "Struggles to make decisions without complete information."],
+    talented: ["Functions extremely effectively, even when things are not clear or the way is not visible.", "Thrives in uncertainty and uses it as an opportunity to innovate."],
+    overused: ["May over-manage risk; too conservative in uncertain situations.", "Creates unnecessary structure where flexibility is needed."]
+  },
+  {
+    id: 4, name: "Attracts Top Talent", cluster: "People Leadership",
+    definition: "Attracting and selecting high-caliber people.",
+    skilled: ["Builds talent pipelines and networks.", "Assesses candidates comprehensively (skills, fit, potential).", "Creates compelling employment propositions.", "Moves quickly to secure top performers."],
+    less: ["Struggles to identify high-potential candidates.", "Fails to create attractive opportunities.", "Slow or ineffective recruitment processes."],
+    talented: ["Creates a magnet for exceptional talent.", "Reads people exceptionally well during selection.", "Builds a reputation as the place to work."],
+    overused: ["May overlook cultural fit in favor of technical skills.", "Takes too long perfecting the hire."]
+  },
+  {
+    id: 5, name: "Business Insight", cluster: "Thought Leadership",
+    definition: "Applying knowledge of how businesses work; understanding key business drivers.",
+    skilled: ["Knows how businesses work and make money.", "Understands industry and competitive dynamics.", "Identifies profitable growth opportunities.", "Thinks strategically about the business."],
+    less: ["Lacks commercial awareness.", "Focuses only on functional area.", "Misses broader business implications."],
+    talented: ["Has exceptional business acumen.", "Spots opportunities others miss.", "Connects dots across functions and markets."],
+    overused: ["Over-relies on short-term financial metrics.", "Neglects long-term strategic thinking."]
+  },
+  {
+    id: 6, name: "Collaborates", cluster: "Relationships",
+    definition: "Working cooperatively with others across groups to accomplish organizational goals.",
+    skilled: ["Readily puts organizational priorities before unit or division priorities.", "Contributes to team objectives.", "Works effectively with other functions.", "Forms partnerships for results."],
+    less: ["Works in silos; doesn't seek input from others.", "Prioritizes own area over organizational needs.", "Struggles to build cross-functional relationships."],
+    talented: ["Quickly builds cooperative relationships.", "Creates partnerships that produce exceptional results.", "Navigates organizational politics effectively."],
+    overused: ["May accommodate too much; avoids tough decisions.", "Takes too long reaching consensus."]
+  },
+  {
+    id: 7, name: "Communicates Effectively", cluster: "Relationships",
+    definition: "Developing and delivering multi-mode communications that convey a clear understanding of the unique needs of different audiences.",
+    skilled: ["Is effective in a variety of communication settings: one-on-one, small and large groups, or among diverse styles.", "Attentively listens to others.", "Adjusts to fit the audience and the message.", "Provides timely and helpful information to others across the organization.", "Encourages the open expression of diverse ideas and opinions."],
+    less: ["Has difficulty communicating clear written and verbal messages.", "Tends to always communicate the same way without adjusting to diverse audiences.", "Doesn't take the time to listen or understand others' viewpoints.", "Doesn't consistently share information others need to do their jobs."],
+    talented: ["Delivers messages in a clear, compelling, and concise manner.", "Actively listens and checks for understanding.", "Articulates messages in a way that is broadly understandable.", "Adjusts communication content and style to meet the needs of diverse stakeholders.", "Models and encourages the expression of diverse ideas and opinions."],
+    overused: ["May overinform, giving out information that isn't helpful or harms productivity.", "May try to win with style and communication skills over fact and substance.", "May invest too much time crafting communications."]
+  },
+  {
+    id: 8, name: "Manages Complexity", cluster: "Thought Leadership",
+    definition: "Making sense of complex, high quantity, and sometimes contradictory information to effectively solve problems.",
+    skilled: ["Asks the right questions to accurately analyze situations.", "Acquires data from multiple and diverse sources when solving problems.", "Uncovers root causes to difficult problems.", "Evaluates pros and cons, risks and benefits of different solution options."],
+    less: ["Misses the complexity of issues and force fits solutions.", "Doesn't gather sufficient information to assess situations completely.", "Relies solely on intuition, even when contrary information exists.", "Is caught off guard when problems surface without an obvious solution."],
+    talented: ["Readily distinguishes between what's relevant and what's unimportant.", "Looks beyond the obvious and doesn't stop at the first answers.", "Analyzes multiple and diverse sources of information to define problems accurately before moving to solutions."],
+    overused: ["May tend toward analysis paralysis.", "May wait too long to come to a conclusion.", "May get caught up in the process and miss the big picture.", "May make things more complex than needed."]
+  },
+  {
+    id: 9, name: "Manages Conflict", cluster: "Relationships",
+    definition: "Handling conflict situations effectively, with a minimum of noise.",
+    skilled: ["Steps up to conflicts, seeing them as opportunities.", "Works out tough agreements and settles disputes equitably.", "Facilitates breakthroughs by integrating diverse views and finding common ground.", "Settles differences in productive ways with minimum noise."],
+    less: ["Avoids conflict.", "Struggles to make progress when working through disagreements.", "Takes sides without digging deeply enough to fully understand the issues.", "Allows conflicts to cause massive disruption in the organization.", "May accommodate, wanting everyone to get along."],
+    talented: ["Anticipates conflicts before they happen, based on knowledge of interpersonal and group dynamics.", "Asks questions and listens closely to all issues presented by stakeholders.", "Finds common ground and drives to consensus, ensuring that all feel heard.", "Defuses high-tension situations effectively."],
+    overused: ["May be seen as meddling in others' issues.", "Is too eager to engage others in debate.", "Pushes for resolution before others are ready."]
+  },
+  {
+    id: 10, name: "Courage", cluster: "Personal Effectiveness",
+    definition: "Stepping up to address difficult issues, saying what needs to be said.",
+    skilled: ["Readily tackles tough assignments.", "Faces difficult issues and supports others who do the same.", "Provides direct and actionable feedback.", "Is willing to champion an idea or position despite dissent or political risk."],
+    less: ["Shies away from difficult issues or challenging assignments.", "Expresses point of view in an indirect manner.", "Avoids giving corrective feedback.", "Fails to take a stand on important issues."],
+    talented: ["Tackles difficult issues with optimism and confidence.", "Shares sensitive messages or unpopular points of view in a motivating manner.", "Lets people know where they stand, honestly and sensitively.", "Volunteers to tackle and lead tough assignments."],
+    overused: ["Struggles to identify which battles to take on and when to back down.", "Shares point of view on everything and could be seen as intimidating or a know-it-all.", "Communicates bluntly and fails to recognize the impact on relationships.", "Neglects own work in favor of getting involved in multiple difficult issues."]
+  },
+  {
+    id: 11, name: "Customer Focus", cluster: "Executing",
+    definition: "Building strong customer relationships and delivering buyer value.",
+    skilled: ["Builds and maintains effective long-term customer relationships.", "Anticipates customer needs and identifies new opportunities.", "Gains insight into customer priorities and balances with business needs.", "Establishes effective customer service processes."],
+    less: ["Shows little interest in customer issues.", "Ignores customer complaints or needs.", "Treats customers impersonally.", "Fails to understand customer priorities."],
+    talented: ["Creates customer loyalty beyond reason.", "Is the customer's number one advocate.", "Understands every nuance of customer expectations.", "Creates customer value propositions that are compelling."],
+    overused: ["May cater too much to certain customers at expense of others.", "Gives too much away to keep customers happy.", "Avoids tough customer conversations."]
+  },
+  {
+    id: 12, name: "Decision Quality", cluster: "Thought Leadership",
+    definition: "Making good decisions based on analysis, wisdom, experience, and judgment.",
+    skilled: ["Makes sound decisions using analysis, wisdom, experience, and judgment.", "Considers key factors and tradeoffs.", "Seeks input from others when needed.", "Makes timely decisions with incomplete information."],
+    less: ["Makes decisions hastily without considering alternatives.", "Makes decisions without sufficient information.", "Defers decisions unnecessarily.", "Makes decisions based on single source of information."],
+    talented: ["Makes decisions of exceptional quality.", "Anticipates downstream consequences.", "Integrates multiple sources of information.", "Creates decision-making processes that others can follow."],
+    overused: ["May overanalyze and delay decisions.", "May be too analytical and ignore intuition.", "Takes on too many decisions personally."]
+  },
+  {
+    id: 13, name: "Develops Talent", cluster: "People Leadership",
+    definition: "Developing people to meet both their career goals and organizational goals.",
+    skilled: ["Places the right people in the right jobs.", "Delegates significant assignments for development.", "Provides timely and constructive feedback.", "Creates a development culture."],
+    less: ["Doesn't help people develop.", "Gives assignments based on personal needs.", "Gives little feedback or coaching.", "Doesn't differentiate talent."],
+    talented: ["Is a people builder.", "Has succession candidates ready.", "Creates a learning culture.", "Develops talent systematically."],
+    overused: ["May focus too much on development vs. results.", "May overload people with stretch assignments.", "May not differentiate enough between talent levels."]
+  },
+  {
+    id: 14, name: "Values Differences", cluster: "People Leadership",
+    definition: "Recognizing the value different perspectives and backgrounds bring to an organization.",
+    skilled: ["Creates an inclusive environment.", "Solicits diverse perspectives.", "Respects others' backgrounds and experiences.", "Leverages diversity for better decisions."],
+    less: ["Ignores or stereotypes differences.", "Shows little interest in others' backgrounds.", "Creates exclusive environments.", "Values similarity over diversity."],
+    talented: ["Builds highly inclusive cultures.", "Leverages diversity for innovation.", "Creates psychological safety.", "Champions diversity initiatives."],
+    overused: ["May overemphasize differences at expense of common goals.", "May avoid tough diversity conversations.", "May be seen as too politically correct."]
+  },
+  {
+    id: 15, name: "Directs Work", cluster: "People Leadership",
+    definition: "Providing direction, delegating, motivating, and developing staff.",
+    skilled: ["Delegates effectively.", "Sets clear expectations and standards.", "Monitors progress and takes corrective action.", "Motivates and develops team members."],
+    less: ["Fails to delegate appropriately.", "Gives unclear direction.", "Doesn't monitor work effectively.", "Micro-manages or abdicates."],
+    talented: ["Creates high performance expectations.", "Delegates strategically for development.", "Motivates diverse teams.", "Builds team capacity."],
+    overused: ["May delegate too much or too little.", "May be too hands-on with experienced staff.", "May overlook individual motivation needs."]
+  },
+  {
+    id: 16, name: "Drives Engagement", cluster: "People Leadership",
+    definition: "Creating a climate where people are motivated to do their best.",
+    skilled: ["Understands what motivates others.", "Creates motivating environment.", "Recognizes and celebrates achievements.", "Removes obstacles to performance."],
+    less: ["Creates demotivating environment.", "Ignores motivation factors.", "Focuses only on results, not people.", "Fails to recognize good work."],
+    talented: ["Creates exceptional engagement cultures.", "Understands individual motivators deeply.", "Builds intrinsic motivation.", "Creates positive emotional climates."],
+    overused: ["May overemphasize recognition vs. results.", "May try to motivate everyone the same way.", "May avoid tough performance conversations."]
+  },
+  {
+    id: 17, name: "Financial Acumen", cluster: "Thought Leadership",
+    definition: "Understanding financial concepts and interpreting financial statements.",
+    skilled: ["Understands P&L and balance sheets.", "Makes sound financial decisions.", "Uses financial data to drive decisions.", "Manages budgets effectively."],
+    less: ["Lacks financial literacy.", "Makes poor financial decisions.", "Ignores financial implications.", "Fears financial discussions."],
+    talented: ["Has exceptional financial intuition.", "Creates financial value consistently.", "Translates financial concepts for others.", "Anticipates financial consequences."],
+    overused: ["May be too financially focused.", "May cut costs indiscriminately.", "May overwhelm others with financial data."]
+  },
+  {
+    id: 18, name: "Global Perspective", cluster: "Thought Leadership",
+    definition: "Taking a broad view when approaching issues; considering global trends.",
+    skilled: ["Understands global business dynamics.", "Thinks beyond local markets.", "Adapts to cultural differences.", "Identifies global opportunities."],
+    less: ["Has local-only mindset.", "Ignores global trends.", "Struggles with cultural differences.", "Thinks small picture only."],
+    talented: ["Has true global mindset.", "Creates global strategies.", "Bridges cultural gaps effectively.", "Anticipates global shifts."],
+    overused: ["May ignore local nuances.", "May overgeneralize global trends.", "May neglect domestic priorities."]
+  },
+  {
+    id: 19, name: "Cultivates Innovation", cluster: "Thought Leadership",
+    definition: "Creating new and imaginative approaches to business challenges.",
+    skilled: ["Encourages innovative thinking.", "Challenges status quo.", "Supports experimentation.", "Creates innovation culture."],
+    less: ["Discourages new ideas.", "Sticks to conventional approaches.", "Fears failure.", "Stifles creativity."],
+    talented: ["Creates breakthrough innovations.", "Fosters entrepreneurial culture.", "Manages innovation process.", "Commercializes ideas effectively."],
+    overused: ["May chase too many ideas.", "May be too experimental.", "May neglect proven approaches."]
+  },
+  {
+    id: 20, name: "Interpersonal Savvy", cluster: "Relationships",
+    definition: "Relating openly and comfortably with diverse groups of people.",
+    skilled: ["Relates well to all kinds of people.", "Builds rapport quickly.", "Reads situations and people accurately.", "Adjusts style to different personalities."],
+    less: ["Struggles with relationships.", "Is uncomfortable with certain people.", "Misreads social situations.", "Doesn't adapt to others."],
+    talented: ["Has exceptional people skills.", "Creates instant connections.", "Navigates complex social situations.", "Influences without authority."],
+    overused: ["May be too relationship-focused.", "May avoid tough conversations.", "May accommodate too much."]
+  },
+  {
+    id: 21, name: "Builds Networks", cluster: "Relationships",
+    definition: "Effectively building formal and informal relationship networks inside and outside the organization.",
+    skilled: ["Identifies relationship-building opportunities.", "Maintains broad network of contacts.", "Works through networks to get things done.", "Leverages relationships for organizational benefit."],
+    less: ["Doesn't invest in relationships.", "Has narrow, ineffective networks.", "Fails to leverage connections.", "Is uncomfortable networking."],
+    talented: ["Builds powerful, strategic networks.", "Gets things done through relationships.", "Creates mutually beneficial connections.", "Navigates organizational networks expertly."],
+    overused: ["May spend too much time networking.", "May rely too heavily on relationships.", "May neglect direct work."]
+  },
+  {
+    id: 22, name: "Nimble Learning", cluster: "Personal Effectiveness",
+    definition: "Actively learning through experimentation when facing new problems and experiences.",
+    skilled: ["Quickly learns new skills and knowledge.", "Enjoys learning and self-development.", "Applies learning effectively.", "Seeks out learning opportunities."],
+    less: ["Resists learning new things.", "Learns slowly or ineffectively.", "Doesn't apply what is learned.", "Avoids challenges requiring new learning."],
+    talented: ["Masters new skills exceptionally quickly.", "Turns experience into systematic learning.", "Creates learning culture around them.", "Learns from every experience."],
+    overused: ["May jump to new learning too quickly.", "May neglect deep expertise.", "Always chasing latest trends."]
+  },
+  {
+    id: 23, name: "Organizational Savvy", cluster: "Relationships",
+    definition: "Maneuvering effectively through complex organizational politics and dynamics.",
+    skilled: ["Understands organizational culture and politics.", "Anticipates political obstacles.", "Builds alliances strategically.", "Navigates bureaucracy effectively."],
+    less: ["Naive about organizational politics.", "Creates unnecessary conflicts.", "Struggles with power dynamics.", "Alienates key stakeholders."],
+    talented: ["Masters organizational politics.", "Builds coalitions across boundaries.", "Anticipates and manages political risks.", "Gets things done in complex environments."],
+    overused: ["May be too political or manipulative.", "May spend too much energy on politics.", "Loses sight of organizational goals."]
+  },
+  {
+    id: 24, name: "Persuades", cluster: "Relationships",
+    definition: "Gaining the support and commitment of others by appealing to their self-interests.",
+    skilled: ["Presents arguments effectively.", "Understands others' interests and motivations.", "Uses multiple approaches to persuade.", "Gains commitment without coercion."],
+    less: ["Poor at influencing others.", "Uses one-size-fits-all approach.", "Doesn't understand others' motivations.", "Relies on position power."],
+    talented: ["Highly persuasive across diverse audiences.", "Wins people over completely.", "Creates win-win outcomes.", "Influences without formal authority."],
+    overused: ["May be too persuasive or salesy.", "May manipulate rather than persuade.", "Pushes too hard for agreement."]
+  },
+  {
+    id: 25, name: "Plans and Aligns", cluster: "Executing",
+    definition: "Planning and prioritizing work to meet commitments aligned with organizational goals.",
+    skilled: ["Develops effective plans.", "Prioritizes key objectives.", "Aligns team efforts with organizational goals.", "Monitors and adjusts plans."],
+    less: ["Poor planning and organization.", "Misses deadlines and commitments.", "Doesn't align with organizational priorities.", "Overcommits or underdelivers."],
+    talented: ["Creates flawless execution plans.", "Aligns entire organizations.", "Anticipates obstacles and adjusts.", "Delivers consistently on time."],
+    overused: ["May overplan and under-execute.", "May be too rigid with plans.", "Micro-manages planning process."]
+  },
+  {
+    id: 26, name: "Being Resilient", cluster: "Personal Effectiveness",
+    definition: "Rebounding from setbacks and adversity.",
+    skilled: ["Maintains performance under pressure.", "Recovers quickly from setbacks.", "Manages stress effectively.", "Stays positive through challenges."],
+    less: ["Crumbles under pressure.", "Takes setbacks personally.", "Loses motivation when facing obstacles.", "Burnout-prone."],
+    talented: ["Thrives under extreme pressure.", "Turns setbacks into opportunities.", "Extraordinary stress management.", "Inspires resilience in others."],
+    overused: ["May ignore legitimate stress signals.", "May push too hard without recovery.", "Takes on too much personally."]
+  },
+  {
+    id: 27, name: "Resourcefulness", cluster: "Executing",
+    definition: "Securing and deploying resources effectively to get things done.",
+    skilled: ["Finds unconventional ways to solve problems.", "Leverages available resources creatively.", "Gets things done despite constraints.", "Thinks entrepreneurially."],
+    less: ["Complains about lack of resources.", "Waits for perfect conditions.", "Conventional thinking only.", "Resource-constrained mindset."],
+    talented: ["Extraordinary resourcefulness.", "Creates resources where none existed.", "Entrepreneurial problem-solving.", "Turns constraints into advantages."],
+    overused: ["May take too many risks.", "May bypass proper channels.", "Always reinventing the wheel."]
+  },
+  {
+    id: 28, name: "Drives Results", cluster: "Executing",
+    definition: "Consistently achieving results, even under tough conditions.",
+    skilled: ["Pushes self and others to achieve results.", "Maintains focus on key priorities.", "Takes initiative to exceed expectations.", "Delivers consistently."],
+    less: ["Misses targets and commitments.", "Makes excuses for poor performance.", "Lacks urgency and drive.", "Easily distracted."],
+    talented: ["Extraordinary results delivery.", "Creates culture of high performance.", "Exceeds expectations consistently.", "Turns around poor performance."],
+    overused: ["May push too hard for results.", "Short-term focus only.", "Burns people out."]
+  },
+  {
+    id: 29, name: "Demonstrates Self-Awareness", cluster: "Personal Effectiveness",
+    definition: "Knowing own strengths, weaknesses, and impact on others.",
+    skilled: ["Genuinely understands own capabilities.", "Seeks feedback actively.", "Aware of own impact on others.", "Manages own development effectively."],
+    less: ["Lacks self-awareness.", "Defends weaknesses rather than improving.", "Unaware of impact on others.", "Overestimates own capabilities."],
+    talented: ["Exceptional self-awareness.", "Turns feedback into development.", "Manages blind spots effectively.", "Models self-awareness for others."],
+    overused: ["May be overly self-critical.", "May dwell on weaknesses.", "Seeks feedback excessively."]
+  },
+  {
+    id: 30, name: "Self-Development", cluster: "Personal Effectiveness",
+    definition: "Actively seeks out development opportunities and feedback.",
+    skilled: ["Actively seeks learning opportunities.", "Improves continuously.", "Seeks and acts on feedback.", "Takes ownership of development."],
+    less: ["Avoids development opportunities.", "Resistant to feedback.", "Blames others for development gaps.", "Complacent about skills."],
+    talented: ["Lifelong learner par excellence.", "Creates own development path.", "Turns every experience into learning.", "Models continuous improvement."],
+    overused: ["May focus too much on self-development.", "Neglects team development.", "Always in learning mode, slow to act."]
+  },
+  {
+    id: 31, name: "Situational Adaptability", cluster: "Personal Effectiveness",
+    definition: "Adapting approach and demeanor in real time to match the shifting demands of different situations.",
+    skilled: ["Adapts quickly to changing priorities.", "Reads situations accurately and adjusts.", "Flexible in approach and style.", "Maintains effectiveness in changing environments."],
+    less: ["Rigid in approach and style.", "Struggles with change.", "Doesn't read situational demands.", "Inflexible under pressure."],
+    talented: ["Masterful adaptability.", "Thrives in chaos and ambiguity.", "Shifts styles seamlessly.", "Anticipates need for change."],
+    overused: ["May change too frequently.", "May lack consistency.", "Appears opportunistic."]
+  },
+  {
+    id: 32, name: "Balances Stakeholders", cluster: "Relationships",
+    definition: "Considering and appropriately responding to the needs and concerns of different stakeholders.",
+    skilled: ["Identifies key stakeholders and their needs.", "Balances competing stakeholder interests.", "Builds stakeholder trust and support.", "Communicates effectively with diverse groups."],
+    less: ["Ignores stakeholder needs.", "Plays favorites with stakeholders.", "Poor stakeholder management.", "Creates stakeholder conflicts."],
+    talented: ["Exceptional stakeholder management.", "Creates win-win stakeholder solutions.", "Builds long-term stakeholder alliances.", "Navigates complex stakeholder dynamics."],
+    overused: ["May try to please everyone.", "May avoid tough stakeholder decisions.", "Indecisive due to stakeholder balancing."]
+  },
+  {
+    id: 33, name: "Strategic Mindset", cluster: "Thought Leadership",
+    definition: "Seeing ahead into the future and not being bound by a short-term view.",
+    skilled: ["Sees the big picture and long-term implications.", "Thinks strategically about the business.", "Balances short- and long-term priorities.", "Creates strategic alignment."],
+    less: ["Short-term tactical focus only.", "Misses strategic implications.", "Reactive rather than proactive.", "Lacks strategic vision."],
+    talented: ["Exceptional strategic thinking.", "Creates compelling long-term vision.", "Anticipates future trends accurately.", "Translates strategy into action."],
+    overused: ["May be too abstract or strategic.", "Neglects tactical execution.", "Overcomplicates with strategy."]
+  },
+  {
+    id: 34, name: "Builds Effective Teams", cluster: "People Leadership",
+    definition: "Building strong team identity and commitment.",
+    skilled: ["Creates team spirit and identity.", "Fosters collaboration and trust.", "Manages team dynamics effectively.", "Aligns team around common goals."],
+    less: ["Creates dysfunctional teams.", "Fails to build team cohesion.", "Poor team leadership.", "Allows destructive dynamics."],
+    talented: ["Builds world-class teams.", "Creates exceptional team performance.", "Manages diversity effectively.", "Sustains high team performance."],
+    overused: ["May be too team-focused.", "Slow decisions due to consensus.", "Difficulty with individual accountability."]
+  },
+  {
+    id: 35, name: "Tech Savvy", cluster: "Thought Leadership",
+    definition: "Understanding relevant technology trends and applications.",
+    skilled: ["Understands key technology trends.", "Applies technology effectively.", "Learns new technologies quickly.", "Leverages tech for business advantage."],
+    less: ["Technologically illiterate.", "Resists new technology.", "Fails to leverage tech opportunities.", "Fearful of technology."],
+    talented: ["Technology visionary.", "Creates competitive advantage through tech.", "Rapid technology adopter.", "Translates tech for business leaders."],
+    overused: ["May overemphasize technology.", "Tech for tech's sake.", "Ignores human elements."]
+  },
+  {
+    id: 36, name: "Instills Trust", cluster: "Personal Effectiveness",
+    definition: "Gaining the confidence and trust of others through honesty, integrity, and authenticity.",
+    skilled: ["Follows through on commitments.", "Honest and ethical.", "Creates safe environment.", "Treats people with respect."],
+    less: ["Breaks trust frequently.", "Lacks integrity.", "Creates fearful environment.", "Manipulative or dishonest."],
+    talented: ["Extraordinary trust builder.", "Creates cultures of high trust.", "Recovers from trust breaches.", "Models vulnerability appropriately."],
+    overused: ["May be too naive or trusting.", "Avoids necessary conflict.", "Overly transparent inappropriately."]
+  },
+  {
+    id: 37, name: "Drives Vision and Purpose", cluster: "Executing",
+    definition: "Articulating and championing a compelling vision and purpose.",
+    skilled: ["Communicates clear vision.", "Inspires others with purpose.", "Aligns organization to vision.", "Models visionary leadership."],
+    less: ["Lacks clear vision.", "Fails to inspire.", "Vision not communicated.", "Short-term focus only."],
+    talented: ["Transformational visionary.", "Creates shared sense of purpose.", "Sustains vision through adversity.", "Mobilizes entire organizations."],
+    overused: ["May be too idealistic.", "Disconnect between vision and reality.", "Over-communicates vision."]
+  },
+  {
+    id: 38, name: "Optimizes Work Processes", cluster: "Executing",
+    definition: "Knowing how to establish and maintain effective work processes.",
+    skilled: ["Designs efficient processes.", "Continuously improves workflows.", "Eliminates waste and redundancies.", "Implements effective systems."],
+    less: ["Tolerates inefficient processes.", "Resistant to process improvement.", "Creates unnecessary complexity.", "Poor implementation."],
+    talented: ["Process excellence expert.", "Creates world-class operations.", "Systematic continuous improvement.", "Balances efficiency and flexibility."],
+    overused: ["May over-engineer processes.", "Creates too much structure.", "Process becomes the goal, not the outcome."]
+  }
+];
+
+// ── KF Taxonomy: Factor → Facet mapping ───────────────────────────────────────
+const taxonomy = [
+  {
+    factor: "I", factorName: "Thought",
+    facets: [
+      { code: "A", name: "Understanding the Business", ids: [5, 11, 17, 35] },
+      { code: "B", name: "Making Complex Decisions",   ids: [8, 12, 32] },
+      { code: "C", name: "Creating the New and Different", ids: [18, 19, 33] }
+    ]
+  },
+  {
+    factor: "II", factorName: "Results",
+    facets: [
+      { code: "D", name: "Taking Initiative",      ids: [2, 27] },
+      { code: "E", name: "Managing Execution",     ids: [15, 25, 38] },
+      { code: "F", name: "Focusing on Performance",ids: [1, 28] }
+    ]
+  },
+  {
+    factor: "III", factorName: "People",
+    facets: [
+      { code: "G", name: "Building Collaborative Relationships", ids: [6, 9, 20, 21] },
+      { code: "H", name: "Optimizing Diverse Talent",            ids: [4, 13, 14, 34] },
+      { code: "I", name: "Influencing People",                   ids: [7, 16, 23, 24, 37] }
+    ]
+  },
+  {
+    factor: "IV", factorName: "Self",
+    facets: [
+      { code: "J", name: "Being Authentic",              ids: [10, 36] },
+      { code: "K", name: "Being Open",                   ids: [29, 30] },
+      { code: "L", name: "Being Flexible and Adaptable", ids: [3, 22, 26, 31] }
+    ]
+  }
+];
+
+// Enrich data with factor/facet info
+taxonomy.forEach(f => {
+  f.facets.forEach(facet => {
+    facet.ids.forEach(id => {
+      const comp = data.find(d => d.id === id);
+      if (comp) { comp.factor = f.factor; comp.factorName = f.factorName; comp.facetCode = facet.code; comp.facetName = facet.name; }
+    });
+  });
+});
+
+// Factor colour map
+const factorColors = {
+  "I":   { bg: "#e0f5f2", border: "#9adece", text: "#038C8C" },
+  "II":  { bg: "#deeef9", border: "#90bce8", text: "#3273AC" },
+  "III": { bg: "#e8f2fa", border: "#a8c4de", text: "#1D5277" },
+  "IV":  { bg: "#e4edf5", border: "#b0c8e0", text: "#081E3C" }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeId = null;
+let sortMode = "alpha";
+
+// Sort buttons
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    sortMode = btn.dataset.sort;
+    renderList(document.getElementById('search').value);
+  };
+});
+
+// ── Render list ───────────────────────────────────────────────────────────────
+function renderList(query = '') {
+  const list = document.getElementById('compList');
+  const noRes = document.getElementById('noResults');
+  list.innerHTML = '';
+  const q = query.toLowerCase().trim();
+
+  let filtered = data.filter(d =>
+    !q || d.name.toLowerCase().includes(q) || d.definition.toLowerCase().includes(q)
+  );
+
+  if (filtered.length === 0) { noRes.style.display = 'block'; return; }
+  noRes.style.display = 'none';
+
+  if (sortMode === 'alpha') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+    filtered.forEach(comp => list.appendChild(makeItem(comp)));
+
+  } else if (sortMode === 'numeric') {
+    filtered.sort((a, b) => a.id - b.id);
+    filtered.forEach(comp => list.appendChild(makeItem(comp)));
+
+  } else if (sortMode === 'cluster') {
+    // Group by Factor → Facet
+    taxonomy.forEach(f => {
+      f.facets.forEach(facet => {
+        const items = filtered.filter(d => d.facetCode === facet.code);
+        if (items.length === 0) return;
+        const fc = factorColors[f.factor];
+
+        const factorLabel = document.createElement('div');
+        factorLabel.className = 'cluster-label factor-group-label';
+        factorLabel.innerHTML = `<span style="color:${fc.text};font-weight:600">Factor ${f.factor}: ${f.factorName}</span>`;
+        list.appendChild(factorLabel);
+
+        const facetLabel = document.createElement('div');
+        facetLabel.className = 'cluster-label facet-group-label';
+        facetLabel.textContent = `${facet.code}. ${facet.name}`;
+        list.appendChild(facetLabel);
+
+        items.sort((a, b) => a.id - b.id);
+        items.forEach(comp => list.appendChild(makeItem(comp)));
+      });
+    });
+  }
+}
+
+function makeItem(comp) {
+  const el = document.createElement('div');
+  el.className = 'comp-item' + (comp.id === activeId ? ' active' : '');
+  el.dataset.id = comp.id;
+  const fc = comp.factor ? factorColors[comp.factor] : null;
+  const dot = fc ? `<span class="item-factor-dot" style="background:${fc.text}"></span>` : '';
+  el.innerHTML = `<span class="comp-num">${comp.id}</span>${dot}<span class="comp-name">${comp.name}</span>`;
+  el.onclick = () => selectComp(comp.id);
+  return el;
+}
+
+function selectComp(id) {
+  activeId = id;
+  const comp = data.find(d => d.id === id);
+  document.querySelectorAll('.comp-item').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.id) === id);
+  });
+  document.getElementById('welcome').style.display = 'none';
+
+  const fc = comp.factor ? factorColors[comp.factor] : null;
+  const facetTag = comp.factorName ? `
+    <span class="detail-cluster" style="background:${fc.bg};border-color:${fc.border};color:${fc.text}">
+      Factor ${comp.factor}: ${comp.factorName}
+    </span>
+    <span class="detail-cluster detail-facet">
+      ${comp.facetCode}. ${comp.facetName}
+    </span>` : `<span class="detail-cluster">${comp.cluster}</span>`;
+
+  const container = document.getElementById('detailContainer');
+  container.innerHTML = `
+    <div class="comp-detail visible" id="detail-${id}">
+      <div class="detail-header">
+        <div class="detail-num">Competency ${comp.id} of 38</div>
+        <h2 class="detail-title">${comp.name}</h2>
+        <div class="detail-tags">${facetTag}</div>
+      </div>
+      <div class="definition-block">
+        <p>${comp.definition}</p>
+      </div>
+      <button class="expand-btn" id="expandBtn" onclick="togglePanels()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        Show skilled, less skilled, talented &amp; overused
+      </button>
+      <div class="detail-panels" id="detailPanels">
+        <div class="panel skilled">
+          <div class="panel-title"><span class="panel-dot"></span>Skilled</div>
+          <ul>${comp.skilled.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="panel less">
+          <div class="panel-title"><span class="panel-dot"></span>Less Skilled</div>
+          <ul>${comp.less.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="panel talented">
+          <div class="panel-title"><span class="panel-dot"></span>Talented</div>
+          <ul>${comp.talented.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="panel overused">
+          <div class="panel-title"><span class="panel-dot"></span>Overused Skill</div>
+          <ul>${comp.overused.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function togglePanels() {
+  const panels = document.getElementById('detailPanels');
+  const btn = document.getElementById('expandBtn');
+  const open = panels.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.innerHTML = open
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Hide details`
+    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg> Show skilled, less skilled, talented &amp; overused`;
+}
+
+document.getElementById('search').addEventListener('input', e => renderList(e.target.value));
+
+renderList();
+</script>
+</body>
+</html>
