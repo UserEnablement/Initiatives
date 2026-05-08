@@ -431,7 +431,6 @@
   <div style="background:#fff;border:1.5px solid #E0E8F2;border-radius:14px;padding:16px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
     <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#5A6A7A;">Key</span>
     <span><span class="status-badge status-management">Mgmt</span> <span style="font-size:13px;color:#5A6A7A;">Management</span></span>
-    <span><span class="status-badge status-new">New</span> <span style="font-size:13px;color:#5A6A7A;">New member</span></span>
     <span><span class="status-badge status-leave">Leave</span> <span style="font-size:13px;color:#5A6A7A;">Currently on leave</span></span>
     <span><span class="status-badge status-parttime">PT</span> <span style="font-size:13px;color:#5A6A7A;">Part-time</span></span>
   </div>
@@ -531,7 +530,7 @@ const PEOPLE = [
   { name: "Soliat Yahaya",            title: "Client Experience & Support",  pod: "Admin",               role: "Client Experience / Support" },
   { name: "Phillip Price",            title: "Client Experience & Support",  pod: "Admin",               role: "Management" },
   { name: "Bhumika Bhardwaj",         title: "BA",                           pod: "Admin",               role: "Business Analysis" },
-  { name: "Odiong Eneh",              title: "BA",                           pod: "Admin",               role: "Management" },
+  { name: "Odiong Eneh",              title: "BA",                           pod: "Admin",               role: "Business Analysis" },
   { name: "Luciana Gomes Ferraz Fernandes Dias", title: "Dev & QA",          pod: "Admin",               role: "Development & QA" },
   { name: "Chris Lin",                title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
   { name: "Ramana Guduru",            title: "Dev & QA",                     pod: "Admin",               role: "Development & QA" },
@@ -577,7 +576,7 @@ const PEOPLE = [
   { name: "Pamela Naval",             title: "Dev & QA",                     pod: "Oliver Connect",      role: "Management" },
 
   /* ── OLLIE PPA ── */
-  /* No members assigned yet — PPA is included in pod browse */
+  { name: "Marie Inacio",             title: "Benefits Administration Manager", pod: "Ollie PPA",        role: "Management" },
 
   /* ── SHARED FUNCTIONS ── */
   { name: "Fabio Pan",                title: "Infrastructure",               pod: "Shared Functions",    role: "Infrastructure" },
@@ -615,7 +614,6 @@ function renderPodCards() {
 ═══════════════════════════════════════════ */
 function getStatusBadge(role) {
   if (role === "Management") return '<span class="status-badge status-management">Mgmt</span>';
-  if (role === "New Member") return '<span class="status-badge status-new">New</span>';
   if (role === "On Leave")   return '<span class="status-badge status-leave">Leave</span>';
   if (role === "Part-Time")  return '<span class="status-badge status-parttime">PT</span>';
   return '';
