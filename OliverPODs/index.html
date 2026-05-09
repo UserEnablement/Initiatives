@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oliver — Pod Finder</title>
+<title>Oliver — POD Finder</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -655,9 +655,9 @@
 <header>
   <div class="header-inner">
     <div class="header-text">
-      <div class="header-eyebrow">Oliver · Pod-Aligned Collaboration</div>
-      <h1>Pod <span>Finder</span></h1>
-      <p class="header-sub">Explore our operating model, see who leads each pod, and search for any colleague to find their team, channel, and role.</p>
+      <div class="header-eyebrow">Oliver · POD-Aligned Collaboration</div>
+      <h1>POD <span>Finder</span></h1>
+      <p class="header-sub">Explore our operating model, see who leads each POD, and search for any colleague to find their team, channel, and role.</p>
       <div class="header-meta">
         <span class="meta-pill"><strong>Go-live:</strong> May 5, 2026</span>
         <span class="meta-pill"><strong>Status:</strong> Living Document</span>
@@ -672,7 +672,7 @@
   <!-- Tab switcher -->
   <div class="tab-switcher">
     <button class="tab-btn active" onclick="switchTab('matrix', this)">🏗️ Leadership Matrix</button>
-    <button class="tab-btn" onclick="switchTab('finder', this)">🔍 Pod Finder</button>
+    <button class="tab-btn" onclick="switchTab('finder', this)">🔍 POD Finder</button>
   </div>
 
   <!-- ══════════════════════════════════
@@ -723,7 +723,7 @@
     <!-- Management Structure Matrix -->
     <div class="matrix-section">
       <div class="matrix-section-label">
-        📋 Management Structure — click any name to view their profile, or click a pod column to explore the full team
+        📋 Management Structure — click any name to view their profile, or click a POD column to explore the full team
       </div>
       <div class="matrix-scroll">
         <table class="matrix-table" id="matrixTable">
@@ -902,7 +902,7 @@
     <!-- Search -->
     <div class="search-card">
       <h2>Find a colleague</h2>
-      <p>Start typing a name to see their pod, Teams channel, and role at Oliver.</p>
+      <p>Start typing a name to see their POD, Teams channel, and role at Oliver.</p>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input
@@ -922,15 +922,15 @@
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">🔎</div>
       <p>No one found matching <strong id="emptyQuery"></strong>.<br>
-      Try a different spelling, or browse by pod below.</p>
+      Try a different spelling, or browse by POD below.</p>
     </div>
 
     <!-- Result -->
     <div class="result-card" id="resultCard"></div>
 
-    <!-- Browse by pod -->
+    <!-- Browse by POD -->
     <div id="browseSection">
-      <div class="browse-label">Browse by pod</div>
+      <div class="browse-label">Browse by POD</div>
       <div class="pods-grid" id="podsGrid"></div>
     </div>
 
@@ -1234,7 +1234,7 @@ function showPerson(person) {
     }
   });
 
-  // Pod leads strip — show CE&D / BA / Tech / QA leads for this person's pod
+  // POD leads strip — show CE&D / BA / Tech / QA leads for this person's POD
   let leadershipHtml = '';
   if (person.pod !== 'Leadership' && person.pod !== 'Shared Functions' && cfg.leads && Object.keys(cfg.leads).length > 0) {
     const leadItems = Object.entries(cfg.leads).map(([role, leadName]) => {
