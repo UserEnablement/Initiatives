@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olive's Journey · Oliver L&E</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #1A2535;
+  --mid:       #2A3F58;
+  --muted:     #5A7290;
+  --light:     #8DA5BC;
+  --bg:        #F4F7FB;
+  --surface:   #FFFFFF;
+  --border:    #DDE5EF;
+  --c-blue:    #4A90D9;
+  --c-yellow:  #E8C030;
+  --c-green:   #5DAF6B;
+  --c-purple:  #9B6FD4;
+  --c-coral:   #E07A5F;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); }
+
+/* ── SHELL ── */
+.shell { display: flex; flex-direction: column; height: 100vh; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ink);
+  color: #fff;
+  padding: 36px 24px 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 120%, rgba(74,144,217,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-size: .68rem; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--c-blue); margin-bottom: 10px;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1; color: #fff;
+  max-width: 600px; margin: 0 auto 10px;
+}
+.hero h1 em { font-style: italic; color: #a8c8f0; }
+.hero-name {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 50px; padding: 6px 14px 6px 6px;
+  font-size: .8rem; color: rgba(255,255,255,0.8);
+}
+.hero-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--c-blue);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: .7rem; color: #fff;
+}
+
+/* ── CHAPTER NAV ── */
+.chapter-nav {
+  background: rgba(244,247,251,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; flex-shrink: 0;
+}
+.chapter-nav-inner {
+  max-width: 980px; margin: 0 auto;
+  display: flex; overflow-x: auto; scrollbar-width: none;
+}
+.chapter-nav-inner::-webkit-scrollbar { display: none; }
+.ch-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 13px 18px;
+  font-size: .73rem; font-weight: 600; letter-spacing: .03em;
+  color: var(--muted); background: none; border: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all .2s;
+}
+.ch-btn:hover { color: var(--ink); }
+.ch-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+.ch-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── SCROLL AREA ── */
+.scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+/* ── PANEL ── */
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── MAIN ── */
+.main { max-width: 980px; margin: 0 auto; padding: 48px 24px 64px; }
+
+/* ── CHAPTER HEADER ── */
+.chapter-header {
+  display: flex; align-items: flex-start; gap: 20px; margin-bottom: 28px;
+}
+.chapter-number {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; letter-spacing: .06em;
+  flex-shrink: 0; margin-top: 4px;
+}
+.chapter-label {
+  font-size: .68rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px;
+}
+.chapter h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  line-height: 1.2; color: var(--ink); margin-bottom: 5px;
+}
+.chapter-timeline { font-size: .78rem; color: var(--muted); font-weight: 500; }
+
+/* ── NARRATIVE ── */
+.narrative {
+  border-left: 3px solid var(--border);
+  padding: 10px 0 10px 20px;
+  margin-bottom: 28px;
+  font-size: .95rem; line-height: 1.7;
+  color: var(--mid); font-style: italic;
+}
+.narrative strong { font-style: normal; font-weight: 600; color: var(--ink); }
+
+/* ── CARD GRID - always 3 columns ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 20px 20px;
+}
+.card-icon { font-size: 1.4rem; margin-bottom: 10px; }
+.card h4 { font-size: .85rem; font-weight: 600; color: var(--ink); margin-bottom: 5px; line-height: 1.3; }
+.card p  { font-size: .78rem; color: var(--muted); line-height: 1.55; }
+
+/* ── SUPPORT CARD ── */
+.card.support {
+  background: #F0F3F8;
+  border-color: #D4DCE8;
+}
+.card.support h4 { color: var(--ink); }
+.card.support p  { color: var(--muted); }
+.card.support .card-support-badge {
+  display: none;
+}
+
+/* ── WHY THIS MATTERS ── */
+.why-matters {
+  background: linear-gradient(135deg, #f0f7ee 0%, #e8f2fb 100%);
+  border: 1px solid #c8dfc8;
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-top: 14px;
+  text-align: center;
+}
+.why-matters-eyebrow {
+  font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--c-green); margin-bottom: 10px;
+}
+.why-matters h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  color: var(--ink); margin-bottom: 8px; line-height: 1.2;
+}
+.why-matters-sub {
+  font-size: .82rem; color: var(--muted);
+  max-width: 440px; margin: 0 auto 18px; line-height: 1.6;
+}
+.why-matters-pills {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+}
+.why-pill {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid #c8dfc8;
+  border-radius: 20px; padding: 6px 16px;
+  font-size: .76rem; font-weight: 500; color: var(--mid);
+}
+.why-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-green); flex-shrink: 0; }
+
+/* ── HUB SPOTLIGHT ── */
+.hub-spotlight {
+  background: var(--ink);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 22px;
+  position: relative; overflow: hidden; margin-bottom: 14px;
+}
+.hub-spotlight::after {
+  content: 'L&E';
+  position: absolute; right: -8px; top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  font-size: 4.5rem; font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  pointer-events: none; white-space: nowrap;
+}
+.hub-tag {
+  display: inline-block;
+  background: rgba(74,144,217,0.2); color: #7db8e8;
+  font-size: .63rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+}
+.hub-spotlight h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem; color: #fff; margin-bottom: 6px;
+}
+.hub-spotlight p {
+  font-size: .8rem; color: rgba(255,255,255,0.55);
+  line-height: 1.55; max-width: 540px; margin-bottom: 14px;
+}
+.hub-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+.hub-pill {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px; padding: 5px 13px;
+  font-size: .71rem; font-weight: 500; color: rgba(255,255,255,0.78);
+}
+
+/* ── CLOSING SLIDE ── */
+.closing-slide {
+  background: linear-gradient(160deg, #0D2931 0%, #1D5F73 60%, #038C8C 100%);
+  min-height: calc(100vh - 120px);
+  padding: 48px 24px 56px;
+  position: relative; overflow: hidden;
+}
+.closing-slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 80% 20%, rgba(21,199,199,0.12) 0%, transparent 65%),
+              radial-gradient(ellipse 40% 40% at 20% 80%, rgba(69,191,157,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+.closing-inner { max-width: 980px; margin: 0 auto; position: relative; z-index: 1; }
+.closing-eyebrow {
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: #38EBEB; margin-bottom: 10px; text-align: center;
+}
+.closing-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  color: #fff; text-align: center;
+  margin-bottom: 8px; line-height: 1.15;
+}
+.closing-title em { font-style: italic; color: #8CFFDF; }
+.closing-cols {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px; margin: 36px 0 32px;
+}
+.closing-col {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: var(--radius-lg);
+  padding: 26px 24px;
+}
+.closing-col-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  padding-bottom: 14px; border-bottom: 1px solid #DDE5EF;
+}
+.closing-col-icon { font-size: 1.3rem; }
+.closing-col h4 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem; color: #0D2931; margin: 0;
+}
+.closing-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.closing-col li {
+  font-size: .78rem; color: #2A3F58;
+  line-height: 1.45; padding-left: 16px; position: relative;
+}
+.closing-col li::before {
+  content: '';
+  position: absolute; left: 0; top: 7px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #038C8C;
+}
+.closing-message {
+  background: rgba(3,140,140,0.2);
+  border: 1px solid rgba(56,235,235,0.25);
+  border-radius: var(--radius-lg);
+  padding: 26px 32px; text-align: center;
+  backdrop-filter: blur(6px);
+}
+.closing-message p {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  color: rgba(255,255,255,0.9); line-height: 1.6;
+}
+.closing-message p em { font-style: italic; color: #8CFFDF; }
+
+/* ── COLOUR HELPERS ── */
+.col-blue   { background: #EBF4FD; color: #1A5F9A; }
+.col-yellow { background: #FDF8E7; color: #7A5E00; }
+.col-green  { background: #EBF6ED; color: #1E6B30; }
+.col-purple { background: #F2EDF9; color: #5C34A0; }
+.col-coral  { background: #FDF0ED; color: #8C3820; }
+.col-teal   { background: #E6F4F4; color: #1A5C5C; }
+.dot-blue   { background: var(--c-blue);   }
+.dot-yellow { background: var(--c-yellow); }
+.dot-green  { background: var(--c-green);  }
+.dot-purple { background: var(--c-purple); }
+.dot-coral  { background: var(--c-coral);  }
+.dot-teal   { background: #3AACAC;         }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Learning &amp; Enablement · Oliver</div>
+  <h1>From day one to <em>fully confident</em></h1>
+  <div class="hero-name">
+    <div class="hero-avatar">OV</div>
+    Follow Olive Verre's journey →
+  </div>
+</div>
+
+<!-- CHAPTER NAV -->
+<nav class="chapter-nav">
+  <div class="chapter-nav-inner">
+    <button class="ch-btn active" data-ch="preboard"><span class="ch-dot dot-blue"></span> Before day one</button>
+    <button class="ch-btn" data-ch="entry"><span class="ch-dot dot-yellow"></span> Arriving &amp; settling in</button>
+    <button class="ch-btn" data-ch="foundations"><span class="ch-dot dot-green"></span> Building knowledge</button>
+    <button class="ch-btn" data-ch="activation"><span class="ch-dot dot-purple"></span> Becoming effective</button>
+    <button class="ch-btn" data-ch="growth"><span class="ch-dot dot-coral"></span> Growing with Oliver</button>
+    <button class="ch-btn" data-ch="closing"><span class="ch-dot dot-teal"></span> What this changes</button>
+  </div>
+</nav>
+
+<!-- SCROLL AREA -->
+<div class="scroll-area">
+
+  <!-- ══ 1 · BEFORE DAY ONE ══ -->
+  <div class="panel active" id="p-preboard">
+    <main class="main">
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number col-blue">01</div>
+          <div>
+            <div class="chapter-label" style="color:var(--c-blue)">Chapter one</div>
+            <h2>Before she walks through the door</h2>
+            <div class="chapter-timeline">Pre-boarding → Day 1</div>
+          </div>
+        </div>
+        <p class="narrative">Olive has accepted her offer. Before she even starts, <strong>Oliver is already preparing</strong> the right access, introductions, and support so she arrives with clarity and confidence.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">📩</div>
+            <h4>Welcome Communication</h4>
+            <p>Culture, team, and what to expect — in Olive's inbox before day one.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔐</div>
+            <h4>System Access Ready</h4>
+            <p>Accounts and logins live on arrival — no scrambling for IT on her first morning.</p>
+          </div>
+          <div class="card support">
+            <div class="card-support-badge">Manager &amp; Team</div>
+            <div class="card-icon">👥</div>
+            <h4>Manager Preparation &amp; Team Alignment</h4>
+            <p>Her manager works with HR to prepare onboarding, confirm her POD, identify key introductions, and shape her first weeks.</p>
+          </div>
+        </div>
+
+        <div class="hub-spotlight">
+          <div class="hub-tag">L&amp;E Hub · New Starter</div>
+          <h3>One place for everything — available before she's even started</h3>
+          <p>Olive can already access everything she needs to arrive feeling prepared and welcomed.</p>
+          <div class="hub-pills">
+            <span class="hub-pill">📋 Onboarding checklists</span>
+            <span class="hub-pill">🔗 Important company links</span>
+            <span class="hub-pill">🌍 Oliver culture and values</span>
+            <span class="hub-pill">👥 Key contacts and support</span>
+          </div>
+        </div>
+
+        <div class="why-matters">
+          <div class="why-matters-eyebrow">Why this matters</div>
+          <h3>Olive arrives ready — not overwhelmed</h3>
+          <p class="why-matters-sub">When preparation happens before day one, confidence follows on day one.</p>
+          <div class="why-matters-pills">
+            <div class="why-pill"><span class="why-pill-dot"></span>Prepared before day one</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Reduced onboarding friction</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Consistent onboarding experience</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ 2 · ARRIVING & SETTLING ══ -->
+  <div class="panel" id="p-entry">
+    <main class="main">
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number col-yellow">02</div>
+          <div>
+            <div class="chapter-label" style="color:#9A7800">Chapter two</div>
+            <h2>Arriving &amp; settling in</h2>
+            <div class="chapter-timeline">Day 1 → Week 2</div>
+          </div>
+        </div>
+        <p class="narrative">Olive arrives already prepared. Now she begins <strong>building relationships</strong>, understanding her team, and finding her place within Oliver.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">👋</div>
+            <h4>Meet the Team</h4>
+            <p>Structured time with her immediate team — how everyone works together, not just what they do.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🎤</div>
+            <h4>Leadership &amp; Business Context</h4>
+            <p>Roundtables and leadership conversations help Olive understand where Oliver is heading and how her role contributes.</p>
+          </div>
+          <div class="card support">
+            <div class="card-support-badge">Support System</div>
+            <div class="card-icon">🤝</div>
+            <h4>Buddy, Guide &amp; Manager Support</h4>
+            <p>Her buddy and manager provide guidance, answer questions, and help her settle in with confidence.</p>
+          </div>
+        </div>
+
+        <div class="hub-spotlight">
+          <div class="hub-tag">L&amp;E Hub · Settling In</div>
+          <h3>Everything she needs to find her feet</h3>
+          <p>Olive can find her way around Oliver — who does what, how things work, and the language everyone uses.</p>
+          <div class="hub-pills">
+            <span class="hub-pill">🗺️ Team structures &amp; POD information</span>
+            <span class="hub-pill">🧭 Introduction to Oliver</span>
+            <span class="hub-pill">🔤 Glossary &amp; key terms</span>
+            <span class="hub-pill">🎥 Leadership introductions</span>
+          </div>
+        </div>
+
+        <div class="why-matters">
+          <div class="why-matters-eyebrow">Why this matters</div>
+          <h3>Belonging accelerates everything</h3>
+          <p class="why-matters-sub">When people feel connected early, they contribute earlier and stay longer.</p>
+          <div class="why-matters-pills">
+            <div class="why-pill"><span class="why-pill-dot"></span>Faster team integration</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Early leadership visibility</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Clearer support for new starters</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ 3 · BUILDING KNOWLEDGE ══ -->
+  <div class="panel" id="p-foundations">
+    <main class="main">
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number col-green">03</div>
+          <div>
+            <div class="chapter-label" style="color:var(--c-green)">Chapter three</div>
+            <h2>Building knowledge</h2>
+            <div class="chapter-timeline">Weeks 2 → 6</div>
+          </div>
+        </div>
+        <p class="narrative">Olive is no longer just learning where things are. She is learning <strong>how Oliver works</strong>, what the products do, and how clients use them.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">🏗️</div>
+            <h4>Product Foundations</h4>
+            <p>Structured learning introduces Olive to Oliver's products, terminology, and core workflows.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📐</div>
+            <h4>DISC Assessment</h4>
+            <p>Understanding her own working style and how to collaborate effectively from day one.</p>
+          </div>
+          <div class="card support">
+            <div class="card-support-badge">Manager &amp; Milestones</div>
+            <div class="card-icon">🏆</div>
+            <h4>Role Expectations &amp; 30/60/90 Plan</h4>
+            <p>Agreed milestones with her manager — no ambiguity about what success looks like. Confidence built gradually, not all at once.</p>
+          </div>
+        </div>
+
+        <div class="hub-spotlight">
+          <div class="hub-tag">L&amp;E Hub · Foundations &amp; Learning</div>
+          <h3>Structured learning — not just links</h3>
+          <p>Two dedicated sections give Olive a guided path through product knowledge and industry context, with knowledge checks built in.</p>
+          <div class="hub-pills">
+            <span class="hub-pill">📖 Oliver Foundations module</span>
+            <span class="hub-pill">🌍 Industry knowledge</span>
+            <span class="hub-pill">✅ Knowledge checks</span>
+            <span class="hub-pill">🎥 Product demos &amp; walkthroughs</span>
+          </div>
+        </div>
+
+        <div class="why-matters">
+          <div class="why-matters-eyebrow">Why this matters</div>
+          <h3>Knowledge builds confidence — confidence builds performance</h3>
+          <p class="why-matters-sub">Structured learning means Olive doesn't just know the product — she believes in it.</p>
+          <div class="why-matters-pills">
+            <div class="why-pill"><span class="why-pill-dot"></span>Structured product learning</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Shared understanding across PODs</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Confidence built through guided learning</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ 4 · BECOMING EFFECTIVE ══ -->
+  <div class="panel" id="p-activation">
+    <main class="main">
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number col-purple">04</div>
+          <div>
+            <div class="chapter-label" style="color:var(--c-purple)">Chapter four</div>
+            <h2>Becoming effective</h2>
+            <div class="chapter-timeline">Month 2 → Month 6</div>
+          </div>
+        </div>
+        <p class="narrative">Olive is now <strong>contributing to real work</strong> with growing confidence, clearer expectations, and ongoing support from her manager and team.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h4>Role-Based Learning</h4>
+            <p>Guides, workflows, and role pathways help Olive apply knowledge directly in her day-to-day work.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📊</div>
+            <h4>Performance &amp; KPIs</h4>
+            <p>Olive knows how she's measured and what excellent looks like — no ambiguity, just clarity.</p>
+          </div>
+          <div class="card support">
+            <div class="card-support-badge">Coaching &amp; Feedback</div>
+            <div class="card-icon">💬</div>
+            <h4>Mentoring, Coaching &amp; Feedback</h4>
+            <p>Regular manager conversations support development, confidence, and continuous improvement.</p>
+          </div>
+        </div>
+
+        <div class="hub-spotlight">
+          <div class="hub-tag">L&amp;E Hub · Role Enablement</div>
+          <h3>Development on her own terms</h3>
+          <p>Self-enrol into development, or be guided by her manager. Both paths lead to the same place — growth.</p>
+          <div class="hub-pills">
+            <span class="hub-pill">🧭 Role pathways</span>
+            <span class="hub-pill">🎯 Manager-assigned pathways</span>
+            <span class="hub-pill">🧑‍🤝‍🧑 Soft-skill development</span>
+            <span class="hub-pill">📚 Advanced product knowledge</span>
+            <span class="hub-pill">💡 Coaching resources</span>
+          </div>
+        </div>
+
+        <div class="why-matters">
+          <div class="why-matters-eyebrow">Why this matters</div>
+          <h3>Clarity drives performance</h3>
+          <p class="why-matters-sub">When Olive knows what great looks like, she has everything she needs to get there.</p>
+          <div class="why-matters-pills">
+            <div class="why-pill"><span class="why-pill-dot"></span>Clear performance expectations</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Defined career pathways</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Ongoing coaching &amp; feedback</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ 5 · GROWING WITH OLIVER ══ -->
+  <div class="panel" id="p-growth">
+    <main class="main">
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number col-coral">05</div>
+          <div>
+            <div class="chapter-label" style="color:var(--c-coral)">Chapter five</div>
+            <h2>Growing with Oliver</h2>
+            <div class="chapter-timeline">6 months → ongoing</div>
+          </div>
+        </div>
+        <p class="narrative">Olive isn't just settled — she's <strong>thriving</strong>. She knows the products, understands clients, and is developing as a leader. Oliver's investment in her doesn't have an expiry date.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">🧠</div>
+            <h4>Leadership &amp; Soft Skills</h4>
+            <p>Self-enrolment learning, mentorship, and leadership development support continuous growth.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔬</div>
+            <h4>Subject Matter Expertise</h4>
+            <p>Cross-team knowledge sharing — Olive becomes a go-to person within and across PODs.</p>
+          </div>
+          <div class="card support">
+            <div class="card-support-badge">Career &amp; Growth</div>
+            <div class="card-icon">🚀</div>
+            <h4>Ongoing Career Conversations</h4>
+            <p>Built into the rhythm of working at Oliver — not saved for annual reviews.</p>
+          </div>
+        </div>
+
+        <div class="hub-spotlight">
+          <div class="hub-tag">L&amp;E Hub · Continuous Growth</div>
+          <h3>A permanent home for learning — always on, always growing</h3>
+          <p>The hub doesn't switch off after onboarding. It grows with Olive, and with Oliver.</p>
+          <div class="hub-pills">
+            <span class="hub-pill">🎓 Leadership Academy</span>
+            <span class="hub-pill">🔔 Industry &amp; product updates</span>
+            <span class="hub-pill">💡 Leadership coaching</span>
+            <span class="hub-pill">🧩 Continuous learning resources</span>
+          </div>
+        </div>
+
+        <div class="why-matters">
+          <div class="why-matters-eyebrow">Why this matters</div>
+          <h3>Growth without an expiry date</h3>
+          <p class="why-matters-sub">Oliver's best people don't just join well — they grow continuously, and they stay.</p>
+          <div class="why-matters-pills">
+            <div class="why-pill"><span class="why-pill-dot"></span>Continuous career development</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Leadership &amp; soft-skill growth</div>
+            <div class="why-pill"><span class="why-pill-dot"></span>Long-term learning culture</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ CLOSING SLIDE ══ -->
+  <div class="panel" id="p-closing">
+    <div class="closing-slide">
+      <div class="closing-inner">
+        <div class="closing-eyebrow">The bigger picture</div>
+        <div class="closing-title">What this <em>changes</em> for Oliver</div>
+
+        <div class="closing-cols">
+          <div class="closing-col">
+            <div class="closing-col-top">
+              <div class="closing-col-icon">👤</div>
+              <h4>For New Starters</h4>
+            </div>
+            <ul>
+              <li>Clearer onboarding experience</li>
+              <li>Faster confidence &amp; readiness</li>
+              <li>Ongoing support beyond day one</li>
+            </ul>
+          </div>
+          <div class="closing-col">
+            <div class="closing-col-top">
+              <div class="closing-col-icon">👥</div>
+              <h4>For Managers</h4>
+            </div>
+            <ul>
+              <li>Consistent onboarding structure</li>
+              <li>Clearer development pathways</li>
+              <li>Better visibility into progress</li>
+            </ul>
+          </div>
+          <div class="closing-col">
+            <div class="closing-col-top">
+              <div class="closing-col-icon">🌍</div>
+              <h4>For Oliver</h4>
+            </div>
+            <ul>
+              <li>Scalable knowledge sharing</li>
+              <li>Reduced dependency on SMEs</li>
+              <li>Stronger learning &amp; enablement culture</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="closing-message">
+          <p>The goal is not just better onboarding.<br><em>It is building confident, connected, high-performing people — faster and more consistently across Oliver.</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /scroll-area -->
+</div><!-- /shell -->
+
+<script>
+const btns   = document.querySelectorAll('.ch-btn');
+const panels = document.querySelectorAll('.panel');
+const ids    = ['preboard','entry','foundations','activation','growth','closing'];
+
+function go(idx) {
+  btns.forEach(b => b.classList.remove('active'));
+  panels.forEach(p => p.classList.remove('active'));
+  btns[idx].classList.add('active');
+  document.getElementById('p-' + ids[idx]).classList.add('active');
+  document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+btns.forEach((btn, i) => btn.addEventListener('click', () => go(i)));
+
+document.addEventListener('keydown', e => {
+  const cur = ids.indexOf([...btns].find(b => b.classList.contains('active'))?.dataset.ch);
+  if ((e.key === 'ArrowRight' || e.key === ' ') && cur < ids.length - 1) go(cur + 1);
+  if (e.key === 'ArrowLeft' && cur > 0) go(cur - 1);
+});
+</script>
+</body>
+</html>
