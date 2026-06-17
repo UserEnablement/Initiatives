@@ -375,9 +375,9 @@
 <header>
   <div class="header-inner">
     <div class="header-text">
-      <div class="header-eyebrow">Oliver · Pod-Aligned Collaboration</div>
-      <h1>Pod <span>Finder</span></h1>
-      <p class="header-sub">Search for any colleague to instantly see which pod they belong to, their Teams channel, and how to reach them.</p>
+      <div class="header-eyebrow">Oliver · POD-Aligned Collaboration</div>
+      <h1>POD <span>Finder</span></h1>
+      <p class="header-sub">Search for any colleague to instantly see which POD they belong to, their Teams channel, and how to reach them.</p>
       <div class="header-meta">
         <span class="meta-pill"><strong>Go-live:</strong> May 5, 2026</span>
         <span class="meta-pill"><strong>Status:</strong> Living Document</span>
@@ -392,7 +392,7 @@
   <!-- Search -->
   <div class="search-card">
     <h2>Find a colleague</h2>
-    <p>Start typing a name to see their pod, Teams channel, and role at Oliver.</p>
+    <p>Start typing a name to see their POD, Teams channel, and role at Oliver.</p>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input
@@ -412,16 +412,16 @@
   <div class="empty-state" id="emptyState">
     <div class="empty-icon">🔎</div>
     <p>No one found matching <strong id="emptyQuery"></strong>.<br>
-    Try a different spelling, or browse by pod below.<br>
+    Try a different spelling, or browse by POD below.<br>
     Once your employee list is loaded, all names will appear here.</p>
   </div>
 
   <!-- Result -->
   <div class="result-card" id="resultCard"></div>
 
-  <!-- Browse by pod -->
+  <!-- Browse by POD -->
   <div class="browse-section" id="browseSection">
-    <div class="browse-label">Browse by pod</div>
+    <div class="browse-label">Browse by POD</div>
     <div class="pods-grid" id="podsGrid"></div>
   </div>
 
@@ -542,8 +542,9 @@ const PEOPLE = [
   { name: "Carlos Alberto Ventura Junior", title: "Dev & QA",                pod: "Admin",               role: "Management" },
 
   /* ── OLIVER MULTI / PENSION ── */
-  { name: "Don Fermin",               title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
+  { name: "Mohamed Al-Magdod",        title: "Client Experience & Support",  pod: "Multiplan",           role: "Client Experience / Support" },
   { name: "Sharmila Gajendran",       title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
+  { name: "Saziya Newton Mahida",     title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
   { name: "Yeshwanth Perumalla",      title: "BA",                           pod: "Multiplan",           role: "Business Analysis" },
   { name: "Elena Tikhonova",          title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
   { name: "Krishna Alloori",          title: "Dev & QA",                     pod: "Multiplan",           role: "Development & QA" },
@@ -555,6 +556,7 @@ const PEOPLE = [
   { name: "Jason Ho",                 title: "Client Experience & Support",  pod: "Oliver GroupHEALTH", role: "Client Experience / Support" },
   { name: "Alejandra Kafie",          title: "Client Experience & Support",  pod: "Oliver GroupHEALTH", role: "Management" },
   { name: "Charlon Ignacio",          title: "BA",                           pod: "Oliver GroupHEALTH", role: "Business Analysis" },
+  { name: "Grace Odeh",               title: "BA",                           pod: "Oliver GroupHEALTH", role: "Business Analysis" },
   { name: "Hsin Chieh (Alice) Chien", title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
   { name: "Torsten Lenk",             title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
   { name: "Jerry Zhu",                title: "Dev & QA",                     pod: "Oliver GroupHEALTH", role: "Development & QA" },
@@ -688,7 +690,7 @@ function showPerson(person) {
         <div class="result-field-value">${person.role}</div>
       </div>
     </div>
-    <div class="channels-label">Subchannels for this pod</div>
+    <div class="channels-label">Subchannels for this POD</div>
     <div class="channels-row">
       ${cfg.subchannels.map(s => `<span class="channel-tag">${s}</span>`).join('')}
     </div>
