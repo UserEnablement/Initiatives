@@ -210,6 +210,39 @@
   footer{text-align:center;font-size:.74rem;color:var(--gray-500);margin-top:6px;}
   footer button{background:none;border:none;color:var(--gray-500);text-decoration:underline;cursor:pointer;font-size:.74rem;}
 
+  /* Column controls */
+  .col-controls-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:32px;}
+  .col-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    background:var(--navy-900);color:white;
+    border-radius:6px;padding:4px 8px;font-size:.74rem;font-weight:600;
+    cursor:grab;user-select:none;transition:opacity .15s;
+  }
+  .col-chip-hidden{background:var(--gray-300);color:var(--gray-700);}
+  .col-chip-dragging{opacity:.4;}
+  .col-chip-over{outline:2px solid var(--teal-400);}
+  .col-chip-drag{font-size:.78rem;opacity:.6;cursor:grab;}
+  .col-chip-label{letter-spacing:.02em;}
+  .col-chip-eye{
+    background:none;border:none;color:inherit;cursor:pointer;
+    padding:0 2px;font-size:.78rem;line-height:1;opacity:.8;
+  }
+  .col-chip-eye:hover{opacity:1;}
+
+  /* Summary panel */
+  .summary-bar{display:flex;align-items:center;flex-wrap:wrap;gap:16px;padding:16px 20px;}
+  .summary-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;color:var(--navy-900);white-space:nowrap;}
+  .summary-chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .sum-chip{
+    display:flex;flex-direction:column;align-items:center;
+    background:var(--gray-100);border-radius:8px;padding:8px 14px;min-width:72px;
+  }
+  .sum-chip.sum-pass{background:#E3F8F4;}
+  .sum-chip.sum-fail{background:#FBE9F8;}
+  .sum-chip.sum-gray{background:var(--gray-300);}
+  .sum-num{font-family:'Outfit',sans-serif;font-weight:700;font-size:1.2rem;color:var(--navy-900);}
+  .sum-lbl{font-size:.68rem;color:var(--gray-700);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
   .conn-banner{
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
     padding:11px 16px;border-radius:9px;margin-bottom:20px;font-size:.84rem;
@@ -264,10 +297,11 @@
     <div class="card-head">
       <div>
         <h2>Completion matrix</h2>
-        <p>Click any cell to log or update a score. Teal = pass, magenta = fail, dashed = not started.</p>
+        <p>Click any cell to log or update a score. Teal = pass, magenta = fail, dashed = not started. Drag chips below to reorder columns; click ● to hide/show.</p>
       </div>
     </div>
     <div class="card-body">
+      <div id="colControlsRow" class="col-controls-row"></div>
       <div class="matrix-scroll">
         <table class="matrix" id="matrixTable"></table>
       </div>
@@ -314,6 +348,8 @@
     </div>
   </div>
 
+  <div id="summaryPanel" class="card" style="display:none;"></div>
+
   <footer>
     Data is saved in this browser only. Use <strong>Backup ⇄</strong> to transfer or combine data across devices. <button id="clearAllBtn">Clear all data</button>
   </footer>
@@ -340,6 +376,24 @@ const RECORDS_KEY = 'training_records';
 const COURSES_KEY = 'training_courses';
 const EMPLOYEES_KEY = 'training_employees';
 let records = {}; // key: `${employee}||${courseId}` -> {date, score}
+
+// Column visibility & order state (parallel to COURSES array by id)
+let colOrder = [];   // array of course ids in display order
+let colHidden = {};  // { courseId: true } for hidden cols
+
+function sortEmployees(){ EMPLOYEES.sort((a,b) => a.localeCompare(b, undefined, {sensitivity:'base'})); }
+
+function syncColState(){
+  // Add any new courses not yet in colOrder
+  COURSES.forEach(c => { if(!colOrder.includes(c.id)) colOrder.push(c.id); });
+  // Remove any ids that no longer exist
+  colOrder = colOrder.filter(id => COURSES.some(c => c.id === id));
+}
+
+function visibleCourses(){
+  syncColState();
+  return colOrder.map(id => COURSES.find(c => c.id === id)).filter(c => c && !colHidden[c.id]);
+}
 
 function courseById(id){ return COURSES.find(c => c.id === id); }
 function recKey(emp, courseId){ return emp + '||' + courseId; }
@@ -397,8 +451,9 @@ async function loadEmployees(){
   EMPLOYEES = v ? JSON.parse(v) : null;
   if(!EMPLOYEES){
     EMPLOYEES = JSON.parse(JSON.stringify(DEFAULT_EMPLOYEES));
-    await saveEmployees();
   }
+  sortEmployees();
+  await saveEmployees();
 }
 async function saveEmployees(){
   storageSet(EMPLOYEES_KEY, JSON.stringify(EMPLOYEES));
@@ -543,6 +598,7 @@ async function loadFromExcelFile(){
 
   EMPLOYEES = newEmployees.length ? newEmployees : EMPLOYEES;
   COURSES = newCourses.length ? newCourses : COURSES;
+  sortEmployees();
   records = newRecords;
   fileConnected = true;
 
@@ -645,11 +701,12 @@ function renderStats(){
 
 function renderMatrix(){
   const table = document.getElementById('matrixTable');
-  let thead = '<thead><tr><th>Employee</th>' + COURSES.map(c => `<th title="${escapeHtml(c.name)}">${escapeHtml(c.id)}</th>`).join('') + '</tr></thead>';
+  const vis = visibleCourses();
+  let thead = '<thead><tr><th>Employee</th>' + vis.map(c => `<th title="${escapeHtml(c.name)}">${escapeHtml(c.id)}</th>`).join('') + '</tr></thead>';
   let body = '<tbody>';
   EMPLOYEES.forEach(emp => {
     body += `<tr><td>${escapeHtml(emp)}</td>`;
-    COURSES.forEach(c => {
+    vis.forEach(c => {
       const rec = records[recKey(emp, c.id)];
       if(rec){
         const status = statusFor(rec.score, c.max);
@@ -673,6 +730,136 @@ function renderMatrix(){
   table.querySelectorAll('.cell').forEach(cell => {
     cell.addEventListener('click', () => openModal(cell.dataset.emp, cell.dataset.course));
   });
+  renderColControls();
+  renderSummaryPanel();
+}
+
+function renderColControls(){
+  const container = document.getElementById('colControlsRow');
+  if(!container) return;
+  syncColState();
+  container.innerHTML = colOrder.map(id => {
+    const c = COURSES.find(x => x.id === id);
+    if(!c) return '';
+    const hidden = !!colHidden[id];
+    return `<span class="col-chip ${hidden ? 'col-chip-hidden' : ''}" data-id="${c.id}" title="${escapeHtml(c.name)}">
+      <span class="col-chip-drag" title="Drag to reorder">⠿</span>
+      <span class="col-chip-label">${escapeHtml(c.id)}</span>
+      <button class="col-chip-eye" data-id="${c.id}" title="${hidden ? 'Show column' : 'Hide column'}">${hidden ? '○' : '●'}</button>
+    </span>`;
+  }).join('');
+
+  // Toggle visibility
+  container.querySelectorAll('.col-chip-eye').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      colHidden[id] = !colHidden[id];
+      renderMatrix();
+    });
+  });
+
+  // Drag-to-reorder
+  let dragging = null;
+  container.querySelectorAll('.col-chip').forEach(chip => {
+    chip.setAttribute('draggable', 'true');
+    chip.addEventListener('dragstart', e => {
+      dragging = chip.dataset.id;
+      chip.classList.add('col-chip-dragging');
+    });
+    chip.addEventListener('dragend', () => {
+      chip.classList.remove('col-chip-dragging');
+      dragging = null;
+    });
+    chip.addEventListener('dragover', e => { e.preventDefault(); chip.classList.add('col-chip-over'); });
+    chip.addEventListener('dragleave', () => chip.classList.remove('col-chip-over'));
+    chip.addEventListener('drop', e => {
+      e.preventDefault();
+      chip.classList.remove('col-chip-over');
+      const dropId = chip.dataset.id;
+      if(dragging && dragging !== dropId){
+        const fromIdx = colOrder.indexOf(dragging);
+        const toIdx = colOrder.indexOf(dropId);
+        colOrder.splice(fromIdx, 1);
+        colOrder.splice(toIdx, 0, dragging);
+        renderMatrix();
+      }
+    });
+  });
+}
+
+function renderSummaryPanel(){
+  const panel = document.getElementById('summaryPanel');
+  if(!panel) return;
+
+  const courseFilter = document.getElementById('filterCourse') ? document.getElementById('filterCourse').value : '';
+  const empSearch = document.getElementById('searchEmployee') ? document.getElementById('searchEmployee').value.trim().toLowerCase() : '';
+
+  let focusCourse = null;
+  let focusEmployee = null;
+
+  if(courseFilter) focusCourse = courseById(courseFilter);
+  if(empSearch){
+    // exact or single match
+    const matches = EMPLOYEES.filter(e => e.toLowerCase().includes(empSearch));
+    if(matches.length === 1) focusEmployee = matches[0];
+    else if(matches.length > 1 && EMPLOYEES.some(e => e.toLowerCase() === empSearch)) focusEmployee = EMPLOYEES.find(e => e.toLowerCase() === empSearch);
+  }
+
+  if(!focusCourse && !focusEmployee){
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = 'block';
+
+  if(focusCourse){
+    // Stats for a single course across all employees
+    const total = EMPLOYEES.length;
+    let attempted = 0, passed = 0, scores = [];
+    EMPLOYEES.forEach(emp => {
+      const rec = records[recKey(emp, focusCourse.id)];
+      if(rec){ attempted++; scores.push(rec.score); if(statusFor(rec.score, focusCourse.max) === 'Pass') passed++; }
+    });
+    const notStarted = total - attempted;
+    const passRate = attempted ? Math.round((passed/attempted)*100) : 0;
+    const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+    const coverage = total ? Math.round((attempted/total)*100) : 0;
+    panel.innerHTML = `
+      <div class="summary-bar">
+        <div class="summary-title">📊 ${escapeHtml(focusCourse.name)}</div>
+        <div class="summary-chips">
+          <div class="sum-chip"><span class="sum-num">${coverage}%</span><span class="sum-lbl">Coverage</span></div>
+          <div class="sum-chip sum-pass"><span class="sum-num">${passed}</span><span class="sum-lbl">Passed</span></div>
+          <div class="sum-chip sum-fail"><span class="sum-num">${attempted - passed}</span><span class="sum-lbl">Failed</span></div>
+          <div class="sum-chip sum-gray"><span class="sum-num">${notStarted}</span><span class="sum-lbl">Not started</span></div>
+          <div class="sum-chip"><span class="sum-num">${passRate}%</span><span class="sum-lbl">Pass rate</span></div>
+          <div class="sum-chip"><span class="sum-num">${avgScore}</span><span class="sum-lbl">Avg score</span></div>
+        </div>
+      </div>`;
+  } else if(focusEmployee){
+    // Stats for a single employee across all courses
+    const total = COURSES.length;
+    let attempted = 0, passed = 0;
+    COURSES.forEach(c => {
+      const rec = records[recKey(focusEmployee, c.id)];
+      if(rec){ attempted++; if(statusFor(rec.score, c.max) === 'Pass') passed++; }
+    });
+    const notStarted = total - attempted;
+    const passRate = attempted ? Math.round((passed/attempted)*100) : 0;
+    const coverage = total ? Math.round((attempted/total)*100) : 0;
+    panel.innerHTML = `
+      <div class="summary-bar">
+        <div class="summary-title">👤 ${escapeHtml(focusEmployee)}</div>
+        <div class="summary-chips">
+          <div class="sum-chip"><span class="sum-num">${coverage}%</span><span class="sum-lbl">Coverage</span></div>
+          <div class="sum-chip sum-pass"><span class="sum-num">${passed}/${total}</span><span class="sum-lbl">Passed</span></div>
+          <div class="sum-chip sum-fail"><span class="sum-num">${attempted - passed}</span><span class="sum-lbl">Failed</span></div>
+          <div class="sum-chip sum-gray"><span class="sum-num">${notStarted}</span><span class="sum-lbl">Not started</span></div>
+          <div class="sum-chip"><span class="sum-num">${passRate}%</span><span class="sum-lbl">Pass rate</span></div>
+        </div>
+      </div>`;
+  }
 }
 
 function renderCourseFilterOptions(){
@@ -706,6 +893,7 @@ function renderRecordsTable(){
   if(rows.length === 0){
     body.innerHTML = '';
     empty.style.display = 'block';
+    renderSummaryPanel();
     return;
   }
   empty.style.display = 'none';
@@ -725,6 +913,7 @@ function renderRecordsTable(){
 
   body.querySelectorAll('[data-action="edit"]').forEach(b => b.addEventListener('click', () => openModal(b.dataset.emp, b.dataset.course)));
   body.querySelectorAll('[data-action="delete"]').forEach(b => b.addEventListener('click', () => deleteRecord(b.dataset.emp, b.dataset.course)));
+  renderSummaryPanel();
 }
 
 function renderAll(){
@@ -918,6 +1107,7 @@ async function addEmployee(){
   if(!name){ showToast('Enter a name first.'); return; }
   if(EMPLOYEES.some(e => e.toLowerCase() === name.toLowerCase())){ showToast('That employee already exists.'); return; }
   EMPLOYEES.push(name);
+  sortEmployees();
   await saveEmployees();
   renderManageModal();
   renderAll();
@@ -936,6 +1126,7 @@ async function renameEmployee(oldName, newNameRaw){
   const idx = EMPLOYEES.indexOf(oldName);
   if(idx === -1) return;
   EMPLOYEES[idx] = newName;
+  sortEmployees();
   Object.keys(records).forEach(k => {
     if(k.startsWith(oldName + '||')){
       const courseId = k.split('||')[1];
@@ -1120,6 +1311,7 @@ function mergeBackup(data){
       summary.newEmployees++;
     }
   });
+  sortEmployees();
 
   // Courses: merge by id, newer updatedAt wins on conflict
   (data.courses || []).forEach(incoming => {
