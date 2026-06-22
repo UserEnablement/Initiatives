@@ -6,6 +6,7 @@
 <title>Training Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
     --navy-900:#0D2931;
@@ -209,6 +210,16 @@
   footer{text-align:center;font-size:.74rem;color:var(--gray-500);margin-top:6px;}
   footer button{background:none;border:none;color:var(--gray-500);text-decoration:underline;cursor:pointer;font-size:.74rem;}
 
+  .conn-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:11px 16px;border-radius:9px;margin-bottom:20px;font-size:.84rem;
+  }
+  .conn-connected{background:#E3F8F4;color:var(--teal-700);}
+  .conn-disconnected{background:#FFF4EC;color:#8A5A1E;border:1px solid #F0DEC4;}
+  .conn-unsupported{background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-300);}
+  .conn-banner strong{font-weight:700;}
+  .conn-banner .btn{flex-shrink:0;}
+
   @media (max-width:720px){
     .stats{grid-template-columns:repeat(2,1fr);}
     .form-grid{grid-template-columns:1fr 1fr;}
@@ -234,10 +245,13 @@
     </div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost" id="openManage">Manage ⚙</button>
+      <button class="btn btn-ghost" id="openBackup">Backup ⇄</button>
       <button class="btn btn-ghost" id="openExport">Export ↓</button>
       <button class="btn btn-primary" id="openAdd">+ Log a completion</button>
     </div>
   </div>
+
+  <div id="connectionBanner"></div>
 
   <div class="stats">
     <div class="stat-card"><div class="stat-num" id="statEmployees">0</div><div class="stat-label">Employees tracked</div></div>
@@ -301,7 +315,7 @@
   </div>
 
   <footer>
-    Data is saved automatically to your account. <button id="clearAllBtn">Clear all data</button>
+    Data is saved in this browser only. Use <strong>Backup ⇄</strong> to transfer or combine data across devices. <button id="clearAllBtn">Clear all data</button>
   </footer>
 </div>
 
@@ -338,59 +352,268 @@ function showToast(msg){
   window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-async function loadRecords(){
+function storageGet(key){
   try{
-    const res = await window.storage.get(RECORDS_KEY, false);
-    records = res && res.value ? JSON.parse(res.value) : {};
+    const v = localStorage.getItem(key);
+    return v === null ? null : v;
   }catch(e){
-    records = {};
+    return null;
   }
 }
-async function saveRecords(){
+function storageSet(key, value){
   try{
-    await window.storage.set(RECORDS_KEY, JSON.stringify(records), false);
+    localStorage.setItem(key, value);
+    return true;
   }catch(e){
-    showToast('Could not save — please try again.');
+    showToast('Could not save to this browser — storage may be full or disabled.');
+    return false;
   }
 }
 
+async function loadRecords(){
+  const v = storageGet(RECORDS_KEY);
+  records = v ? JSON.parse(v) : {};
+}
+async function saveRecords(){
+  storageSet(RECORDS_KEY, JSON.stringify(records));
+  if(fileConnected) await writeWorkbookToFile();
+}
+
 async function loadCourses(){
-  try{
-    const res = await window.storage.get(COURSES_KEY, false);
-    COURSES = res && res.value ? JSON.parse(res.value) : null;
-  }catch(e){
-    COURSES = null;
-  }
+  const v = storageGet(COURSES_KEY);
+  COURSES = v ? JSON.parse(v) : null;
   if(!COURSES){
-    COURSES = JSON.parse(JSON.stringify(DEFAULT_COURSES));
+    COURSES = JSON.parse(JSON.stringify(DEFAULT_COURSES)).map(c => ({...c, updatedAt: 0}));
     await saveCourses();
   }
 }
 async function saveCourses(){
-  try{
-    await window.storage.set(COURSES_KEY, JSON.stringify(COURSES), false);
-  }catch(e){
-    showToast('Could not save — please try again.');
-  }
+  storageSet(COURSES_KEY, JSON.stringify(COURSES));
+  if(fileConnected) await writeWorkbookToFile();
 }
 
 async function loadEmployees(){
-  try{
-    const res = await window.storage.get(EMPLOYEES_KEY, false);
-    EMPLOYEES = res && res.value ? JSON.parse(res.value) : null;
-  }catch(e){
-    EMPLOYEES = null;
-  }
+  const v = storageGet(EMPLOYEES_KEY);
+  EMPLOYEES = v ? JSON.parse(v) : null;
   if(!EMPLOYEES){
     EMPLOYEES = JSON.parse(JSON.stringify(DEFAULT_EMPLOYEES));
     await saveEmployees();
   }
 }
 async function saveEmployees(){
+  storageSet(EMPLOYEES_KEY, JSON.stringify(EMPLOYEES));
+  if(fileConnected) await writeWorkbookToFile();
+}
+
+/* ---------- Excel file connection (File System Access API + SheetJS) ---------- */
+const FSA_SUPPORTED = 'showOpenFilePicker' in window;
+let fileHandle = null;
+let workbook = null;
+let fileConnected = false;
+let connectedFileName = '';
+
+function idbOpen(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('training_tracker_fsa', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('handles');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGetHandle(){
   try{
-    await window.storage.set(EMPLOYEES_KEY, JSON.stringify(EMPLOYEES), false);
+    const db = await idbOpen();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('excelFile');
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }catch(e){ return null; }
+}
+async function idbSetHandle(handle){
+  try{
+    const db = await idbOpen();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'excelFile');
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }catch(e){ return false; }
+}
+async function idbClearHandle(){
+  try{
+    const db = await idbOpen();
+    const tx = db.transaction('handles', 'readwrite');
+    tx.objectStore('handles').delete('excelFile');
+  }catch(e){}
+}
+
+async function connectToExcelFile(){
+  try{
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'Excel Workbook', accept: {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']} }]
+    });
+    const perm = await handle.requestPermission({mode:'readwrite'});
+    if(perm !== 'granted'){ showToast('Permission was not granted.'); return; }
+    fileHandle = handle;
+    await idbSetHandle(handle);
+    await loadFromExcelFile();
+    showToast('Connected to ' + connectedFileName + '.');
   }catch(e){
-    showToast('Could not save — please try again.');
+    if(e.name !== 'AbortError') showToast('Could not connect to that file.');
+  }
+}
+
+async function reconnectWithPermission(){
+  if(!fileHandle){ return connectToExcelFile(); }
+  try{
+    const perm = await fileHandle.requestPermission({mode:'readwrite'});
+    if(perm === 'granted'){
+      await loadFromExcelFile();
+      showToast('Reconnected to ' + connectedFileName + '.');
+    } else {
+      showToast('Permission was not granted.');
+    }
+  }catch(e){
+    showToast('Could not reconnect — try Connect again.');
+  }
+}
+
+async function disconnectExcelFile(){
+  fileHandle = null;
+  workbook = null;
+  fileConnected = false;
+  connectedFileName = '';
+  await idbClearHandle();
+  renderConnectionBanner();
+  showToast('Disconnected. Saving to this browser only.');
+}
+
+async function tryReconnectSilently(){
+  const handle = await idbGetHandle();
+  if(!handle) { renderConnectionBanner(); return; }
+  fileHandle = handle;
+  try{
+    const perm = await handle.queryPermission({mode:'readwrite'});
+    if(perm === 'granted'){
+      await loadFromExcelFile();
+      return;
+    }
+  }catch(e){}
+  // Permission needs a fresh user click — show the Reconnect button.
+  renderConnectionBanner();
+}
+
+async function loadFromExcelFile(){
+  const file = await fileHandle.getFile();
+  connectedFileName = file.name;
+  const buf = await file.arrayBuffer();
+  workbook = XLSX.read(buf, {type:'array'});
+
+  const empRows = XLSX.utils.sheet_to_json(workbook.Sheets['Employees'] || {}, {defval:''});
+  const courseRows = XLSX.utils.sheet_to_json(workbook.Sheets['Courses'] || {}, {defval:''});
+  const recordRows = XLSX.utils.sheet_to_json(workbook.Sheets['Records'] || {}, {defval:''});
+
+  const newEmployees = empRows.map(r => String(r.Employee || '').trim()).filter(Boolean);
+  const newCourses = courseRows.map(r => ({
+    id: String(r.CourseId || '').trim(),
+    name: String(r.CourseName || '').trim(),
+    max: Number(r.MaxScore) || 0,
+    updatedAt: 0
+  })).filter(c => c.id && c.name);
+
+  const nameToId = {};
+  newCourses.forEach(c => { nameToId[c.name.toLowerCase()] = c.id; });
+
+  const newRecords = {};
+  let skipped = 0;
+  recordRows.forEach(r => {
+    const emp = String(r.Employee || '').trim();
+    const courseName = String(r.Course || '').trim();
+    const courseId = nameToId[courseName.toLowerCase()];
+    if(!emp || !courseId){ skipped++; return; }
+    const key = recKey(emp, courseId);
+    const updatedAt = Number(r.UpdatedAt) || 0;
+    if(!newRecords[key] || updatedAt >= (newRecords[key].updatedAt || 0)){
+      newRecords[key] = { date: String(r.DateCompleted || ''), score: Number(r.Score) || 0, updatedAt };
+    }
+  });
+
+  EMPLOYEES = newEmployees.length ? newEmployees : EMPLOYEES;
+  COURSES = newCourses.length ? newCourses : COURSES;
+  records = newRecords;
+  fileConnected = true;
+
+  // Mirror into local storage as an offline safety-net cache (does not re-trigger a file write).
+  storageSet(EMPLOYEES_KEY, JSON.stringify(EMPLOYEES));
+  storageSet(COURSES_KEY, JSON.stringify(COURSES));
+  storageSet(RECORDS_KEY, JSON.stringify(records));
+
+  renderCourseFilterOptions();
+  renderAll();
+  if(skipped) showToast(`Loaded from file (${skipped} row(s) had an unrecognized course and were skipped).`);
+}
+
+async function writeWorkbookToFile(){
+  if(!fileConnected || !fileHandle || !workbook) return false;
+  try{
+    const empSheet = XLSX.utils.json_to_sheet(EMPLOYEES.map(e => ({Employee: e})));
+    workbook.Sheets['Employees'] = empSheet;
+    if(!workbook.SheetNames.includes('Employees')) workbook.SheetNames.push('Employees');
+
+    const courseSheet = XLSX.utils.json_to_sheet(COURSES.map(c => ({CourseId: c.id, CourseName: c.name, MaxScore: c.max})));
+    workbook.Sheets['Courses'] = courseSheet;
+    if(!workbook.SheetNames.includes('Courses')) workbook.SheetNames.push('Courses');
+
+    const recordRows = Object.keys(records).map(key => {
+      const [emp, courseId] = key.split('||');
+      const c = courseById(courseId);
+      const rec = records[key];
+      return {
+        Employee: emp,
+        Course: c ? c.name : courseId,
+        DateCompleted: rec.date,
+        Score: rec.score,
+        MaxScore: c ? c.max : '',
+        Status: c ? statusFor(rec.score, c.max) : '',
+        UpdatedAt: rec.updatedAt || Date.now()
+      };
+    });
+    const recordSheet = XLSX.utils.json_to_sheet(recordRows);
+    workbook.Sheets['Records'] = recordSheet;
+    if(!workbook.SheetNames.includes('Records')) workbook.SheetNames.push('Records');
+
+    const out = XLSX.write(workbook, {type:'array', bookType:'xlsx'});
+    const writable = await fileHandle.createWritable();
+    await writable.write(out);
+    await writable.close();
+    return true;
+  }catch(e){
+    showToast('Could not save to the Excel file — your data is still saved in this browser.');
+    return false;
+  }
+}
+
+function renderConnectionBanner(){
+  const el = document.getElementById('connectionBanner');
+  if(!FSA_SUPPORTED){
+    el.innerHTML = `<div class="conn-banner conn-unsupported">Direct Excel connection needs Chrome or Edge — this browser will keep saving to local storage. Use <strong>Backup ⇄</strong> to transfer data.</div>`;
+    return;
+  }
+  if(fileConnected){
+    el.innerHTML = `<div class="conn-banner conn-connected">✅ Connected to <strong>${escapeHtml(connectedFileName)}</strong> — every change saves straight to this file.
+      <button class="btn btn-ghost btn-sm" id="bannerDisconnect">Disconnect</button></div>`;
+    document.getElementById('bannerDisconnect').addEventListener('click', disconnectExcelFile);
+  } else if(fileHandle){
+    el.innerHTML = `<div class="conn-banner conn-disconnected">⚠️ Excel connection needs to be reconfirmed for this session.
+      <button class="btn btn-primary btn-sm" id="bannerReconnect">Reconnect</button></div>`;
+    document.getElementById('bannerReconnect').addEventListener('click', reconnectWithPermission);
+  } else {
+    el.innerHTML = `<div class="conn-banner conn-disconnected">📄 Not connected to your SharePoint Excel file — currently saving to this browser only.
+      <button class="btn btn-primary btn-sm" id="bannerConnect">Connect to Excel file</button></div>`;
+    document.getElementById('bannerConnect').addEventListener('click', connectToExcelFile);
   }
 }
 
@@ -505,6 +728,7 @@ function renderRecordsTable(){
 }
 
 function renderAll(){
+  renderConnectionBanner();
   renderStats();
   renderMatrix();
   renderRecordsTable();
@@ -590,7 +814,7 @@ function openModal(presetEmp, presetCourse){
     if(!date){ showToast('Please add a completion date.'); return; }
     if(isNaN(score) || score < 0 || score > c.max){ showToast(`Score must be between 0 and ${c.max}.`); return; }
 
-    records[recKey(emp, cId)] = { date, score };
+    records[recKey(emp, cId)] = { date, score, updatedAt: Date.now() };
     await saveRecords();
     closeModal();
     renderAll();
@@ -748,7 +972,7 @@ async function addCourse(){
   if(isNaN(max) || max <= 0){ showToast('Enter a max score greater than 0.'); return; }
   if(COURSES.some(c => c.name.toLowerCase() === name.toLowerCase())){ showToast('That course already exists.'); return; }
   const id = makeCourseId(name);
-  COURSES.push({ id, name, max });
+  COURSES.push({ id, name, max, updatedAt: Date.now() });
   await saveCourses();
   renderCourseFilterOptions();
   renderManageModal();
@@ -767,6 +991,7 @@ async function renameCourse(id, newNameRaw){
     return;
   }
   course.name = newName;
+  course.updatedAt = Date.now();
   await saveCourses();
   renderCourseFilterOptions();
   renderManageModal();
@@ -785,6 +1010,7 @@ async function updateCourseMax(id, valueRaw){
   }
   if(max === course.max) return;
   course.max = max;
+  course.updatedAt = Date.now();
   await saveCourses();
   renderManageModal();
   renderAll();
@@ -806,6 +1032,130 @@ async function removeCourse(id){
   renderManageModal();
   renderAll();
   showToast('Course removed.');
+}
+
+/* ---------- Backup: cross-device JSON export/import with smart merge ---------- */
+function openBackupModal(){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Backup &amp; transfer data</h3>
+        <p class="modal-sub">Data is saved only in this browser. Use a backup file to move it to another device, or to combine entries from a colleague — newer edits win automatically when the same record exists in both.</p>
+        <div class="field">
+          <button class="btn btn-primary" id="bkDownload" style="width:100%;justify-content:center;">Download backup file</button>
+        </div>
+        <div class="field">
+          <label>Import a backup file</label>
+          <input type="file" id="bkFileInput" accept="application/json,.json">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="bkClose">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('bkClose').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', (e) => { if(e.target.id === 'modalOverlay') closeModal(); });
+  document.getElementById('bkDownload').addEventListener('click', downloadBackup);
+  document.getElementById('bkFileInput').addEventListener('change', handleBackupFile);
+}
+
+function downloadBackup(){
+  const payload = {
+    type: 'training-tracker-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    employees: EMPLOYEES,
+    courses: COURSES,
+    records: records
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `training-tracker-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded.');
+}
+
+function handleBackupFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    let data;
+    try{
+      data = JSON.parse(reader.result);
+    }catch(err){
+      showToast('That file isn\'t valid JSON.');
+      return;
+    }
+    if(!data || data.type !== 'training-tracker-backup' || !data.employees || !data.courses || !data.records){
+      showToast('That doesn\'t look like a training tracker backup file.');
+      return;
+    }
+    const summary = mergeBackup(data);
+    await Promise.all([saveEmployees(), saveCourses(), saveRecords()]);
+    renderCourseFilterOptions();
+    closeModal();
+    renderAll();
+    showToast(`Merged: ${summary.newEmployees} new employee(s), ${summary.newCourses} new course(s), ${summary.newRecords} new record(s), ${summary.updatedRecords} updated.`);
+  };
+  reader.readAsText(file);
+}
+
+function mergeBackup(data){
+  const summary = { newEmployees:0, newCourses:0, newRecords:0, updatedRecords:0 };
+
+  // Employees: union, case-insensitive de-dupe
+  const existingLower = EMPLOYEES.map(e => e.toLowerCase());
+  (data.employees || []).forEach(name => {
+    if(!existingLower.includes(String(name).toLowerCase())){
+      EMPLOYEES.push(name);
+      existingLower.push(String(name).toLowerCase());
+      summary.newEmployees++;
+    }
+  });
+
+  // Courses: merge by id, newer updatedAt wins on conflict
+  (data.courses || []).forEach(incoming => {
+    const local = courseById(incoming.id);
+    if(!local){
+      COURSES.push(incoming);
+      summary.newCourses++;
+    } else {
+      const incomingTime = incoming.updatedAt || 0;
+      const localTime = local.updatedAt || 0;
+      if(incomingTime > localTime){
+        local.name = incoming.name;
+        local.max = incoming.max;
+        local.updatedAt = incomingTime;
+      }
+    }
+  });
+
+  // Records: merge by key, newer updatedAt wins on conflict
+  Object.keys(data.records || {}).forEach(key => {
+    const incoming = data.records[key];
+    const local = records[key];
+    if(!local){
+      records[key] = incoming;
+      summary.newRecords++;
+    } else {
+      const incomingTime = incoming.updatedAt || 0;
+      const localTime = local.updatedAt || 0;
+      if(incomingTime > localTime){
+        records[key] = incoming;
+        summary.updatedRecords++;
+      }
+    }
+  });
+
+  return summary;
 }
 
 /* ---------- Export ---------- */
@@ -904,10 +1254,13 @@ async function init(){
   document.getElementById('openAdd').addEventListener('click', () => openModal(null, null));
   document.getElementById('openExport').addEventListener('click', openExportModal);
   document.getElementById('openManage').addEventListener('click', openManageModal);
+  document.getElementById('openBackup').addEventListener('click', openBackupModal);
   document.getElementById('clearAllBtn').addEventListener('click', clearAll);
   document.getElementById('searchEmployee').addEventListener('input', renderRecordsTable);
   document.getElementById('filterCourse').addEventListener('change', renderRecordsTable);
   document.getElementById('filterStatus').addEventListener('change', renderRecordsTable);
+
+  await tryReconnectSilently(); // overrides local data with the file's data if already authorized
 }
 init();
 </script>
