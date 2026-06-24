@@ -31,7 +31,9 @@ input { font-family: inherit; }
 
 /* ── Sidebar ── */
 #sidebar { width: 260px; background: var(--primary-dark); display: flex; flex-direction: column; flex-shrink: 0; color: #fff; }
-.sb-head { padding: 20px 16px 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.sb-head { padding: 20px 16px 14px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 12px; }
+.sb-logo { width: 34px; height: auto; flex-shrink: 0; opacity: .95; }
+.sb-head-text { min-width: 0; }
 .sb-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 2px; }
 .sb-sub { font-size: 11px; color: rgba(255,255,255,.5); }
 .sb-newbtn-wrap { padding: 14px 12px 8px; }
@@ -205,6 +207,7 @@ input { font-family: inherit; }
 .upload-msg-info { background: #EEF4FB; color: #1A4C77; border: 1px solid #7CB4E4; }
 
 /* ── Competency breakdown chart ── */
+.breakdown-radar-wrap { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 .breakdown-filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .breakdown-filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 600; background: var(--surface); color: var(--text-med); }
 .breakdown-filter-btn:hover { border-color: var(--primary); color: var(--primary); }
@@ -218,6 +221,16 @@ input { font-family: inherit; }
 .breakdown-bar-line { display: flex; align-items: center; gap: 7px; }
 .breakdown-bar-label { font-size: 10px; color: var(--text-light); width: 28px; flex-shrink: 0; }
 .breakdown-badge { display: flex; justify-content: flex-end; }
+
+.idp-verb-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.field-select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text-dark); background: var(--surface); font-family: inherit; }
+.field-select:focus { border-color: var(--primary); outline: none; }
+.idp-full-info { margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.idp-full-info-summary { padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--primary-dark); cursor: pointer; background: var(--bg); list-style: none; }
+.idp-full-info-summary::-webkit-details-marker { display: none; }
+.idp-full-info-body { padding: 14px; background: #FAFAFA; border-top: 1px solid var(--border); }
+.idp-full-info-body .lib-panels-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+.idp-full-info-body .lib-panel { padding: 12px; }
 
 /* ── Build IDP tab ── */
 .idp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
@@ -849,6 +862,7 @@ function computeRows(profile, COMPS) {
 </script>
 
 <script>
+const LOGO_BASE64 = "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";
 // ═══════════════════════════════════════════════════════════════════════
 // DERIVED MAPS
 // ═══════════════════════════════════════════════════════════════════════
@@ -861,6 +875,17 @@ const compById = {};
 COMPS.forEach(c => { compById[c.id] = c; });
 const FACTOR_COLORS = { I: "#3273AC", II: "#038C8C", III: "#37A586", IV: "#9C2E8B" };
 const FACTOR_BG = { I: "#EEF4FB", II: "#E8F7F7", III: "#EAF6F1", IV: "#F7EEF6" };
+
+// ── SMART objective verb prefixes ──
+// Some KF competency names already read as action phrases ("Ensures Accountability",
+// "Drives Results") and work fine on their own at the start of a SMART sentence.
+// Others are nouns/adjectives ("Courage", "Tech Savvy", "Strategic Mindset") and read
+// awkwardly without a verb in front. This set lists the ones that DON'T need a prefix;
+// everything else defaults to "Develop" but stays user-editable via a dropdown.
+const NO_VERB_NEEDED_IDS = new Set([1, 3, 4, 6, 7, 8, 9, 13, 14, 15, 16, 19, 21, 24, 25, 26, 28, 29, 32, 34, 36, 37, 38]);
+const VERB_OPTIONS = ["", "Develop", "Improve", "Strengthen", "Build", "Demonstrate", "Increase", "Enhance", "Practice", "Grow"];
+function defaultVerbFor(compId) { return NO_VERB_NEEDED_IDS.has(compId) ? "" : "Develop"; }
+function smartSentenceLead(verb, compName) { return verb ? `${verb} ${compName}` : compName; }
 
 // ═══════════════════════════════════════════════════════════════════════
 // APP STATE
@@ -920,13 +945,20 @@ function renderSidebar() {
   return renderProfilesSidebar();
 }
 
+function renderSbHead(subtitle) {
+  return `<div class="sb-head">
+    <img class="sb-logo" src="data:image/png;base64,${LOGO_BASE64}" alt="Oliver logo"/>
+    <div class="sb-head-text">
+      <div class="sb-title">KF Leadership</div>
+      <div class="sb-sub">${subtitle}</div>
+    </div>
+  </div>`;
+}
+
 function renderProfilesSidebar() {
   const sorted = getSorted();
   let html = `
-    <div class="sb-head">
-      <div class="sb-title">KF Leadership</div>
-      <div class="sb-sub">Self vs. Team-Importance Profile</div>
-    </div>
+    ${renderSbHead("Self vs. Team-Importance Profile")}
     ${renderSectionSwitcher()}
     <div class="sb-newbtn-wrap">
       <button class="btn btn-primary btn-block" data-action="new-profile">+ New Profile</button>
@@ -946,7 +978,7 @@ function renderProfilesSidebar() {
         <div class="sb-card-badges">
           ${hasSelf ? `<span class="badge badge-self">Self ✓</span>` : ``}
           ${hasImp ? `<span class="badge badge-imp">Importance ✓</span>` : ``}
-          ${goalCnt > 0 ? `<span class="badge badge-team">${goalCnt} IDP goal${goalCnt !== 1 ? "s" : ""}</span>` : ``}
+          ${goalCnt > 0 ? `<span class="badge badge-team">${goalCnt} LDP goal${goalCnt !== 1 ? "s" : ""}</span>` : ``}
         </div>
       </div>`;
   });
@@ -956,10 +988,7 @@ function renderProfilesSidebar() {
 
 function renderLibrarySidebar() {
   return `
-    <div class="sb-head">
-      <div class="sb-title">KF Leadership</div>
-      <div class="sb-sub">38-Competency Reference Library</div>
-    </div>
+    ${renderSbHead("38-Competency Reference Library")}
     ${renderSectionSwitcher()}
     <div class="lib-search-wrap">
       <input id="lib-search" class="lib-search-input" type="text" placeholder="Search competencies…" autocomplete="off" value="${esc(App.libQuery)}"/>
@@ -1105,7 +1134,7 @@ function renderViewerView(profile) {
     { k: "detail", label: "📋 Full Comparison" },
     { k: "gap", label: "🟢🟡 Strengths & Gaps" },
     { k: "priority", label: "🎯 Dev Priorities" },
-    { k: "idp", label: "📝 Build IDP" },
+    { k: "idp", label: "📝 Build LDP" },
     { k: "upload", label: "⬆ Upload Data" },
   ];
   let tabBtns = tabs.map(t => `
@@ -1146,7 +1175,7 @@ function renderViewerView(profile) {
 function renderExcelBanner(profileId) {
   if (!FS_API_SUPPORTED) {
     return `<div class="excel-banner excel-banner-muted">
-      💡 Tip: Chrome or Edge can sync this leader's profile and IDP directly to an Excel file on OneDrive, so it survives even if browser storage is cleared. Not available in this browser.
+      💡 Tip: Chrome or Edge can sync this leader's profile and LDP directly to an Excel file on OneDrive, so it survives even if browser storage is cleared. Not available in this browser.
     </div>`;
   }
   const status = App.excelStatus[profileId];
@@ -1188,7 +1217,7 @@ function renderOverviewTab(profile, rows) {
     const ids = f.facets.flatMap(fa => fa.ids);
     const sv = ids.map(id => profile.self ? profile.self[id] : null).filter(v => v != null);
     const iv = ids.map(id => profile.importance ? profile.importance[id] : null).filter(v => v != null);
-    return { factor: f.factorName, code: f.factor, self: sv.length ? +avgOf(sv).toFixed(2) : 0, team: iv.length ? +avgOf(iv).toFixed(2) : 0 };
+    return { label: f.factorName, code: f.factor, self: sv.length ? +avgOf(sv).toFixed(2) : 0, team: iv.length ? +avgOf(iv).toFixed(2) : 0 };
   });
 
   let html = `<div class="grid-4">`;
@@ -1214,7 +1243,7 @@ function renderOverviewTab(profile, rows) {
       <div class="grid-4" style="margin-top:8px;">
         ${radarData.map(d => `
           <div class="radar-legend-cell" style="cursor:pointer;${App.breakdownFilter === d.code ? `outline:2px solid var(--primary);` : ``}" data-action="set-breakdown-filter" data-filter="${d.code}">
-            <div class="radar-legend-factor">${d.factor}</div>
+            <div class="radar-legend-factor">${d.label}</div>
             <div class="radar-legend-vals">
               ${hasSelf ? `<span style="color:var(--self)">Self: ${fmt(d.self)}</span>` : ``}
               ${hasImp ? `<span style="color:var(--team)">Importance: ${fmt(d.team)}</span>` : ``}
@@ -1254,6 +1283,26 @@ function renderCompletenessRow(label, sub, cnt, filled, color) {
 }
 
 // ── Full competency breakdown chart (all 38, or filtered to one factor) ──
+// ── Radar data for the breakdown panel: 12 facets when "all", or per-competency when one factor is selected ──
+function facetLevelRadarData(rows) {
+  const data = [];
+  TAXONOMY.forEach(f => {
+    f.facets.forEach(facet => {
+      const facetRows = rows.filter(r => r.facetCode === facet.code);
+      const sv = facetRows.map(r => r.self).filter(v => v != null);
+      const iv = facetRows.map(r => r.importance).filter(v => v != null);
+      data.push({ label: facet.code, code: f.factor, self: sv.length ? +avgOf(sv).toFixed(2) : 0, team: iv.length ? +avgOf(iv).toFixed(2) : 0 });
+    });
+  });
+  return data;
+}
+function compLevelRadarData(rows, factorCode) {
+  return rows.filter(r => r.factor === factorCode).map(r => ({
+    label: String(r.id).padStart(2, "0"), code: r.id,
+    self: r.self != null ? r.self : 0, team: r.importance != null ? r.importance : 0,
+  }));
+}
+
 function renderBreakdownPanel(rows, hasSelf, hasImp) {
   const filters = [
     { k: "all", label: "All 38" },
@@ -1279,10 +1328,21 @@ function renderBreakdownPanel(rows, hasSelf, hasImp) {
     });
   });
 
+  let radarHtml;
+  if (App.breakdownFilter === "all") {
+    radarHtml = `<p class="panel-desc" style="margin-top:0;">All 12 facets (one point per facet, averaged). Click a facet to drill into its factor.</p>
+      ${renderRadarSVG(facetLevelRadarData(rows), hasSelf, hasImp, { action: "set-breakdown-filter", attrName: "filter", fontSize: 11 })}`;
+  } else {
+    const factorName = (TAXONOMY.find(f => f.factor === App.breakdownFilter) || {}).factorName || "";
+    radarHtml = `<p class="panel-desc" style="margin-top:0;">Every competency in <strong>${esc(factorName)}</strong> (labelled by number — match it to the list below). Click a point to open its full reference card.</p>
+      ${renderRadarSVG(compLevelRadarData(rows, App.breakdownFilter), hasSelf, hasImp, { action: "view-in-library", attrName: "id", fontSize: 11, radius: 100 })}`;
+  }
+
   return `<div class="panel">
     <h3 class="panel-title">Competency Breakdown</h3>
     <p class="panel-desc">Every competency, self vs. importance, at a glance. Click a row to open its full reference card in the Library.</p>
     <div class="breakdown-filters">${filterBtns}</div>
+    <div class="breakdown-radar-wrap">${radarHtml}</div>
     <div class="breakdown-chart">${rowsHtml}</div>
   </div>`;
 }
@@ -1300,9 +1360,14 @@ function renderBreakdownRow(row, hasSelf, hasImp) {
   </div>`;
 }
 
-// ── Hand-rolled radar chart (no chart library) ──
-function renderRadarSVG(data, hasSelf, hasTeam) {
-  const n = data.length, cx = 200, cy = 160, R = 110;
+// ── Hand-rolled radar chart (no chart library). data: [{label, code, self, team}] ──
+function renderRadarSVG(data, hasSelf, hasTeam, opts) {
+  opts = opts || {};
+  const action = opts.action || "set-breakdown-filter";
+  const attrName = opts.attrName || "filter";
+  const fontSize = opts.fontSize || 12;
+  const R = opts.radius || 110;
+  const n = data.length, cx = 200, cy = 160;
   const angle = i => (Math.PI * 2 * i / n) - Math.PI / 2;
   const ptFor = (i, val) => {
     const r = (val / 3) * R;
@@ -1318,8 +1383,8 @@ function renderRadarSVG(data, hasSelf, hasTeam) {
   data.forEach((d, i) => {
     const [x, y] = ptFor(i, 3);
     axes += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
-    const [lx, ly] = ptFor(i, 3.55);
-    labels += `<text x="${lx}" y="${ly}" font-size="12" font-weight="700" fill="var(--primary-dark)" text-anchor="middle" dominant-baseline="middle" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" data-action="set-breakdown-filter" data-filter="${d.code}">${esc(d.factor)}</text>`;
+    const [lx, ly] = ptFor(i, 3.42);
+    labels += `<text x="${lx}" y="${ly}" font-size="${fontSize}" font-weight="700" fill="var(--primary-dark)" text-anchor="middle" dominant-baseline="middle" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" data-action="${action}" data-${attrName}="${d.code}">${esc(d.label)}</text>`;
   });
   let selfPoly = "", teamPoly = "";
   if (hasSelf) {
@@ -1406,7 +1471,7 @@ function renderCompRow(row, hasSelf, hasImp) {
           ${(row.less || []).slice(0, 3).map(b => `<div class="comp-detail-item" style="border-left-color:#FBBF24">${esc(b)}</div>`).join("")}
         </div>
       </div>
-      <button class="btn btn-secondary btn-sm" style="margin-top:10px;" data-action="add-to-idp" data-id="${row.id}">+ Add to IDP</button>
+      <button class="btn btn-secondary btn-sm" style="margin-top:10px;" data-action="add-to-idp" data-id="${row.id}">+ Add to LDP</button>
       <button class="btn btn-ghost btn-sm" style="margin-top:10px;" data-action="view-in-library" data-id="${row.id}">📚 View Full Profile in Library</button>
     </div>
   </details>`;
@@ -1460,7 +1525,7 @@ function renderGapTab(rows) {
       <div style="text-align:center;font-weight:700;color:var(--self)">${fmt(row.self)}</div>
       <div style="text-align:center;font-weight:700;color:var(--team)">${fmt(row.importance)}</div>
       <div style="text-align:center">${renderFlagBadge(row.flag)}</div>
-      <div style="text-align:center"><button class="btn btn-secondary btn-sm" data-action="add-to-idp" data-id="${row.id}">+ IDP</button></div>
+      <div style="text-align:center"><button class="btn btn-secondary btn-sm" data-action="add-to-idp" data-id="${row.id}">+ LDP</button></div>
     </div>`;
   });
   if (filtered.length === 0) html += `<div class="empty-inline-sm">No data for this filter. Upload self-assessment and team importance data to see strengths and gaps.</div>`;
@@ -1475,7 +1540,7 @@ function renderPriorityTab(rows, profile) {
   const prios = rows.filter(r => r.devNeed > 0).sort((a, b) => b.devNeed - a.devNeed).slice(0, 7);
   let html = `<div class="info-banner info-banner-green">
     <strong>Priority score</strong> = Team Importance × (3 – Self-Assessed Skill). Top priorities are competencies that are
-    <strong>essential to the team</strong> where the <strong>leader's self-rated skill is lower</strong> — your highest-leverage IDP targets.
+    <strong>essential to the team</strong> where the <strong>leader's self-rated skill is lower</strong> — your highest-leverage LDP targets.
   </div>`;
   prios.forEach((row, i) => {
     const ii = impInfo(row.importance);
@@ -1492,7 +1557,7 @@ function renderPriorityTab(rows, profile) {
           <div class="prio-stat"><div class="prio-stat-val" style="color:var(--team)">${fmt(row.importance)}</div><div class="prio-stat-label">Importance</div></div>
           <span class="chip" style="color:${ii.color};background:${ii.color}22">${ii.label}</span>
           ${renderFlagBadge(row.flag)}
-          <button class="btn ${already ? "btn-secondary" : "btn-primary"} btn-sm" data-action="add-to-idp" data-id="${row.id}" ${already ? "disabled" : ""}>${already ? "✓ In IDP" : "+ Add to IDP"}</button>
+          <button class="btn ${already ? "btn-secondary" : "btn-primary"} btn-sm" data-action="add-to-idp" data-id="${row.id}" ${already ? "disabled" : ""}>${already ? "✓ In LDP" : "+ Add to LDP"}</button>
         </div>
       </div>
       <div class="prio-body">
@@ -1520,30 +1585,54 @@ function renderPriorityTab(rows, profile) {
 function renderIdpTab(profile) {
   const goals = profile.idpGoals || [];
   let html = `<div class="info-banner info-banner-blue idp-banner-row">
-    <div>Each goal follows the SMART format from the workshop: <em>(Skill) by completing my IDP to (reason) by (date).</em>
+    <div>Each goal follows the SMART format from the workshop: <em>(Verb) (Competency) by completing my LDP to (reason) by (date).</em>
     Add competencies from the Gap or Priority tabs, then fill in the reason, date, and action plan here.</div>
-    <button class="btn btn-primary btn-sm" data-action="print-idp" ${goals.length === 0 ? "disabled" : ""}>🖨 Print / Save IDP as PDF</button>
+    <button class="btn btn-primary btn-sm" data-action="print-idp" ${goals.length === 0 ? "disabled" : ""}>🖨 Print / Save LDP as PDF</button>
   </div>`;
 
   if (goals.length === 0) {
     html += `<div class="empty-inline">
       <div class="empty-inline-icon">📝</div>
-      <div class="empty-inline-title">No IDP goals yet</div>
-      <div class="empty-inline-sub">Go to the Strengths &amp; Gaps or Dev Priorities tab and click "+ Add to IDP" on a competency to start building this leader's plan.</div>
+      <div class="empty-inline-title">No LDP goals yet</div>
+      <div class="empty-inline-sub">Go to the Strengths &amp; Gaps or Dev Priorities tab and click "+ Add to LDP" on a competency to start building this leader's plan.</div>
     </div>`;
     return html;
   }
 
   goals.forEach(g => {
     const comp = compById[g.compId] || {};
+    const verbOptionsHtml = VERB_OPTIONS.map(v =>
+      `<option value="${esc(v)}" ${g.verb === v ? "selected" : ""}>${v === "" ? "(no verb — use as written)" : v}</option>`
+    ).join("");
     html += `<div class="idp-card" data-goal-id="${g.id}">
       <div class="idp-card-head">
         <div class="idp-card-title">${String(g.compId).padStart(2, "0")}. ${esc(comp.name || g.name)}</div>
         <button class="btn btn-danger btn-sm" data-action="remove-goal" data-goal-id="${g.id}">✕ Remove</button>
       </div>
-      <div class="idp-smart-preview" data-goal-preview="${g.id}">
-        <strong>${esc(comp.name || g.name)}</strong> by completing my IDP to <em>${esc(g.reason) || "&lt;reason&gt;"}</em> by <em>${esc(g.date) || "&lt;date&gt;"}</em>.
+
+      <div class="idp-verb-row">
+        <label class="field-label" style="margin-bottom:0;">Goal verb:</label>
+        <select class="field-select" data-field="verb" data-goal-id="${g.id}">${verbOptionsHtml}</select>
+        <span class="field-hint">Many KF competency names (e.g. "Courage", "Tech Savvy") read better with a verb in front; others ("Drives Results") already work on their own.</span>
       </div>
+
+      <div class="idp-smart-preview" data-goal-preview="${g.id}" data-comp-name="${esc(comp.name || g.name)}">
+        <strong>${esc(smartSentenceLead(g.verb, comp.name || g.name))}</strong> by completing my LDP to <em>${esc(g.reason) || "&lt;reason&gt;"}</em> by <em>${esc(g.date) || "&lt;date&gt;"}</em>.
+      </div>
+
+      <details class="idp-full-info">
+        <summary class="idp-full-info-summary">📖 Show full competency info (definition, skilled &amp; overused behaviors)</summary>
+        <div class="idp-full-info-body">
+          <p class="comp-def"><strong>Definition:</strong> ${esc(comp.definition || "")}</p>
+          <div class="lib-panels-grid">
+            ${renderLibPanel("Skilled", comp.skilled, "var(--primary)")}
+            ${renderLibPanel("Less Skilled", comp.less, "#9C6B00")}
+            ${renderLibPanel("Talented", comp.talented, "var(--self)")}
+            ${renderLibPanel("Overused Skill", comp.overused, "var(--blindspot)")}
+          </div>
+        </div>
+      </details>
+
       <div class="idp-field-row">
         <div class="idp-field">
           <label class="field-label">Reason</label>
@@ -1663,12 +1752,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.matches(".hidden-file-input") && e.target.files[0]) {
       await handleFileUpload(e.target.files[0], e.target.dataset.uploadType);
       e.target.value = "";
+    } else if (e.target.matches("select[data-field=\"verb\"][data-goal-id]")) {
+      updateSmartPreview(e.target.closest(".idp-card"), e.target.dataset.goalId);
+      await handleGoalFieldSave(e.target.dataset.goalId, e.target.dataset.field, e.target.value);
     } else if (e.target.matches("[data-goal-id][data-field]")) {
       await handleGoalFieldSave(e.target.dataset.goalId, e.target.dataset.field, e.target.value);
     }
   });
 
-  // Live-update the SMART sentence preview as reason/date change, without a full re-render
+  // Live-update the SMART sentence preview as verb/reason/date change, without a full re-render
   document.body.addEventListener("input", e => {
     if (e.target.id === "lib-search") {
       App.libQuery = e.target.value;
@@ -1676,21 +1768,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     if (e.target.matches('input[data-field="reason"][data-goal-id], input[data-field="date"][data-goal-id]')) {
-      const goalId = e.target.dataset.goalId;
-      const card = e.target.closest(".idp-card");
-      if (!card) return;
-      const reasonEl = card.querySelector('[data-field="reason"]');
-      const dateEl = card.querySelector('[data-field="date"]');
-      const preview = card.querySelector(`[data-goal-preview="${goalId}"]`);
-      if (preview) {
-        const strongTitle = preview.querySelector("strong") ? preview.querySelector("strong").outerHTML : "";
-        const reasonVal = reasonEl ? reasonEl.value : "";
-        const dateVal = dateEl ? dateEl.value : "";
-        preview.innerHTML = `${strongTitle} by completing my IDP to <em>${esc(reasonVal) || "&lt;reason&gt;"}</em> by <em>${esc(dateVal) || "&lt;date&gt;"}</em>.`;
-      }
+      updateSmartPreview(e.target.closest(".idp-card"), e.target.dataset.goalId);
     }
   });
 });
+
+function updateSmartPreview(card, goalId) {
+  if (!card) return;
+  const verbEl = card.querySelector('[data-field="verb"]');
+  const reasonEl = card.querySelector('[data-field="reason"]');
+  const dateEl = card.querySelector('[data-field="date"]');
+  const preview = card.querySelector(`[data-goal-preview="${goalId}"]`);
+  if (!preview) return;
+  const compName = preview.dataset.compName || "";
+  const verbVal = verbEl ? verbEl.value : "";
+  const reasonVal = reasonEl ? reasonEl.value : "";
+  const dateVal = dateEl ? dateEl.value : "";
+  preview.innerHTML = `<strong>${esc(smartSentenceLead(verbVal, compName))}</strong> by completing my LDP to <em>${esc(reasonVal) || "&lt;reason&gt;"}</em> by <em>${esc(dateVal) || "&lt;date&gt;"}</em>.`;
+}
 
 async function handleSaveNewProfile() {
   const name = document.getElementById("inp-name").value.trim();
@@ -1779,6 +1874,7 @@ async function handleAddToIdp(compId) {
     id: uid(),
     compId: compId,
     name: comp.name || "",
+    verb: defaultVerbFor(compId),
     reason: "",
     date: "",
     currentState: (comp.less || []).slice(0, 3).join("\n"),
@@ -1800,7 +1896,7 @@ async function handleAddToIdp(compId) {
 async function handleRemoveGoal(goalId) {
   const p = currentProfile();
   if (!p) return;
-  if (!confirm("Remove this goal from the IDP?")) return;
+  if (!confirm("Remove this goal from the LDP?")) return;
   p.idpGoals = (p.idpGoals || []).filter(g => g.id !== goalId);
   p.updatedAt = new Date().toISOString();
   await persistProfile(p);
@@ -1883,7 +1979,7 @@ function buildIdpPrintDoc(profile) {
     const comp = compById[g.compId] || {};
     html += `<div class="idp-print-page">
       <div class="idp-print-header">
-        <div class="idp-print-logo">Individual Development Plan</div>
+        <div class="idp-print-logo">Leadership Development Plan</div>
         <div class="idp-print-meta">
           <span><strong>Name:</strong> ${esc(profile.leaderName)}</span>
           <span><strong>Position:</strong> ${esc(profile.role)}</span>
@@ -1893,7 +1989,7 @@ function buildIdpPrintDoc(profile) {
       <div class="idp-print-objective">
         <div class="idp-print-objective-label">S.M.A.R.T. Objective</div>
         <div class="idp-print-objective-text">
-          ${esc(comp.name || g.name)} by completing my IDP to ${esc(g.reason) || "____________________"} by ${esc(g.date) || "____________________"}.
+          ${esc(smartSentenceLead(g.verb, comp.name || g.name))} by completing my LDP to ${esc(g.reason) || "____________________"} by ${esc(g.date) || "____________________"}.
         </div>
       </div>
       <table class="idp-print-table">
@@ -1939,7 +2035,7 @@ function handlePrintIdp() {
 <script>
 // ═══════════════════════════════════════════════════════════════════════
 // EXCEL SYNC — each leader profile can connect to its own local/OneDrive-
-// synced .xlsx file. Only the Profile registry row + IDP Goals are written
+// synced .xlsx file. Only the Profile registry row + LDP Goals are written
 // here; the raw 38-competency rating arrays are NOT persisted to Excel
 // (they're reproducible from the original Microsoft Forms exports).
 // Browser storage (window.storage / localStorage) remains the live working
@@ -2011,7 +2107,7 @@ async function connectProfileToExcel(profileId, mode) {
     let handle;
     const fileTypes = [{ description: "Excel Workbook", accept: { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"] } }];
     if (mode === "new") {
-      const suggestedName = `${(p.leaderName || "Leader").replace(/[^a-z0-9]+/gi, "_")}_IDP.xlsx`;
+      const suggestedName = `${(p.leaderName || "Leader").replace(/[^a-z0-9]+/gi, "_")}_LDP.xlsx`;
       handle = await window.showSaveFilePicker({ suggestedName, types: fileTypes });
     } else {
       const picked = await window.showOpenFilePicker({ types: fileTypes, multiple: false });
@@ -2047,7 +2143,7 @@ async function disconnectProfileExcel(profileId) {
   await deleteStoredHandle(profileId);
 }
 
-// ── Build the 2-sheet workbook: Profile registry row + IDP Goals ──
+// ── Build the 2-sheet workbook: Profile registry row + LDP Goals ──
 function classificationLabel(flag) {
   if (flag === "strength") return "Strength to Leverage";
   if (flag === "gap") return "Development Gap";
@@ -2100,7 +2196,7 @@ function buildLeaderWorkbook(profile, COMPS_REF) {
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(profileSheet), "Profile");
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(goalsSheet), "IDPGoals");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(goalsSheet), "LDPGoals");
   return wb;
 }
 
@@ -2127,7 +2223,7 @@ async function writeProfileToExcel(profileId, handleOverride) {
 // ── Restore a profile from a previously-synced file (new device / cleared storage) ──
 function parseLeaderWorkbook(wb) {
   const profSheet = wb.Sheets["Profile"];
-  const goalsSheetRaw = wb.Sheets["IDPGoals"];
+  const goalsSheetRaw = wb.Sheets["LDPGoals"] || wb.Sheets["IDPGoals"]; // fallback for files created before the LDP rename
   if (!profSheet) return null;
   const profRows = XLSX.utils.sheet_to_json(profSheet, { defval: "" });
   if (profRows.length === 0) return null;
@@ -2175,7 +2271,7 @@ async function importProfileFromExcelFile() {
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array" });
     const profile = parseLeaderWorkbook(wb);
-    if (!profile) return { ok: false, error: "This file doesn't look like a leader IDP export (no Profile sheet found)." };
+    if (!profile) return { ok: false, error: "This file doesn't look like a leader LDP export (no Profile sheet found)." };
     const perm = await handle.requestPermission({ mode: "readwrite" });
     if (perm === "granted") await setStoredHandle(profile.id, handle);
     return { ok: true, profile };
