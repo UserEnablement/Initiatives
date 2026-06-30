@@ -131,6 +131,8 @@ body{font-family:'Inter',sans-serif;background:var(--gray-100);color:var(--gray-
 .sess-tab.over{border-color:var(--magenta-400);color:var(--magenta-700);}
 
 /* Session editor */
+.session-editor-wrap{display:none;}
+.session-editor-wrap.active{display:block;}
 .session-editor{background:var(--white);border-radius:var(--radius);border:1.5px solid #e8e4e8;box-shadow:var(--shadow-sm);overflow:hidden;}
 .session-editor-header{background:var(--navy-900);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .session-editor-title{font-family:'Outfit',sans-serif;font-weight:700;font-size:.95rem;}
@@ -188,6 +190,8 @@ body{font-family:'Inter',sans-serif;background:var(--gray-100);color:var(--gray-
   .sidebar,.topbar-actions,.session-time-row,.no-print,.item-move,.item-remove,.drag-handle,.session-tabs,.unassigned-pool{display:none!important;}
   .app{grid-template-columns:1fr;}
   .content{padding:0;}
+  .session-editor-wrap{display:block!important;break-before:page;}
+  .session-editor-wrap:first-child{break-before:auto;}
   .session-editor{break-inside:avoid;box-shadow:none;border:1px solid #ccc;margin-bottom:14px;}
   body{background:white;}
 }
@@ -946,8 +950,8 @@ function renderAgenda(){
   addBtn.onclick=addSession;
   tabBar.appendChild(addBtn);
 
-  // Editor for active session
-  renderSessionEditor(state.activeSession);
+  // Editor: render ALL sessions (so print includes all). Screen shows only active via CSS.
+  renderAllSessionEditors();
 
   // Unassigned pool
   const assigned = assignedKeys();
@@ -973,9 +977,15 @@ function renderAgenda(){
   } else { pool.style.display="none"; }
 }
 
-function renderSessionEditor(si){
+function renderAllSessionEditors(){
   const el=document.getElementById("sessionEditor");
-  if(!state.sessions[si]){ el.innerHTML=""; return; }
+  el.innerHTML = state.sessions.map((_,si)=>
+    `<div class="session-editor-wrap${si===state.activeSession?" active":""}" data-si="${si}">${sessionEditorHTML(si)}</div>`
+  ).join("");
+}
+
+function sessionEditorHTML(si){
+  if(!state.sessions[si]) return "";
   const sess=state.sessions[si];
   const startMins=parseTime(sess.startTime);
   const dur=sessionDuration(sess);
@@ -1017,13 +1027,13 @@ function renderSessionEditor(si){
     </li>`;
   }).join("");
 
-  el.innerHTML=`
+  return `
     <div class="session-editor">
       <div class="session-editor-header">
         <span class="session-editor-title">Session ${si+1}</span>
         <span class="session-editor-meta">
           <span style="${overColor}">${dur} min${dur>max?" ⚠ over limit":""}</span>
-          <button class="btn btn-sm" style="background:rgba(255,255,255,0.12);color:white;padding:3px 10px;" onclick="removeSession(${si})">Remove session</button>
+          <button class="btn btn-sm no-print" style="background:rgba(255,255,255,0.12);color:white;padding:3px 10px;" onclick="removeSession(${si})">Remove session</button>
         </span>
       </div>
       <div class="session-time-row no-print">
