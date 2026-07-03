@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oliver | Performance &amp; Probationary Reviews</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#0D2931; --navy-2:#144A5B; --teal:#077E7E; --teal-light:#15C7C7; --teal-pale:#EAF7F7;
+  --ink:#1A2B2B; --ink-light:#5C6F6F; --bg:#F4FAFA; --card:#FFFFFF; --border:#D9E8E8;
+  --green:#2D846C; --amber:#B6862C; --red:#C0392B;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+.app-shell{max-width:1200px;margin:0 auto;padding:0 0 60px;}
+header.top{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+header.top h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px;}
+header.top .sub{font-size:12.5px;opacity:.8;margin-top:2px;}
+.brand-dot{width:8px;height:8px;border-radius:50%;background:var(--teal-light);display:inline-block;margin-right:8px;}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;transition:transform .08s ease,opacity .15s;}
+button:active{transform:scale(.97);}
+.btn-primary{background:var(--teal);color:#fff;}
+.btn-primary:hover{background:#066b6b;}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;}
+.btn-ghost:hover{background:rgba(255,255,255,.2);}
+.btn-light{background:#fff;color:var(--navy);border:1px solid var(--border);}
+.btn-light:hover{background:var(--teal-pale);}
+.btn-danger{background:#FBEAE8;color:var(--red);}
+.btn-danger:hover{background:#F6D5D1;}
+select,input,textarea{font-family:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--ink);}
+textarea{width:100%;resize:vertical;min-height:60px;}
+input[type=text],input[type=date],input[type=number],select{width:100%;}
+
+.employee-bar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:30;box-shadow:0 1px 4px rgba(13,41,49,.05);}
+.employee-bar label{font-size:11.5px;font-weight:700;color:var(--ink-light);text-transform:uppercase;letter-spacing:.4px;margin-right:2px;white-space:nowrap;}
+.employee-bar select{min-width:220px;}
+.status-pill{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:700;}
+.pill-saved{background:#E4F4EE;color:var(--green);}
+
+.tabs{display:flex;gap:4px;padding:18px 28px 0;}
+.tab-btn{background:#E4F0F0;color:var(--navy-2);padding:11px 20px;border-radius:10px 10px 0 0;font-weight:700;font-size:13.5px;cursor:pointer;}
+.tab-btn.active{background:var(--card);color:var(--teal);box-shadow:0 -2px 0 var(--teal) inset;}
+.tab-panel{display:none;padding:20px 28px 40px;background:var(--card);border-radius:0 10px 10px 10px;margin:0 28px;}
+.tab-panel.active{display:block;}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+.card h3{margin:0 0 4px;font-size:15.5px;color:var(--navy);}
+.card .desc{font-size:12.5px;color:var(--ink-light);margin-bottom:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-light);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;}
+
+.section-title{font-size:13px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin:24px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:"";flex:1;height:1px;background:var(--border);}
+
+.obj-card{border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:10px;padding:16px;margin-bottom:14px;background:#fcfffe;}
+.obj-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.obj-head input[type=text]{font-weight:700;font-size:14.5px;border:none;background:transparent;padding:2px 0;border-bottom:1px dashed transparent;width:100%;}
+.obj-head input[type=text]:hover,.obj-head input[type=text]:focus{border-bottom:1px dashed var(--teal);outline:none;}
+.remove-btn{background:none;color:var(--ink-light);font-size:16px;padding:2px 8px;flex-shrink:0;}
+.remove-btn:hover{color:var(--red);}
+
+.progress-wrap{background:#E8F2F2;border-radius:99px;height:8px;overflow:hidden;margin-top:6px;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--teal-light),var(--teal));border-radius:99px;transition:width .2s;}
+
+.log-list{display:flex;flex-direction:column;gap:6px;margin:8px 0;max-height:160px;overflow-y:auto;}
+.log-entry{background:var(--teal-pale);border-radius:7px;padding:7px 10px;font-size:12.5px;}
+.log-entry .meta{font-size:10.5px;color:var(--ink-light);font-weight:700;margin-bottom:2px;}
+.log-add{display:flex;gap:8px;margin-top:6px;}
+.log-add textarea{min-height:36px;}
+
+.meeting-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.meeting-card{border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;background:#fff;}
+.meeting-card.done{border-color:var(--teal);background:var(--teal-pale);}
+.meeting-card .icon{width:30px;height:30px;border-radius:50%;background:var(--border);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-weight:800;font-size:13px;}
+.meeting-card.done .icon{background:var(--teal);}
+.meeting-card h4{margin:0 0 8px;font-size:12.5px;color:var(--navy);}
+
+.values-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.value-card{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fff;}
+.value-card h4{margin:0 0 4px;font-size:13.5px;color:var(--navy);}
+.value-card .tagline{font-size:11.5px;color:var(--ink-light);margin-bottom:10px;}
+.rating-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.rate-opt{flex:1;min-width:80px;text-align:center;padding:7px 4px;border-radius:7px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;color:var(--ink-light);}
+.rate-opt.selected{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+.weight-summary{display:flex;gap:18px;align-items:center;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;flex-wrap:wrap;}
+.weight-summary .chip{background:var(--teal-pale);color:var(--teal);padding:5px 12px;border-radius:99px;}
+.weight-summary .chip.bad{background:#FCEFD9;color:var(--amber);}
+
+.outcome-row{display:flex;gap:10px;margin-top:6px;}
+.outcome-opt{flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);text-align:center;font-weight:700;font-size:13px;cursor:pointer;color:var(--ink-light);}
+.outcome-opt.pass.selected{border-color:var(--green);background:#E4F4EE;color:var(--green);}
+.outcome-opt.extend.selected{border-color:var(--amber);background:#FCEFD9;color:var(--amber);}
+.outcome-opt.fail.selected{border-color:var(--red);background:#FBEAE8;color:var(--red);}
+
+/* Year selector bar inside review tab */
+.year-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;background:var(--teal-pale);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
+.year-bar label{font-size:11.5px;font-weight:700;color:var(--ink-light);text-transform:uppercase;letter-spacing:.3px;}
+.year-bar select{width:auto;min-width:100px;}
+.year-badge{background:var(--teal);color:#fff;border-radius:99px;font-size:11.5px;font-weight:800;padding:3px 10px;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink-light);}
+.empty-state h2{color:var(--navy);}
+
+dialog{border:none;border-radius:14px;padding:0;max-width:480px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+dialog::backdrop{background:rgba(13,41,49,.5);}
+.modal-body{padding:24px;}
+.modal-body h3{margin-top:0;color:var(--navy);}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+
+footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20px;}
+
+.print-doc{display:none;}
+@media print{
+  body.printing > *:not(.print-doc){display:none !important;}
+  body.printing .print-doc{display:block !important;}
+}
+.print-page{padding:20px;}
+.print-header{display:flex;justify-content:space-between;border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:16px;}
+.print-header h1{margin:0;font-size:20px;color:var(--navy);}
+.print-meta{font-size:12px;color:var(--ink-light);}
+.print-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+.print-table th{background:var(--navy);color:#fff;text-align:left;padding:7px 10px;font-size:11px;}
+.print-table td{border:1px solid #ccc;padding:7px 10px;font-size:11px;vertical-align:top;}
+.no-print{display:revert;}
+@media print{.no-print{display:none !important;}}
+
+@media (max-width:860px){
+  .grid2,.grid3,.meeting-grid,.values-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header class="top no-print">
+  <div>
+    <h1><span class="brand-dot"></span>Oliver — Performance &amp; Probationary Reviews</h1>
+    <div class="sub">Goal setting, check-ins and review tracking for managers</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn-ghost" onclick="exportJSON()">⤓ Export JSON</button>
+    <label class="btn-ghost" style="position:relative;cursor:pointer;">
+      ⤒ Import JSON
+      <input type="file" accept=".json" onchange="importJSON(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
+    </label>
+    <button class="btn-ghost" onclick="exportExcel()">⊞ Export Excel</button>
+    <button class="btn-ghost" onclick="printReview()">🖶 Print</button>
+  </div>
+</header>
+
+<div class="employee-bar no-print">
+  <label>Employee</label>
+  <select id="employeeSelect" onchange="switchEmployee(this.value)"></select>
+  <button class="btn-light" onclick="openNewEmployeeModal()">+ New Employee</button>
+  <button class="btn-danger" onclick="deleteCurrentEmployee()">Delete</button>
+  <span id="savePill" class="status-pill pill-saved" style="margin-left:auto;">Saved to this browser</span>
+</div>
+
+<div class="app-shell">
+  <div id="noEmployeeState" class="empty-state" style="display:none;">
+    <h2>No employees yet</h2>
+    <p>Add your first employee to begin a probationary plan or performance review.</p>
+    <button class="btn-primary" onclick="openNewEmployeeModal()">+ New Employee</button>
+  </div>
+
+  <div id="mainContent">
+    <div class="tabs no-print">
+      <div class="tab-btn active" data-tab="profile" onclick="switchTab('profile')">👤 Employee Profile</div>
+      <div class="tab-btn" data-tab="probationary" onclick="switchTab('probationary')">📋 Probationary (90-Day)</div>
+      <div class="tab-btn" data-tab="review" onclick="switchTab('review')">📊 Performance Review</div>
+    </div>
+
+    <!-- ══════════════════════════════ PROFILE TAB ══════════════════════════════ -->
+    <div class="tab-panel active" id="panel-profile">
+      <div class="card">
+        <h3>Employee Profile</h3>
+        <div class="desc">Core details used across the probationary plan and all performance review years.</div>
+        <div class="grid3">
+          <div class="field"><label>Full Name</label><input type="text" id="p-name" oninput="updateField('name',this.value)"></div>
+          <div class="field"><label>Job Title</label><input type="text" id="p-title" oninput="updateField('jobTitle',this.value)"></div>
+          <div class="field"><label>Manager</label><input type="text" id="p-manager" oninput="updateField('manager',this.value)"></div>
+          <div class="field"><label>Start Date</label><input type="date" id="p-start" oninput="onStartDateChange(this.value)"></div>
+          <div class="field"><label>POD / Team</label><input type="text" id="p-pod" oninput="updateField('pod',this.value)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ PROBATIONARY TAB ══════════════════════════════ -->
+    <div class="tab-panel" id="panel-probationary">
+      <div class="card">
+        <h3>90-Day Probationary Plan</h3>
+        <div class="desc">Set goals at the start of employment. Complete the review around day 70–90 to confirm the outcome.</div>
+        <div class="grid2">
+          <div class="field"><label>Probation Start Date</label><input type="date" id="prob-start" oninput="updateProb('startDate',this.value)"></div>
+          <div class="field"><label>Target Review Date (Day 90)</label><input type="date" id="prob-due" readonly style="background:var(--bg);"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Goals &amp; Expectations</div>
+      <div id="probGoalsList"></div>
+      <button class="btn-light no-print" onclick="addProbGoal()" style="margin-bottom:24px;">+ Add Goal</button>
+
+      <div class="section-title">Assessment Areas</div>
+      <div id="probAreasGrid"></div>
+
+      <div class="section-title">Outcome</div>
+      <div class="card">
+        <div class="outcome-row" id="probOutcomeRow"></div>
+        <div class="field" style="margin-top:14px;"><label>Manager Comments</label><textarea id="prob-outcome-comments" oninput="updateProb('outcomeComments',this.value)" placeholder="Summarise the key reasons for this outcome. Reference specific observations."></textarea></div>
+        <div class="grid2" style="margin-top:10px;">
+          <div class="field"><label>Actual Review Date</label><input type="date" id="prob-actual-date" oninput="updateProb('actualReviewDate',this.value)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ REVIEW TAB ══════════════════════════════ -->
+    <div class="tab-panel" id="panel-review">
+      <div class="year-bar">
+        <label>Review Year</label>
+        <select id="yearSelect" onchange="switchReviewYear(this.value)"></select>
+        <button class="btn-primary no-print" onclick="openNewYearModal()">+ New Year</button>
+        <button class="btn-danger no-print" onclick="deleteCurrentYear()" id="deleteYearBtn">Delete Year</button>
+        <span id="yearBadge" class="year-badge"></span>
+      </div>
+
+      <div class="section-title">Annual Review Cycle</div>
+      <div class="meeting-grid" id="meetingGrid"></div>
+
+      <div class="section-title">Objectives</div>
+      <div class="weight-summary" id="weightSummary"></div>
+      <div id="objectivesList"></div>
+      <button class="btn-light no-print" onclick="addObjective()" style="margin-bottom:24px;">+ Add Objective</button>
+
+      <div class="section-title">Oliver Core Values</div>
+      <div class="values-grid" id="coreValuesGrid"></div>
+
+      <div class="section-title">Final Review</div>
+      <div class="card">
+        <div class="grid2">
+          <div class="field"><label>Overall Rating</label>
+            <select id="final-rating" onchange="updateFinal('rating',this.value)">
+              <option value="">Select rating</option>
+              <option value="1">1 — Below Expectations</option>
+              <option value="2">2 — Developing</option>
+              <option value="3">3 — Meets Expectations</option>
+              <option value="4">4 — Exceeds Expectations</option>
+              <option value="5">5 — Exceptional</option>
+            </select>
+          </div>
+          <div class="field"><label>Review Meeting Date</label><input type="date" id="final-date" oninput="updateFinal('date',this.value)"></div>
+        </div>
+        <div class="field" style="margin-top:12px;"><label>Manager Final Comments</label><textarea id="final-manager" placeholder="Summarise overall performance. Reference specific examples and evidence." oninput="updateFinal('managerComments',this.value)"></textarea></div>
+        <div class="field" style="margin-top:10px;"><label>Employee Final Comments</label><textarea id="final-employee" placeholder="Employee reflection on the year, achievements and development areas." oninput="updateFinal('employeeComments',this.value)"></textarea></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<dialog id="newEmpModal">
+  <div class="modal-body">
+    <h3>New Employee</h3>
+    <div class="field" style="margin-bottom:10px;"><label>Full Name</label><input type="text" id="modal-name"></div>
+    <div class="field" style="margin-bottom:10px;"><label>Job Title</label><input type="text" id="modal-title"></div>
+    <div class="field"><label>Start Date</label><input type="date" id="modal-start"></div>
+    <div class="modal-actions">
+      <button class="btn-light" onclick="document.getElementById('newEmpModal').close()">Cancel</button>
+      <button class="btn-primary" onclick="createEmployee()">Create</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="newYearModal">
+  <div class="modal-body">
+    <h3>Add New Review Year</h3>
+    <p style="font-size:13px;color:var(--ink-light);">This creates a fresh set of objectives, check-ins and core value ratings for the selected year. Existing years are untouched.</p>
+    <div class="field"><label>Review Year</label><input type="number" id="modal-year" min="2020" max="2040"></div>
+    <div class="modal-actions">
+      <button class="btn-light" onclick="document.getElementById('newYearModal').close()">Cancel</button>
+      <button class="btn-primary" onclick="createNewYear()">Add Year</button>
+    </div>
+  </div>
+</dialog>
+
+<footer class="note no-print">Data auto-saves to this browser. Export JSON regularly and store it on SharePoint — re-import to restore if the browser cache is cleared.</footer>
+<div class="print-doc" id="printDoc"></div>
+
+<script>
+const STORAGE_KEY = 'oliver_perf_review_v2';
+
+const CORE_VALUES = [
+  {key:'thriveAsOne',    name:'Thrive as One',       tag:"We collaborate, celebrate wins, and support each other — because we're stronger together."},
+  {key:'kaizenMindset', name:'Kaizen Mindset',       tag:'We get better every day. Small improvements, big impact.'},
+  {key:'obsessImpact',  name:'Obsess Over Impact',   tag:'We focus on what matters and deliver with purpose.'},
+  {key:'buildMatters',  name:'Build What Matters',   tag:'We move fast, stay smart, and solve the right problems.'}
+];
+
+const PROB_AREAS = [
+  {key:'rolePerformance',   name:'Role Performance',        desc:'Quality and consistency of work against job expectations.',           indicators:'Work meets required standards with minimal rework.'},
+  {key:'goalProgress',      name:'Goal Progress',           desc:'Progress against the agreed probation goals.',                        indicators:'Completes key goals on time and can explain status clearly.'},
+  {key:'learningRampUp',    name:'Learning & Ramp-Up',      desc:'How quickly the person becomes productive in the role.',              indicators:'Learns tools and processes quickly and applies them independently.'},
+  {key:'communication',     name:'Communication & Teamwork',desc:'Clarity, responsiveness, and collaboration with others.',             indicators:'Gives timely updates, asks questions early, works well with others.'},
+  {key:'reliability',       name:'Reliability & Ownership', desc:'Follow-through, accountability, and dependability.',                  indicators:'Owns tasks, meets commitments, and escalates issues appropriately.'},
+  {key:'valuesBehaviour',   name:'Values & Behaviour',      desc:'Observable behaviours aligned to Oliver\'s core values.',            indicators:'Demonstrates expected behaviours in day-to-day work.'}
+];
+
+const RATING_SCALE = ['Below Expectations','Developing','Meets Expectations','Exceeds Expectations'];
+
+const MEETINGS = [
+  {key:'goalSetting', label:'1. Goal Setting'},
+  {key:'q2',         label:'2. Q2 Check-in'},
+  {key:'q3',         label:'3. Q3 Check-in'},
+  {key:'final',      label:'4. Final Review'}
+];
+
+let DB = {employees:{}, currentId:null};
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function uid(){ return 'x'+Date.now()+Math.random().toString(36).slice(2,6); }
+function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function loadDB(){
+  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) DB=JSON.parse(r); }
+  catch(e){ console.error(e); }
+  if(!DB.employees) DB.employees={};
+}
+function saveDB(){
+  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(DB)); flashSaved(); }
+  catch(e){ console.error(e); }
+}
+function flashSaved(){
+  const p=document.getElementById('savePill');
+  p.textContent='Saved '+new Date().toLocaleTimeString();
+  p.className='status-pill pill-saved';
+}
+function getCurrent(){ return DB.employees[DB.currentId]||null; }
+function getActiveYear(){
+  const cur=getCurrent(); if(!cur) return null;
+  return cur.activeReviewYear;
+}
+function getCurrentReview(){
+  const cur=getCurrent(); if(!cur) return null;
+  const y=cur.activeReviewYear;
+  if(!cur.reviews[y]) cur.reviews[y]=newReviewRecord();
+  return cur.reviews[y];
+}
+
+// ─── Data constructors ─────────────────────────────────────────────────────
+function newReviewRecord(){
+  return {
+    meetings:{
+      goalSetting:{date:'',notes:''},
+      q2:{date:'',notes:''},
+      q3:{date:'',notes:''},
+      final:{date:'',rating:'',managerComments:'',employeeComments:''}
+    },
+    objectives:[],
+    coreValues:{}
+  };
+}
+function newEmployeeRecord(name,title,start){
+  const year=new Date().getFullYear();
+  return {
+    id:uid(), name:name||'New Employee', jobTitle:title||'',
+    manager:'', pod:'', startDate:start||'',
+    activeReviewYear:year,
+    reviews:{[year]:newReviewRecord()},
+    probationary:{startDate:start||'',goals:[],areas:{},outcome:'',outcomeComments:'',actualReviewDate:''}
+  };
+}
+
+// ─── Employee management ────────────────────────────────────────────────────
+function renderEmployeeSelect(){
+  const sel=document.getElementById('employeeSelect');
+  sel.innerHTML='';
+  const ids=Object.keys(DB.employees);
+  ids.forEach(id=>{
+    const o=document.createElement('option');
+    o.value=id; o.textContent=DB.employees[id].name;
+    if(id===DB.currentId) o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById('noEmployeeState').style.display=ids.length?'none':'block';
+  document.getElementById('mainContent').style.display=ids.length?'block':'none';
+}
+function switchEmployee(id){ DB.currentId=id; saveDB(); renderAll(); }
+function openNewEmployeeModal(){
+  ['modal-name','modal-title'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-start').value='';
+  document.getElementById('newEmpModal').showModal();
+}
+function createEmployee(){
+  const name=document.getElementById('modal-name').value.trim();
+  if(!name){alert('Please enter a name.');return;}
+  const rec=newEmployeeRecord(name,document.getElementById('modal-title').value.trim(),document.getElementById('modal-start').value);
+  DB.employees[rec.id]=rec; DB.currentId=rec.id;
+  document.getElementById('newEmpModal').close();
+  saveDB(); renderAll();
+}
+function deleteCurrentEmployee(){
+  const cur=getCurrent(); if(!cur) return;
+  if(!confirm('Delete '+cur.name+'? Export JSON first if you need a backup.')) return;
+  delete DB.employees[cur.id];
+  const ids=Object.keys(DB.employees);
+  DB.currentId=ids.length?ids[0]:null;
+  saveDB(); renderAll();
+}
+
+// ─── Review year management ─────────────────────────────────────────────────
+function renderYearSelector(){
+  const cur=getCurrent(); if(!cur) return;
+  const sel=document.getElementById('yearSelect');
+  const years=Object.keys(cur.reviews).sort();
+  sel.innerHTML='';
+  years.forEach(y=>{
+    const o=document.createElement('option');
+    o.value=y; o.textContent=y;
+    if(parseInt(y)===cur.activeReviewYear) o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById('yearBadge').textContent=cur.activeReviewYear+' Review';
+  document.getElementById('deleteYearBtn').style.display=years.length>1?'':'none';
+}
+function switchReviewYear(y){
+  const cur=getCurrent(); if(!cur) return;
+  cur.activeReviewYear=parseInt(y);
+  if(!cur.reviews[y]) cur.reviews[y]=newReviewRecord();
+  saveDB(); renderReviewTab();
+}
+function openNewYearModal(){
+  document.getElementById('modal-year').value=new Date().getFullYear()+1;
+  document.getElementById('newYearModal').showModal();
+}
+function createNewYear(){
+  const cur=getCurrent(); if(!cur) return;
+  const y=parseInt(document.getElementById('modal-year').value);
+  if(!y||y<2000||y>2100){alert('Please enter a valid year.');return;}
+  if(cur.reviews[y]){alert('A review for '+y+' already exists.');document.getElementById('newYearModal').close();return;}
+  cur.reviews[y]=newReviewRecord();
+  cur.activeReviewYear=y;
+  document.getElementById('newYearModal').close();
+  saveDB(); renderReviewTab();
+}
+function deleteCurrentYear(){
+  const cur=getCurrent(); if(!cur) return;
+  const y=cur.activeReviewYear;
+  const years=Object.keys(cur.reviews);
+  if(years.length<=1){alert('Cannot delete the only review year.');return;}
+  if(!confirm('Delete the '+y+' review? This cannot be undone.')) return;
+  delete cur.reviews[y];
+  cur.activeReviewYear=parseInt(Object.keys(cur.reviews).sort().pop());
+  saveDB(); renderReviewTab();
+}
+
+// ─── Tabs ───────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// ─── Profile ────────────────────────────────────────────────────────────────
+function updateField(key,val){ const cur=getCurrent();if(!cur)return;cur[key]=val;saveDB(); }
+function onStartDateChange(val){
+  const cur=getCurrent();if(!cur)return;
+  cur.startDate=val;
+  if(!cur.probationary.startDate){cur.probationary.startDate=val;document.getElementById('prob-start').value=val;renderProbDates();}
+  saveDB();
+}
+function renderProfile(){
+  const cur=getCurrent();if(!cur)return;
+  document.getElementById('p-name').value=cur.name||'';
+  document.getElementById('p-title').value=cur.jobTitle||'';
+  document.getElementById('p-manager').value=cur.manager||'';
+  document.getElementById('p-start').value=cur.startDate||'';
+  document.getElementById('p-pod').value=cur.pod||'';
+}
+
+// ─── Probationary ───────────────────────────────────────────────────────────
+function updateProb(key,val){ const cur=getCurrent();if(!cur)return;cur.probationary[key]=val;if(key==='startDate')renderProbDates();saveDB(); }
+function renderProbDates(){
+  const cur=getCurrent();if(!cur)return;
+  const due=document.getElementById('prob-due');
+  if(cur.probationary.startDate){const d=new Date(cur.probationary.startDate);d.setDate(d.getDate()+90);due.value=d.toISOString().slice(0,10);}
+  else due.value='';
+}
+function addProbGoal(){ const cur=getCurrent();if(!cur)return;cur.probationary.goals.push({id:uid(),text:'',target:''});saveDB();renderProbGoals(); }
+function removeProbGoal(id){ const cur=getCurrent();cur.probationary.goals=cur.probationary.goals.filter(g=>g.id!==id);saveDB();renderProbGoals(); }
+function updateProbGoal(id,key,val){ const cur=getCurrent();const g=cur.probationary.goals.find(g=>g.id===id);if(g){g[key]=val;saveDB();} }
+function renderProbGoals(){
+  const cur=getCurrent();if(!cur)return;
+  const wrap=document.getElementById('probGoalsList');
+  wrap.innerHTML='';
+  if(!cur.probationary.goals.length){wrap.innerHTML='<div style="color:var(--ink-light);font-size:13px;margin-bottom:10px;">No goals yet — add the first one.</div>';return;}
+  cur.probationary.goals.forEach(g=>{
+    const div=document.createElement('div');div.className='obj-card';
+    div.innerHTML=`
+      <div class="obj-head">
+        <input type="text" placeholder="What should the employee achieve in the first 90 days?" value="${esc(g.text)}" oninput="updateProbGoal('${g.id}','text',this.value)">
+        <button class="remove-btn no-print" onclick="removeProbGoal('${g.id}')">✕</button>
+      </div>
+      <div class="field"><label>How will success be measured?</label><textarea oninput="updateProbGoal('${g.id}','target',this.value)" placeholder="Describe what 'done' looks like — observable, specific.">${esc(g.target)}</textarea></div>`;
+    wrap.appendChild(div);
+  });
+}
+function renderProbAreas(){
+  const cur=getCurrent();if(!cur)return;
+  const grid=document.getElementById('probAreasGrid');
+  grid.innerHTML='';
+  PROB_AREAS.forEach(area=>{
+    const data=cur.probationary.areas[area.key]||{rating:'',comments:'',support:'',nextActions:''};
+    const div=document.createElement('div');div.className='obj-card';
+    div.innerHTML=`
+      <h4 style="margin:0 0 4px;font-size:14px;color:var(--navy);">${area.name}</h4>
+      <div style="font-size:12px;color:var(--ink-light);margin-bottom:4px;">${area.desc}</div>
+      <div style="font-size:11.5px;color:var(--teal);margin-bottom:10px;font-style:italic;">Example: ${area.indicators}</div>
+      <div class="rating-row" id="parea-rate-${area.key}"></div>
+      <div class="grid2" style="margin-top:8px;">
+        <div class="field"><label>Evidence / What I observed</label><textarea oninput="updateProbArea('${area.key}','comments',this.value)" placeholder="Use specific examples, not general impressions.">${esc(data.comments)}</textarea></div>
+        <div class="field"><label>Support provided / next actions</label><textarea oninput="updateProbArea('${area.key}','nextActions',this.value)" placeholder="What was done or still needs to happen to help this person succeed.">${esc(data.nextActions)}</textarea></div>
+      </div>`;
+    grid.appendChild(div);
+    const row=div.querySelector('.rating-row');
+    RATING_SCALE.forEach(r=>{
+      const opt=document.createElement('div');
+      opt.className='rate-opt'+(data.rating===r?' selected':'');
+      opt.textContent=r;
+      opt.onclick=()=>{updateProbArea(area.key,'rating',r);renderProbAreas();};
+      row.appendChild(opt);
+    });
+  });
+}
+function updateProbArea(key,field,val){
+  const cur=getCurrent();
+  if(!cur.probationary.areas[key]) cur.probationary.areas[key]={rating:'',comments:'',nextActions:''};
+  cur.probationary.areas[key][field]=val;saveDB();
+}
+function renderProbOutcome(){
+  const cur=getCurrent();if(!cur)return;
+  const row=document.getElementById('probOutcomeRow');row.innerHTML='';
+  [['pass','✓ Pass'],['extend','⟳ Extend'],['fail','✕ Fail']].forEach(([k,label])=>{
+    const div=document.createElement('div');
+    div.className='outcome-opt '+k+(cur.probationary.outcome===k?' selected':'');
+    div.textContent=label;
+    div.onclick=()=>{cur.probationary.outcome=k;saveDB();renderProbOutcome();};
+    row.appendChild(div);
+  });
+  document.getElementById('prob-outcome-comments').value=cur.probationary.outcomeComments||'';
+  document.getElementById('prob-actual-date').value=cur.probationary.actualReviewDate||'';
+}
+
+// ─── Review tab ─────────────────────────────────────────────────────────────
+function renderReviewTab(){
+  renderYearSelector();
+  renderMeetings();
+  renderObjectives();
+  renderCoreValues();
+  const rev=getCurrentReview();if(!rev)return;
+  document.getElementById('final-rating').value=rev.meetings.final.rating||'';
+  document.getElementById('final-date').value=rev.meetings.final.date||'';
+  document.getElementById('final-manager').value=rev.meetings.final.managerComments||'';
+  document.getElementById('final-employee').value=rev.meetings.final.employeeComments||'';
+}
+
+function renderMeetings(){
+  const rev=getCurrentReview();if(!rev)return;
+  const grid=document.getElementById('meetingGrid');grid.innerHTML='';
+  MEETINGS.forEach((m,idx)=>{
+    const data=rev.meetings[m.key];
+    const done=!!data.date;
+    const div=document.createElement('div');div.className='meeting-card'+(done?' done':'');
+    div.innerHTML=`
+      <div class="icon">${done?'✓':(idx+1)}</div>
+      <h4>${m.label}</h4>
+      <input type="date" value="${data.date||''}" oninput="updateMeetingDate('${m.key}',this.value)">
+      <textarea style="margin-top:8px;min-height:48px;" placeholder="Notes from this meeting" oninput="updateMeetingNotes('${m.key}',this.value)">${esc(data.notes||'')}</textarea>`;
+    grid.appendChild(div);
+  });
+}
+function updateMeetingDate(key,val){ const rev=getCurrentReview();if(!rev)return;rev.meetings[key].date=val;saveDB();renderMeetings(); }
+function updateMeetingNotes(key,val){ const rev=getCurrentReview();if(!rev)return;rev.meetings[key].notes=val;saveDB(); }
+
+function addObjective(){
+  const rev=getCurrentReview();if(!rev)return;
+  rev.objectives.push({id:uid(),title:'New Objective',smart:'',weight:0,percentComplete:0,targetDate:'',log:[]});
+  saveDB();renderObjectives();
+}
+function removeObjective(id){ const rev=getCurrentReview();rev.objectives=rev.objectives.filter(o=>o.id!==id);saveDB();renderObjectives(); }
+function updateObjective(id,key,val){ const rev=getCurrentReview();const o=rev.objectives.find(o=>o.id===id);if(o){o[key]=val;saveDB();renderWeightSummary();} }
+function addLogEntry(id){
+  const rev=getCurrentReview();const o=rev.objectives.find(o=>o.id===id);
+  const ta=document.getElementById('log-input-'+id);const text=ta.value.trim();
+  if(!text)return;o.log.push({date:new Date().toLocaleDateString(),text});ta.value='';saveDB();renderObjectives();
+}
+function renderWeightSummary(){
+  const rev=getCurrentReview();if(!rev)return;
+  const total=rev.objectives.reduce((s,o)=>s+(parseFloat(o.weight)||0),0);
+  const el=document.getElementById('weightSummary');
+  el.innerHTML=`<span class="chip ${total!==100?'bad':''}">Total weight: ${total}%</span>`+(total!==100?'<span style="color:var(--ink-light);font-size:12px;font-weight:400;"> — Weights should add up to 100%</span>':'');
+}
+function renderObjectives(){
+  const rev=getCurrentReview();if(!rev)return;
+  const wrap=document.getElementById('objectivesList');wrap.innerHTML='';
+  if(!rev.objectives.length){wrap.innerHTML='<div style="color:var(--ink-light);font-size:13px;margin-bottom:10px;">No objectives yet — add the first one.</div>';renderWeightSummary();return;}
+  rev.objectives.forEach(o=>{
+    const div=document.createElement('div');div.className='obj-card';
+    div.innerHTML=`
+      <div class="obj-head">
+        <input type="text" value="${esc(o.title)}" oninput="updateObjective('${o.id}','title',this.value)" placeholder="Objective name">
+        <button class="remove-btn no-print" onclick="removeObjective('${o.id}')">✕</button>
+      </div>
+      <div class="field"><label>What should be achieved, and how will we know it worked?</label>
+        <textarea oninput="updateObjective('${o.id}','smart',this.value)" placeholder="Describe the outcome (not just the task), the measure of success, and the deadline. E.g. 'By Q3, deliver X so that Y can happen, measured by Z.'">${esc(o.smart)}</textarea>
+      </div>
+      <div class="grid3" style="margin-top:10px;">
+        <div class="field"><label>Weight (%)</label><input type="number" min="0" max="100" value="${o.weight}" oninput="updateObjective('${o.id}','weight',this.value)"></div>
+        <div class="field"><label>% Complete</label><input type="number" min="0" max="100" value="${o.percentComplete}" oninput="updateObjective('${o.id}','percentComplete',this.value);document.getElementById('prog-${o.id}').style.width=this.value+'%'"></div>
+        <div class="field"><label>Target Date</label><input type="date" value="${o.targetDate||''}" oninput="updateObjective('${o.id}','targetDate',this.value)"></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="prog-${o.id}" style="width:${o.percentComplete||0}%;"></div></div>
+      <div class="field" style="margin-top:12px;"><label>Status Log</label>
+        <div class="log-list">${(o.log||[]).map(l=>`<div class="log-entry"><div class="meta">${l.date}</div>${esc(l.text)}</div>`).join('')||'<div style="color:var(--ink-light);font-size:12px;">No entries yet.</div>'}</div>
+        <div class="log-add no-print">
+          <textarea id="log-input-${o.id}" placeholder="Add a status update — record what changed since the last conversation."></textarea>
+          <button class="btn-light" onclick="addLogEntry('${o.id}')">Add</button>
+        </div>
+      </div>`;
+    wrap.appendChild(div);
+  });
+  renderWeightSummary();
+}
+
+function renderCoreValues(){
+  const rev=getCurrentReview();if(!rev)return;
+  const grid=document.getElementById('coreValuesGrid');grid.innerHTML='';
+  CORE_VALUES.forEach(cv=>{
+    const data=rev.coreValues[cv.key]||{rating:'',comments:''};
+    const div=document.createElement('div');div.className='value-card';
+    div.innerHTML=`
+      <h4>${cv.name}</h4><div class="tagline">${cv.tag}</div>
+      <div class="rating-row" id="cv-rate-${cv.key}"></div>
+      <textarea placeholder="Provide observable examples of behaviour." oninput="updateCoreValue('${cv.key}','comments',this.value)">${esc(data.comments)}</textarea>`;
+    grid.appendChild(div);
+    const row=div.querySelector('.rating-row');
+    RATING_SCALE.forEach(r=>{
+      const opt=document.createElement('div');
+      opt.className='rate-opt'+(data.rating===r?' selected':'');opt.textContent=r;
+      opt.onclick=()=>{updateCoreValue(cv.key,'rating',r);renderCoreValues();};
+      row.appendChild(opt);
+    });
+  });
+}
+function updateCoreValue(key,field,val){
+  const rev=getCurrentReview();
+  if(!rev.coreValues[key]) rev.coreValues[key]={rating:'',comments:''};
+  rev.coreValues[key][field]=val;saveDB();
+}
+function updateFinal(key,val){ const rev=getCurrentReview();if(!rev)return;rev.meetings.final[key]=val;saveDB();renderMeetings(); }
+
+// ─── Render all ─────────────────────────────────────────────────────────────
+function renderAll(){
+  renderEmployeeSelect();
+  const cur=getCurrent();if(!cur)return;
+  renderProfile();
+  document.getElementById('prob-start').value=cur.probationary.startDate||'';
+  renderProbDates();renderProbGoals();renderProbAreas();renderProbOutcome();
+  renderReviewTab();
+}
+
+// ─── Export / Import ─────────────────────────────────────────────────────────
+function exportJSON(){
+  const cur=getCurrent();
+  const payload=cur?{employees:{[cur.id]:cur},currentId:cur.id}:DB;
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(cur?'review_'+cur.name.replace(/\s+/g,'_'):'oliver_reviews_all')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importJSON(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const incoming=JSON.parse(e.target.result);
+      if(incoming.employees){
+        // Migrate old records that have review: {} instead of reviews: {}
+        Object.values(incoming.employees).forEach(emp=>{
+          if(emp.review&&!emp.reviews){
+            emp.reviews={[emp.reviewYear||new Date().getFullYear()]:emp.review};
+            emp.activeReviewYear=emp.reviewYear||new Date().getFullYear();
+            delete emp.review;delete emp.reviewYear;
+          }
+        });
+        Object.assign(DB.employees,incoming.employees);
+        DB.currentId=incoming.currentId||Object.keys(incoming.employees)[0];
+      }
+      saveDB();renderAll();alert('Import successful.');
+    }catch(err){alert('Could not read that file: '+err.message);}
+  };
+  reader.readAsText(file);evt.target.value='';
+}
+function exportExcel(){
+  const cur=getCurrent();if(!cur)return;
+  const rev=getCurrentReview();if(!rev)return;
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Field','Value'],['Name',cur.name],['Job Title',cur.jobTitle],['Manager',cur.manager],['POD',cur.pod],['Start Date',cur.startDate]]),'Profile');
+  const pRows=[['Goal','Success Criteria']];
+  cur.probationary.goals.forEach(g=>pRows.push([g.text,g.target]));
+  pRows.push([],[]);pRows.push(['Area','Rating','Evidence','Next Actions']);
+  PROB_AREAS.forEach(a=>{const d=cur.probationary.areas[a.key]||{};pRows.push([a.name,d.rating||'',d.comments||'',d.nextActions||'']);});
+  pRows.push([],[['Outcome',cur.probationary.outcome||''],['Comments',cur.probationary.outcomeComments||'']].flat());
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pRows),'Probationary');
+  const oRows=[['Objective','Description','Weight %','% Complete','Target Date']];
+  rev.objectives.forEach(o=>oRows.push([o.title,o.smart,o.weight,o.percentComplete,o.targetDate]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(oRows),'Objectives '+cur.activeReviewYear);
+  const cvRows=[['Value','Rating','Comments']];
+  CORE_VALUES.forEach(cv=>{const d=rev.coreValues[cv.key]||{};cvRows.push([cv.name,d.rating||'',d.comments||'']);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cvRows),'Core Values');
+  const mRows=[['Meeting','Date','Notes']];
+  MEETINGS.forEach(m=>{const d=rev.meetings[m.key];mRows.push([m.label,d.date||'',d.notes||'']);});
+  mRows.push([],['Final Rating',rev.meetings.final.rating||''],['Manager Comments',rev.meetings.final.managerComments||''],['Employee Comments',rev.meetings.final.employeeComments||'']);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mRows),'Meetings');
+  XLSX.writeFile(wb,'review_'+cur.name.replace(/\s+/g,'_')+'_'+cur.activeReviewYear+'.xlsx');
+}
+function printReview(){
+  const cur=getCurrent();if(!cur)return;
+  const rev=getCurrentReview();if(!rev)return;
+  const y=cur.activeReviewYear;
+  const doc=document.getElementById('printDoc');
+  const goalsH=cur.probationary.goals.map(g=>`<tr><td>${esc(g.text)}</td><td>${esc(g.target)}</td></tr>`).join('')||'<tr><td colspan=2>None</td></tr>';
+  const areasH=PROB_AREAS.map(a=>{const d=cur.probationary.areas[a.key]||{};return`<tr><td>${a.name}</td><td>${esc(d.rating)}</td><td>${esc(d.comments)}</td><td>${esc(d.nextActions)}</td></tr>`;}).join('');
+  const objH=rev.objectives.map(o=>`<tr><td><b>${esc(o.title)}</b><br><span style="font-size:10px;">${esc(o.smart)}</span></td><td>${o.weight}%</td><td>${o.percentComplete}%</td><td>${o.targetDate||''}</td></tr>`).join('')||'<tr><td colspan=4>None</td></tr>';
+  const cvH=CORE_VALUES.map(cv=>{const d=rev.coreValues[cv.key]||{};return`<tr><td>${cv.name}</td><td>${esc(d.rating)}</td><td>${esc(d.comments)}</td></tr>`;}).join('');
+  const meetH=MEETINGS.map(m=>{const d=rev.meetings[m.key];return`<tr><td>${m.label}</td><td>${d.date||''}</td><td>${esc(d.notes)}</td></tr>`;}).join('');
+  doc.innerHTML=`<div class="print-page">
+    <div class="print-header"><div><h1>${esc(cur.name)}</h1><div class="print-meta">${esc(cur.jobTitle)} &middot; Manager: ${esc(cur.manager)} &middot; POD: ${esc(cur.pod)}</div></div><div class="print-meta" style="text-align:right;">${y} Performance Review<br>Printed ${new Date().toLocaleDateString()}</div></div>
+    <h3 style="color:var(--navy);">Probationary Plan</h3>
+    <table class="print-table"><tr><th>Goal</th><th>Success Criteria</th></tr>${goalsH}</table>
+    <table class="print-table"><tr><th>Assessment Area</th><th>Rating</th><th>Evidence</th><th>Next Actions</th></tr>${areasH}</table>
+    <p><b>Outcome:</b> ${esc(cur.probationary.outcome)||'Not set'} &mdash; ${esc(cur.probationary.outcomeComments)}</p>
+    <h3 style="color:var(--navy);">${y} Objectives</h3>
+    <table class="print-table"><tr><th>Objective</th><th>Weight</th><th>% Done</th><th>Target Date</th></tr>${objH}</table>
+    <h3 style="color:var(--navy);">Core Values</h3>
+    <table class="print-table"><tr><th>Value</th><th>Rating</th><th>Examples</th></tr>${cvH}</table>
+    <h3 style="color:var(--navy);">Review Cycle — ${y}</h3>
+    <table class="print-table"><tr><th>Meeting</th><th>Date</th><th>Notes</th></tr>${meetH}</table>
+    <p><b>Final Rating:</b> ${esc(rev.meetings.final.rating)||'Not set'}</p>
+    <p><b>Manager Comments:</b> ${esc(rev.meetings.final.managerComments)}</p>
+    <p><b>Employee Comments:</b> ${esc(rev.meetings.final.employeeComments)}</p>
+    <div style="margin-top:40px;display:flex;gap:60px;">
+      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:30px;width:180px;">Employee Signature</div></div>
+      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:30px;width:180px;">Manager Signature</div></div>
+      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:30px;width:140px;">Date</div></div>
+    </div>
+  </div>`;
+  document.body.classList.add('printing');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('printing'),500);
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+loadDB();
+// Migrate old v1 data (review:{} → reviews:{})
+Object.values(DB.employees).forEach(emp=>{
+  if(emp.review&&!emp.reviews){
+    const y=emp.reviewYear||new Date().getFullYear();
+    emp.reviews={[y]:emp.review};
+    emp.activeReviewYear=y;
+    delete emp.review;delete emp.reviewYear;
+  }
+});
+if(!DB.currentId&&Object.keys(DB.employees).length) DB.currentId=Object.keys(DB.employees)[0];
+renderAll();
+</script>
+</body>
+</html>
