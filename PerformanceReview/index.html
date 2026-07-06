@@ -39,6 +39,12 @@ input[type=text],input[type=date],input[type=number],select{width:100%;}
 .employee-bar select{min-width:220px;}
 .status-pill{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:700;}
 .pill-saved{background:#E4F4EE;color:var(--green);}
+.conn-banner{padding:10px 28px;font-size:12.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.conn-connected{background:#E4F4EE;color:var(--green);border-bottom:1px solid #B8DDD0;}
+.conn-disconnected{background:#FFF8E6;color:#7A5800;border-bottom:1px solid #F0D28A;}
+.conn-unsupported{background:#F0F0F0;color:var(--ink-light);border-bottom:1px solid var(--border);}
+.conn-banner strong{font-weight:700;}
+.conn-banner button{padding:5px 12px;font-size:12px;margin-left:auto;}
 
 .tabs{display:flex;gap:4px;padding:18px 28px 0;}
 .tab-btn{background:#E4F0F0;color:var(--navy-2);padding:11px 20px;border-radius:10px 10px 0 0;font-weight:700;font-size:13.5px;cursor:pointer;}
@@ -73,11 +79,29 @@ input[type=text],input[type=date],input[type=number],select{width:100%;}
 .log-add textarea{min-height:36px;}
 
 .meeting-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.meeting-grid.prob-meetings{grid-template-columns:repeat(3,1fr);}
 .meeting-card{border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;background:#fff;}
 .meeting-card.done{border-color:var(--teal);background:var(--teal-pale);}
 .meeting-card .icon{width:30px;height:30px;border-radius:50%;background:var(--border);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-weight:800;font-size:13px;}
 .meeting-card.done .icon{background:var(--teal);}
 .meeting-card h4{margin:0 0 8px;font-size:12.5px;color:var(--navy);}
+.locked-section{background:#F7F9F9;border:1.5px dashed var(--border);border-radius:12px;padding:28px 24px;text-align:center;color:var(--ink-light);margin-bottom:16px;}
+.locked-section .lock-icon{font-size:28px;margin-bottom:8px;}
+.locked-section p{font-size:13px;margin:0;}
+.rag-tracker{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+.rag-tracker-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-light);margin-bottom:8px;}
+.rag-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.rag-meeting{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.rag-meeting-label{font-size:11px;font-weight:700;color:var(--ink-light);margin-bottom:6px;}
+.rag-btns{display:flex;gap:5px;margin-bottom:6px;}
+.rag-btn{flex:1;padding:5px 2px;border-radius:6px;border:1.5px solid var(--border);font-size:11px;font-weight:800;cursor:pointer;text-align:center;transition:all .1s;}
+.rag-btn.r{border-color:#E8B4B8;color:#C0392B;}
+.rag-btn.r.sel{background:#FBEAE8;border-color:#C0392B;}
+.rag-btn.a{border-color:#F0D28A;color:#8A6300;}
+.rag-btn.a.sel{background:var(--amber-bg);border-color:#B6862C;}
+.rag-btn.g{border-color:#A8D5C2;color:#2D846C;}
+.rag-btn.g.sel{background:#E4F4EE;border-color:#2D846C;}
+.rag-note{width:100%;font-size:12px;min-height:38px;margin-top:2px;}
 
 .values-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .value-card{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fff;}
@@ -142,7 +166,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
     <div class="sub">Goal setting, check-ins and review tracking for managers</div>
   </div>
   <div class="toolbar">
-    <button class="btn-ghost" onclick="exportJSON()">⤓ Export JSON</button>
+    <button class="btn-ghost" id="exportBtn" onclick="exportJSON()" title="Save a manual backup file for this employee">⤓ Export Backup</button>
     <label class="btn-ghost" style="position:relative;cursor:pointer;">
       ⤒ Import JSON
       <input type="file" accept=".json" onchange="importJSON(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
@@ -160,6 +184,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
   <span id="savePill" class="status-pill pill-saved" style="margin-left:auto;">Saved to this browser</span>
 </div>
 
+<div id="connectionBanner"></div>
 <div class="app-shell">
   <div id="noEmployeeState" class="empty-state" style="display:none;">
     <h2>No employees yet</h2>
@@ -193,28 +218,26 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
     <div class="tab-panel" id="panel-probationary">
       <div class="card">
         <h3>90-Day Probationary Plan</h3>
-        <div class="desc">Set goals at the start of employment. Complete the review around day 70–90 to confirm the outcome.</div>
+        <div class="desc">Set goals at the start of employment. Use the three check-in meetings to track progress and confirm the outcome at day 90.</div>
         <div class="grid2">
           <div class="field"><label>Probation Start Date</label><input type="date" id="prob-start" oninput="updateProb('startDate',this.value)"></div>
           <div class="field"><label>Target Review Date (Day 90)</label><input type="date" id="prob-due" readonly style="background:var(--bg);"></div>
         </div>
       </div>
 
+      <div class="section-title">Probation Check-ins</div>
+      <div class="meeting-grid prob-meetings" id="probMeetingGrid"></div>
+
       <div class="section-title">Goals &amp; Expectations</div>
       <div id="probGoalsList"></div>
       <button class="btn-light no-print" onclick="addProbGoal()" style="margin-bottom:24px;">+ Add Goal</button>
 
       <div class="section-title">Assessment Areas</div>
+      <div style="font-size:12.5px;color:var(--ink-light);margin-bottom:14px;">Complete this section at the 90-day review meeting.</div>
       <div id="probAreasGrid"></div>
 
       <div class="section-title">Outcome</div>
-      <div class="card">
-        <div class="outcome-row" id="probOutcomeRow"></div>
-        <div class="field" style="margin-top:14px;"><label>Manager Comments</label><textarea id="prob-outcome-comments" oninput="updateProb('outcomeComments',this.value)" placeholder="Summarise the key reasons for this outcome. Reference specific observations."></textarea></div>
-        <div class="grid2" style="margin-top:10px;">
-          <div class="field"><label>Actual Review Date</label><input type="date" id="prob-actual-date" oninput="updateProb('actualReviewDate',this.value)"></div>
-        </div>
-      </div>
+      <div id="probOutcomeSection"></div>
     </div>
 
     <!-- ══════════════════════════════ REVIEW TAB ══════════════════════════════ -->
@@ -235,27 +258,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
       <div id="objectivesList"></div>
       <button class="btn-light no-print" onclick="addObjective()" style="margin-bottom:24px;">+ Add Objective</button>
 
-      <div class="section-title">Oliver Core Values</div>
-      <div class="values-grid" id="coreValuesGrid"></div>
-
-      <div class="section-title">Final Review</div>
-      <div class="card">
-        <div class="grid2">
-          <div class="field"><label>Overall Rating</label>
-            <select id="final-rating" onchange="updateFinal('rating',this.value)">
-              <option value="">Select rating</option>
-              <option value="1">1 — Below Expectations</option>
-              <option value="2">2 — Developing</option>
-              <option value="3">3 — Meets Expectations</option>
-              <option value="4">4 — Exceeds Expectations</option>
-              <option value="5">5 — Exceptional</option>
-            </select>
-          </div>
-          <div class="field"><label>Review Meeting Date</label><input type="date" id="final-date" oninput="updateFinal('date',this.value)"></div>
-        </div>
-        <div class="field" style="margin-top:12px;"><label>Manager Final Comments</label><textarea id="final-manager" placeholder="Summarise overall performance. Reference specific examples and evidence." oninput="updateFinal('managerComments',this.value)"></textarea></div>
-        <div class="field" style="margin-top:10px;"><label>Employee Final Comments</label><textarea id="final-employee" placeholder="Employee reflection on the year, achievements and development areas." oninput="updateFinal('employeeComments',this.value)"></textarea></div>
-      </div>
+      <div id="finalReviewSection"></div>
     </div>
   </div>
 </div>
@@ -286,7 +289,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
   </div>
 </dialog>
 
-<footer class="note no-print">Data auto-saves to this browser. Export JSON regularly and store it on SharePoint — re-import to restore if the browser cache is cleared.</footer>
+<footer class="note no-print" id="footerNote">Each employee saves automatically to this browser. <span id="footerFolderNote">Link your <strong>Team Reviews</strong> folder above to save directly to OneDrive on every change.</span></footer>
 <div class="print-doc" id="printDoc"></div>
 
 <script>
@@ -322,18 +325,180 @@ let DB = {employees:{}, currentId:null};
 // ─── Helpers ───────────────────────────────────────────────────────────────
 function uid(){ return 'x'+Date.now()+Math.random().toString(36).slice(2,6); }
 function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+// ─── File System Access API — folder linking ────────────────────────────────
+const FSA_SUPPORTED = 'showDirectoryPicker' in window;
+let dirHandle = null;
+let folderConnected = false;
+let folderName = '';
+let pendingWrite = false; // debounce flag
+
+// IndexedDB — persist the folder handle across sessions
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open('oliver_review_fsa',1);
+    req.onupgradeneeded = ()=> req.result.createObjectStore('handles');
+    req.onsuccess = ()=> res(req.result);
+    req.onerror = ()=> rej(req.error);
+  });
+}
+async function idbGet(key){
+  try{ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction('handles','readonly'); const r=tx.objectStore('handles').get(key); r.onsuccess=()=>res(r.result||null); r.onerror=()=>rej(r.error); }); }catch(e){return null;}
+}
+async function idbSet(key,val){
+  try{ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction('handles','readwrite'); tx.objectStore('handles').put(val,key); tx.oncomplete=()=>res(true); tx.onerror=()=>rej(tx.error); }); }catch(e){return false;}
+}
+async function idbClear(key){
+  try{ const db=await idbOpen(); const tx=db.transaction('handles','readwrite'); tx.objectStore('handles').delete(key); }catch(e){}
+}
+
+// Connect — prompt manager to pick their Team Reviews folder
+async function connectFolder(){
+  if(!FSA_SUPPORTED){ alert('Folder linking needs Chrome or Edge. Please use the Export JSON button to save manually.'); return; }
+  try{
+    const handle = await window.showDirectoryPicker({id:'oliver-reviews', mode:'readwrite', startIn:'documents'});
+    dirHandle = handle;
+    folderName = handle.name;
+    folderConnected = true;
+    await idbSet('dirHandle', handle);
+    renderConnectionBanner();
+    // Load any existing employee files from the folder
+    await loadFromFolder();
+    flashSaved('Connected to ' + folderName);
+  }catch(e){
+    if(e.name !== 'AbortError') alert('Could not connect to that folder. Please try again.');
+  }
+}
+
+// Disconnect
+async function disconnectFolder(){
+  dirHandle = null; folderConnected = false; folderName = '';
+  await idbClear('dirHandle');
+  renderConnectionBanner();
+  flashSaved('Disconnected — saving to browser only');
+}
+
+// Silent reconnect on page load (if permission still granted)
+async function tryReconnectFolder(){
+  const handle = await idbGet('dirHandle');
+  if(!handle){ renderConnectionBanner(); return; }
+  dirHandle = handle;
+  folderName = handle.name;
+  try{
+    const perm = await handle.queryPermission({mode:'readwrite'});
+    if(perm === 'granted'){
+      folderConnected = true;
+      await loadFromFolder();
+      renderConnectionBanner();
+      return;
+    }
+  }catch(e){}
+  // Permission needs fresh click — show reconnect
+  renderConnectionBanner();
+}
+
+// Ask permission again (after page reload permission is dropped)
+async function reconfirmFolder(){
+  if(!dirHandle){ return connectFolder(); }
+  try{
+    const perm = await dirHandle.requestPermission({mode:'readwrite'});
+    if(perm === 'granted'){
+      folderConnected = true;
+      folderName = dirHandle.name;
+      await loadFromFolder();
+      renderConnectionBanner();
+      flashSaved('Reconnected to ' + folderName);
+    } else {
+      alert('Permission was not granted. Please try again.');
+    }
+  }catch(e){ alert('Could not reconnect — try Connect Folder again.'); }
+}
+
+// Read all .json employee files from the linked folder
+async function loadFromFolder(){
+  if(!dirHandle) return;
+  let loaded = 0;
+  try{
+    for await (const [name, handle] of dirHandle.entries()){
+      if(!name.startsWith('review_') || !name.endsWith('.json')) continue;
+      try{
+        const file = await handle.getFile();
+        const text = await file.text();
+        const data = JSON.parse(text);
+        let emp = data.employee || (data.employees ? Object.values(data.employees)[0] : null);
+        if(!emp) continue;
+        // migrate if needed
+        if(emp.review && !emp.reviews){
+          const y = emp.reviewYear || new Date().getFullYear();
+          emp.reviews = {[y]:emp.review}; emp.activeReviewYear = y;
+          delete emp.review; delete emp.reviewYear;
+        }
+        if(!emp.probationary.meetings) emp.probationary.meetings = {goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
+        DB.employees[emp.id] = emp;
+        loaded++;
+      }catch(e){ console.warn('Could not read', name, e); }
+    }
+    if(!DB.currentId && Object.keys(DB.employees).length) DB.currentId = Object.keys(DB.employees)[0];
+    // Mirror into localStorage as offline cache
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+    renderAll();
+    if(loaded > 0) flashSaved('Loaded ' + loaded + ' employee file' + (loaded>1?'s':'') + ' from ' + folderName);
+  }catch(e){ console.error('loadFromFolder error', e); }
+}
+
+// Write a single employee's JSON file to the linked folder
+async function writeEmployeeToFolder(emp){
+  if(!folderConnected || !dirHandle) return false;
+  try{
+    const fname = 'review_' + emp.name.replace(/\s+/g,'_') + '_' + emp.id.slice(0,6) + '.json';
+    const fileHandle = await dirHandle.getFileHandle(fname, {create:true});
+    const writable = await fileHandle.createWritable();
+    const payload = {employee:emp, exportedAt:new Date().toISOString(), version:2};
+    await writable.write(JSON.stringify(payload, null, 2));
+    await writable.close();
+    return true;
+  }catch(e){
+    console.error('writeEmployeeToFolder error', e);
+    return false;
+  }
+}
+
+function renderConnectionBanner(){
+  const el = document.getElementById('connectionBanner');
+  if(!FSA_SUPPORTED){
+    el.innerHTML = '<div class="conn-banner conn-unsupported">ℹ️ Automatic folder saving needs Chrome or Edge. Use <strong>⤓ Export</strong> to save manually after each session.</div>';
+    return;
+  }
+  if(folderConnected){
+    el.innerHTML = `<div class="conn-banner conn-connected">✅ Linked to <strong>${esc(folderName)}</strong> — every change saves automatically to your folder. <button class="btn-light" style="padding:4px 10px;font-size:12px;" onclick="disconnectFolder()">Disconnect</button></div>`;
+  } else if(dirHandle){
+    el.innerHTML = `<div class="conn-banner conn-disconnected">⚠️ Folder link needs to be confirmed for this session. <button class="btn-primary" style="padding:5px 12px;font-size:12px;" onclick="reconfirmFolder()">Reconnect to ${esc(folderName||'folder')}</button></div>`;
+  } else {
+    el.innerHTML = `<div class="conn-banner conn-disconnected">📁 No folder linked — saving to this browser only. <button class="btn-primary" style="padding:5px 12px;font-size:12px;" onclick="connectFolder()">Link your Team Reviews folder</button> <span style="font-size:11.5px;opacity:.7;">Link once and all changes save automatically.</span></div>`;
+  }
+}
+
+// ─── Storage — localStorage + folder write on every save ────────────────────
 function loadDB(){
   try{ const r=localStorage.getItem(STORAGE_KEY); if(r) DB=JSON.parse(r); }
   catch(e){ console.error(e); }
   if(!DB.employees) DB.employees={};
 }
-function saveDB(){
-  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(DB)); flashSaved(); }
-  catch(e){ console.error(e); }
+async function saveDB(){
+  // 1. Always save to localStorage immediately
+  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(DB)); }catch(e){ console.error(e); }
+  // 2. If folder is linked, write the current employee's file
+  const cur = getCurrent();
+  if(cur && folderConnected){
+    const ok = await writeEmployeeToFolder(cur);
+    flashSaved(ok ? '✅ Saved to ' + folderName : 'Saved to browser');
+  } else {
+    flashSaved();
+  }
 }
-function flashSaved(){
+function flashSaved(msg){
   const p=document.getElementById('savePill');
-  p.textContent='Saved '+new Date().toLocaleTimeString();
+  p.textContent = msg || ('Saved to browser ' + new Date().toLocaleTimeString());
   p.className='status-pill pill-saved';
 }
 function getCurrent(){ return DB.employees[DB.currentId]||null; }
@@ -368,7 +533,7 @@ function newEmployeeRecord(name,title,start){
     manager:'', pod:'', startDate:start||'',
     activeReviewYear:year,
     reviews:{[year]:newReviewRecord()},
-    probationary:{startDate:start||'',goals:[],areas:{},outcome:'',outcomeComments:'',actualReviewDate:''}
+    probationary:{startDate:start||'',meetings:{goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}},goals:[],areas:{},outcome:'',outcomeComments:'',actualReviewDate:''}
   };
 }
 
@@ -386,7 +551,7 @@ function renderEmployeeSelect(){
   document.getElementById('noEmployeeState').style.display=ids.length?'none':'block';
   document.getElementById('mainContent').style.display=ids.length?'block':'none';
 }
-function switchEmployee(id){ DB.currentId=id; saveDB(); renderAll(); }
+function switchEmployee(id){ DB.currentId=id; saveDB(); renderAll(); updateExportLabel(); }
 function openNewEmployeeModal(){
   ['modal-name','modal-title'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modal-start').value='';
@@ -487,24 +652,56 @@ function renderProbDates(){
   if(cur.probationary.startDate){const d=new Date(cur.probationary.startDate);d.setDate(d.getDate()+90);due.value=d.toISOString().slice(0,10);}
   else due.value='';
 }
-function addProbGoal(){ const cur=getCurrent();if(!cur)return;cur.probationary.goals.push({id:uid(),text:'',target:''});saveDB();renderProbGoals(); }
+function addProbGoal(){ const cur=getCurrent();if(!cur)return;cur.probationary.goals.push({id:uid(),text:'',target:'',rag:{goalSetting:{status:'',note:''},day30:{status:'',note:''},day90:{status:'',note:''}}});saveDB();renderProbGoals(); }
 function removeProbGoal(id){ const cur=getCurrent();cur.probationary.goals=cur.probationary.goals.filter(g=>g.id!==id);saveDB();renderProbGoals(); }
 function updateProbGoal(id,key,val){ const cur=getCurrent();const g=cur.probationary.goals.find(g=>g.id===id);if(g){g[key]=val;saveDB();} }
+const RAG_MEETINGS=[
+  {key:'goalSetting',label:'Goal Setting'},
+  {key:'day30',label:'Day 30'},
+  {key:'day90',label:'Day 90'}
+];
 function renderProbGoals(){
   const cur=getCurrent();if(!cur)return;
   const wrap=document.getElementById('probGoalsList');
   wrap.innerHTML='';
   if(!cur.probationary.goals.length){wrap.innerHTML='<div style="color:var(--ink-light);font-size:13px;margin-bottom:10px;">No goals yet — add the first one.</div>';return;}
   cur.probationary.goals.forEach(g=>{
+    if(!g.rag) g.rag={goalSetting:{status:'',note:''},day30:{status:'',note:''},day90:{status:'',note:''}};
     const div=document.createElement('div');div.className='obj-card';
+    // Build RAG meeting columns
+    const ragCols=RAG_MEETINGS.map(m=>{
+      const rd=g.rag[m.key];
+      const btns=['r','a','g'].map(s=>{
+        const labels={r:'🔴 Not started',a:'🟡 In progress',g:'🟢 On track'};
+        return `<div class="rag-btn ${s}${rd.status===s?' sel':''}" onclick="updateProbGoalRag('${g.id}','${m.key}','status','${s}')">${labels[s]}</div>`;
+      }).join('');
+      return `<div class="rag-meeting">
+        <div class="rag-meeting-label">${m.label}</div>
+        <div class="rag-btns">${btns}</div>
+        <textarea class="rag-note" placeholder="Note" oninput="updateProbGoalRag('${g.id}','${m.key}','note',this.value)">${esc(rd.note)}</textarea>
+      </div>`;
+    }).join('');
     div.innerHTML=`
       <div class="obj-head">
         <input type="text" placeholder="What should the employee achieve in the first 90 days?" value="${esc(g.text)}" oninput="updateProbGoal('${g.id}','text',this.value)">
         <button class="remove-btn no-print" onclick="removeProbGoal('${g.id}')">✕</button>
       </div>
-      <div class="field"><label>How will success be measured?</label><textarea oninput="updateProbGoal('${g.id}','target',this.value)" placeholder="Describe what 'done' looks like — observable, specific.">${esc(g.target)}</textarea></div>`;
+      <div class="field"><label>How will success be measured?</label><textarea oninput="updateProbGoal('${g.id}','target',this.value)" placeholder="Describe what 'done' looks like — observable, specific.">${esc(g.target)}</textarea></div>
+      <div class="rag-tracker">
+        <div class="rag-tracker-label">Progress at each check-in</div>
+        <div class="rag-row">${ragCols}</div>
+      </div>`;
     wrap.appendChild(div);
   });
+}
+function updateProbGoalRag(goalId,meeting,field,val){
+  const cur=getCurrent();
+  const g=cur.probationary.goals.find(g=>g.id===goalId);
+  if(!g) return;
+  if(!g.rag) g.rag={goalSetting:{status:'',note:''},day30:{status:'',note:''},day90:{status:'',note:''}};
+  g.rag[meeting][field]=val;
+  saveDB();
+  if(field==='status') renderProbGoals(); // re-render to update selected state
 }
 function renderProbAreas(){
   const cur=getCurrent();if(!cur)return;
@@ -538,18 +735,56 @@ function updateProbArea(key,field,val){
   if(!cur.probationary.areas[key]) cur.probationary.areas[key]={rating:'',comments:'',nextActions:''};
   cur.probationary.areas[key][field]=val;saveDB();
 }
-function renderProbOutcome(){
+const PROB_MEETINGS=[
+  {key:'goalSetting',label:'1. Goal Setting'},
+  {key:'day30',label:'2. Day 30 Check-in'},
+  {key:'day90',label:'3. Day 90 Review'}
+];
+function renderProbMeetings(){
   const cur=getCurrent();if(!cur)return;
-  const row=document.getElementById('probOutcomeRow');row.innerHTML='';
+  if(!cur.probationary.meetings) cur.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
+  const grid=document.getElementById('probMeetingGrid');grid.innerHTML='';
+  PROB_MEETINGS.forEach((m,idx)=>{
+    const data=cur.probationary.meetings[m.key];
+    const done=!!data.date;
+    const div=document.createElement('div');div.className='meeting-card'+(done?' done':'');
+    div.innerHTML=`<div class="icon">${done?'✓':(idx+1)}</div><h4>${m.label}</h4>
+      <input type="date" value="${data.date||''}" oninput="updateProbMeeting('${m.key}','date',this.value)">
+      <textarea style="margin-top:8px;min-height:48px;" placeholder="Notes from this meeting" oninput="updateProbMeeting('${m.key}','notes',this.value)">${esc(data.notes||'')} </textarea>`;
+    grid.appendChild(div);
+  });
+  // re-render outcome section based on whether day90 is done
+  renderProbOutcomeSection();
+}
+function updateProbMeeting(key,field,val){
+  const cur=getCurrent();
+  if(!cur.probationary.meetings) cur.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
+  cur.probationary.meetings[key][field]=val;
+  saveDB();renderProbMeetings();
+}
+function renderProbOutcomeSection(){
+  const cur=getCurrent();if(!cur)return;
+  const wrap=document.getElementById('probOutcomeSection');
+  const day90done=!!(cur.probationary.meetings&&cur.probationary.meetings.day90&&cur.probationary.meetings.day90.date);
+  if(!day90done){
+    wrap.innerHTML=`<div class="locked-section"><div class="lock-icon">🔒</div><p><strong>Outcome is available once the Day 90 Review meeting date is recorded above.</strong><br>Complete the check-ins first, then return here to set the outcome.</p></div>`;
+    return;
+  }
+  wrap.innerHTML=`
+    <div class="card">
+      <div class="outcome-row" id="probOutcomeRow"></div>
+      <div class="field" style="margin-top:14px;"><label>Manager Comments</label><textarea id="prob-outcome-comments" oninput="updateProb('outcomeComments',this.value)" placeholder="Summarise the key reasons for this outcome. Reference specific observations.">${esc(cur.probationary.outcomeComments||'')} </textarea></div>
+      <div class="field" style="margin-top:10px;"><label>Actual Review Date</label><input type="date" id="prob-actual-date" style="max-width:200px;" oninput="updateProb('actualReviewDate',this.value)" value="${cur.probationary.actualReviewDate||''}"></div>
+    </div>`;
+  // render outcome buttons
+  const row=document.getElementById('probOutcomeRow');
   [['pass','✓ Pass'],['extend','⟳ Extend'],['fail','✕ Fail']].forEach(([k,label])=>{
     const div=document.createElement('div');
     div.className='outcome-opt '+k+(cur.probationary.outcome===k?' selected':'');
     div.textContent=label;
-    div.onclick=()=>{cur.probationary.outcome=k;saveDB();renderProbOutcome();};
+    div.onclick=()=>{cur.probationary.outcome=k;saveDB();renderProbOutcomeSection();};
     row.appendChild(div);
   });
-  document.getElementById('prob-outcome-comments').value=cur.probationary.outcomeComments||'';
-  document.getElementById('prob-actual-date').value=cur.probationary.actualReviewDate||'';
 }
 
 // ─── Review tab ─────────────────────────────────────────────────────────────
@@ -557,8 +792,40 @@ function renderReviewTab(){
   renderYearSelector();
   renderMeetings();
   renderObjectives();
-  renderCoreValues();
+  renderFinalReviewSection();
+}
+function renderFinalReviewSection(){
   const rev=getCurrentReview();if(!rev)return;
+  const wrap=document.getElementById('finalReviewSection');
+  const finalMeetingDone=!!(rev.meetings.q3&&rev.meetings.q3.date);
+  if(!finalMeetingDone){
+    wrap.innerHTML=`
+      <div class="section-title">Oliver Core Values</div>
+      <div class="locked-section"><div class="lock-icon">🔒</div><p><strong>Core Values and Final Review are available once the Q3 Check-in date is recorded above.</strong><br>Complete all quarterly check-ins first.</p></div>`;
+    return;
+  }
+  wrap.innerHTML=`
+    <div class="section-title">Oliver Core Values</div>
+    <div class="values-grid" id="coreValuesGrid"></div>
+    <div class="section-title">Final Review</div>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Overall Rating</label>
+          <select id="final-rating" onchange="updateFinal('rating',this.value)">
+            <option value="">Select rating</option>
+            <option value="1">1 — Below Expectations</option>
+            <option value="2">2 — Developing</option>
+            <option value="3">3 — Meets Expectations</option>
+            <option value="4">4 — Exceeds Expectations</option>
+            <option value="5">5 — Exceptional</option>
+          </select>
+        </div>
+        <div class="field"><label>Review Meeting Date</label><input type="date" id="final-date" oninput="updateFinal('date',this.value)"></div>
+      </div>
+      <div class="field" style="margin-top:12px;"><label>Manager Final Comments</label><textarea id="final-manager" placeholder="Summarise overall performance. Reference specific examples and evidence." oninput="updateFinal('managerComments',this.value)"></textarea></div>
+      <div class="field" style="margin-top:10px;"><label>Employee Final Comments</label><textarea id="final-employee" placeholder="Employee reflection on the year, achievements and development areas." oninput="updateFinal('employeeComments',this.value)"></textarea></div>
+    </div>`;
+  renderCoreValues();
   document.getElementById('final-rating').value=rev.meetings.final.rating||'';
   document.getElementById('final-date').value=rev.meetings.final.date||'';
   document.getElementById('final-manager').value=rev.meetings.final.managerComments||'';
@@ -666,18 +933,24 @@ function renderAll(){
   const cur=getCurrent();if(!cur)return;
   renderProfile();
   document.getElementById('prob-start').value=cur.probationary.startDate||'';
-  renderProbDates();renderProbGoals();renderProbAreas();renderProbOutcome();
-  renderReviewTab();
+  renderProbDates();renderProbMeetings();renderProbGoals();renderProbAreas();renderProbOutcomeSection();
+  renderReviewTab();updateExportLabel();
 }
 
-// ─── Export / Import ─────────────────────────────────────────────────────────
+// ─── Export / Import — one file per employee ────────────────────────────────
 function exportJSON(){
   const cur=getCurrent();
-  const payload=cur?{employees:{[cur.id]:cur},currentId:cur.id}:DB;
+  if(!cur){alert('No employee selected.');return;}
+  const payload={employee:cur,exportedAt:new Date().toISOString(),version:2};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=(cur?'review_'+cur.name.replace(/\s+/g,'_'):'oliver_reviews_all')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.download='review_'+cur.name.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
+}
+function updateExportLabel(){
+  const btn=document.getElementById('exportBtn');if(!btn)return;
+  const cur=getCurrent();
+  btn.textContent=cur?'⤓ Export '+cur.name.split(' ')[0]:'⤓ Export JSON';
 }
 function importJSON(evt){
   const file=evt.target.files[0];if(!file)return;
@@ -685,19 +958,23 @@ function importJSON(evt){
   reader.onload=e=>{
     try{
       const incoming=JSON.parse(e.target.result);
-      if(incoming.employees){
-        // Migrate old records that have review: {} instead of reviews: {}
-        Object.values(incoming.employees).forEach(emp=>{
-          if(emp.review&&!emp.reviews){
-            emp.reviews={[emp.reviewYear||new Date().getFullYear()]:emp.review};
-            emp.activeReviewYear=emp.reviewYear||new Date().getFullYear();
-            delete emp.review;delete emp.reviewYear;
-          }
-        });
-        Object.assign(DB.employees,incoming.employees);
-        DB.currentId=incoming.currentId||Object.keys(incoming.employees)[0];
+      let emp=null;
+      if(incoming.employee) emp=incoming.employee;
+      else if(incoming.employees) emp=Object.values(incoming.employees)[0];
+      if(!emp){alert('Could not find employee data in this file.');return;}
+      if(emp.review&&!emp.reviews){
+        const y=emp.reviewYear||new Date().getFullYear();
+        emp.reviews={[y]:emp.review};emp.activeReviewYear=y;
+        delete emp.review;delete emp.reviewYear;
       }
-      saveDB();renderAll();alert('Import successful.');
+      if(!emp.probationary.meetings){
+        emp.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
+      }
+      if(DB.employees[emp.id]){
+        if(!confirm(emp.name+' already exists. Replace with the imported version?')) return;
+      }
+      DB.employees[emp.id]=emp;DB.currentId=emp.id;
+      saveDB();renderAll();alert(emp.name+' imported successfully.');
     }catch(err){alert('Could not read that file: '+err.message);}
   };
   reader.readAsText(file);evt.target.value='';
@@ -771,9 +1048,21 @@ Object.values(DB.employees).forEach(emp=>{
     emp.activeReviewYear=y;
     delete emp.review;delete emp.reviewYear;
   }
+  if(!emp.probationary.meetings) emp.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
 });
 if(!DB.currentId&&Object.keys(DB.employees).length) DB.currentId=Object.keys(DB.employees)[0];
 renderAll();
+
+// Attempt silent folder reconnect (overrides local data if folder grants permission)
+tryReconnectFolder();
+
+// Warn on page leave if folder not connected and there's data
+window.addEventListener('beforeunload', e => {
+  if(!folderConnected && Object.keys(DB.employees).length > 0){
+    e.preventDefault();
+    e.returnValue = 'Your review data is saved in this browser but not to your Team Reviews folder. Are you sure you want to leave?';
+  }
+});
 </script>
 </body>
 </html>
