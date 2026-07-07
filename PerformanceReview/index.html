@@ -98,7 +98,7 @@ input[type=text],input[type=date],input[type=number],select{width:100%;}
 .rag-btn.r{border-color:#E8B4B8;color:#C0392B;}
 .rag-btn.r.sel{background:#FBEAE8;border-color:#C0392B;}
 .rag-btn.a{border-color:#F0D28A;color:#8A6300;}
-.rag-btn.a.sel{background:var(--amber-bg);border-color:#B6862C;}
+.rag-btn.a.sel{background:#F5C842;border-color:#C9A227;color:#5A3D00;}
 .rag-btn.g{border-color:#A8D5C2;color:#2D846C;}
 .rag-btn.g.sel{background:#E4F4EE;border-color:#2D846C;}
 .rag-note{width:100%;font-size:12px;min-height:38px;margin-top:2px;}
@@ -163,7 +163,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
 <header class="top no-print">
   <div>
     <h1><span class="brand-dot"></span>Oliver — Performance &amp; Probationary Reviews</h1>
-    <div class="sub">Goal setting, check-ins and review tracking for managers</div>
+    <div class="sub">Goal setting, check-ins and review tracking for managers &nbsp;·&nbsp; <a href="https://userenablement.github.io/Initiatives/ManagerPerformanceReviewGuide/" target="_blank" style="color:var(--teal-light);font-weight:700;">📖 Manager Guide</a></div>
   </div>
   <div class="toolbar">
     <button class="btn-ghost" id="exportBtn" onclick="exportJSON()" title="Save a manual backup file for this employee">⤓ Export Backup</button>
@@ -173,6 +173,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
     </label>
     <button class="btn-ghost" onclick="exportExcel()">⊞ Export Excel</button>
     <button class="btn-ghost" onclick="printReview()">🖶 Print</button>
+    <button class="btn-ghost" onclick="openDataModal()" title="Fix duplicates or clear all data">⚙ Manage Data</button>
   </div>
 </header>
 
@@ -291,6 +292,22 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
 
 <footer class="note no-print" id="footerNote">Each employee saves automatically to this browser. <span id="footerFolderNote">Link your <strong>Team Reviews</strong> folder above to save directly to OneDrive on every change.</span></footer>
 <div class="print-doc" id="printDoc"></div>
+
+<dialog id="dataModal">
+  <div class="modal-body">
+    <h3>Manage Data</h3>
+    <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Use this if you have duplicate employees, or want to clear all data and start fresh.</p>
+    <div id="duplicatesList"></div>
+    <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Clear all data</div>
+      <p style="font-size:12.5px;color:var(--ink-light);margin-bottom:10px;">Removes every employee from this browser. Export backups first if you need to keep any records.</p>
+      <button class="btn-danger" onclick="clearAllData()">Clear all browser data</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-light" onclick="document.getElementById('dataModal').close()">Close</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 const STORAGE_KEY = 'oliver_perf_review_v2';
@@ -447,10 +464,25 @@ async function loadFromFolder(){
 }
 
 // Write a single employee's JSON file to the linked folder
+// Generate a stable, human-readable filename from name parts + ID
+// Stored on the employee record so renaming never creates a duplicate file
+function generateFilename(emp){
+  // Split name into parts, take first two words (first + last name)
+  const parts = emp.name.trim().split(/\s+/);
+  const first = parts[0] || 'Unknown';
+  const last = parts.length > 1 ? parts[parts.length-1] : '';
+  const namePart = last ? first + '_' + last : first;
+  const shortId = emp.id.slice(1,7); // 6 chars, skip the leading 'x'
+  return 'review_' + namePart + '_' + shortId + '.json';
+}
+function getOrCreateFilename(emp){
+  if(!emp._filename) emp._filename = generateFilename(emp);
+  return emp._filename;
+}
 async function writeEmployeeToFolder(emp){
   if(!folderConnected || !dirHandle) return false;
   try{
-    const fname = 'review_' + emp.name.replace(/\s+/g,'_') + '_' + emp.id.slice(0,6) + '.json';
+    const fname = getOrCreateFilename(emp);
     const fileHandle = await dirHandle.getFileHandle(fname, {create:true});
     const writable = await fileHandle.createWritable();
     const payload = {employee:emp, exportedAt:new Date().toISOString(), version:2};
@@ -561,7 +593,7 @@ function createEmployee(){
   const name=document.getElementById('modal-name').value.trim();
   if(!name){alert('Please enter a name.');return;}
   const rec=newEmployeeRecord(name,document.getElementById('modal-title').value.trim(),document.getElementById('modal-start').value);
-  DB.employees[rec.id]=rec; DB.currentId=rec.id;
+  rec._filename = generateFilename(rec); DB.employees[rec.id]=rec; DB.currentId=rec.id;
   document.getElementById('newEmpModal').close();
   saveDB(); renderAll();
 }
@@ -770,17 +802,56 @@ function renderProbOutcomeSection(){
     wrap.innerHTML=`<div class="locked-section"><div class="lock-icon">🔒</div><p><strong>Outcome is available once the Day 90 Review meeting date is recorded above.</strong><br>Complete the check-ins first, then return here to set the outcome.</p></div>`;
     return;
   }
+
+  // Build outcome-specific follow-up content
+  const outcome = cur.probationary.outcome;
+  let followUp = '';
+  if(outcome==='pass'){
+    followUp = `<div style="background:#E4F4EE;border:1px solid #A8D5C2;border-radius:10px;padding:16px 18px;margin-top:14px;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:20px;">🎉</span>
+      <div>
+        <div style="font-size:13.5px;font-weight:800;color:var(--green);margin-bottom:4px;">Probation passed — next step</div>
+        <div style="font-size:13px;color:var(--ink-light);line-height:1.6;">Move to the <strong>📊 Performance Review</strong> tab and set up this person's objectives for the rest of the year. Goal Setting should happen as soon as possible after probation is confirmed.</div>
+      </div>
+    </div>`;
+  } else if(outcome==='extend'){
+    followUp = `<div style="background:#FFF8E6;border:1px solid #F0D28A;border-radius:10px;padding:16px 18px;margin-top:14px;">
+      <div style="font-size:13.5px;font-weight:800;color:#7A5800;margin-bottom:10px;">⟳ Probation extended — record the next review date and plan</div>
+      <div class="grid2" style="gap:10px;margin-bottom:10px;">
+        <div class="field"><label>Extension Review Date</label><input type="date" id="prob-extension-date" style="" oninput="updateProb('extensionReviewDate',this.value)" value="${esc(cur.probationary.extensionReviewDate||'')}"></div>
+        <div class="field"><label>Extension Length</label>
+          <select id="prob-extension-length" onchange="updateProb('extensionLength',this.value)">
+            <option value="">Select</option>
+            <option value="30 days"${cur.probationary.extensionLength==='30 days'?' selected':''}>30 days</option>
+            <option value="60 days"${cur.probationary.extensionLength==='60 days'?' selected':''}>60 days</option>
+            <option value="90 days"${cur.probationary.extensionLength==='90 days'?' selected':''}>90 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>What needs to change — specific expectations for the extension period</label>
+        <textarea oninput="updateProb('extensionPlan',this.value)" placeholder="Be specific — what observable behaviours or results are required for this person to pass at the next review?">${esc(cur.probationary.extensionPlan||'')}</textarea>
+      </div>
+    </div>`;
+  } else if(outcome==='fail'){
+    followUp = `<div style="background:#FBEAE8;border:1px solid #E8B4B8;border-radius:10px;padding:16px 18px;margin-top:14px;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:20px;">⚠️</span>
+      <div style="font-size:13px;color:var(--ink-light);line-height:1.6;"><strong style="color:var(--red);">Probation not passed.</strong> Please contact the People team before taking any further steps. Ensure your manager comments above are thorough and reference specific observations from the check-ins.</div>
+    </div>`;
+  }
+
   wrap.innerHTML=`
     <div class="card">
       <div class="outcome-row" id="probOutcomeRow"></div>
-      <div class="field" style="margin-top:14px;"><label>Manager Comments</label><textarea id="prob-outcome-comments" oninput="updateProb('outcomeComments',this.value)" placeholder="Summarise the key reasons for this outcome. Reference specific observations.">${esc(cur.probationary.outcomeComments||'')} </textarea></div>
+      <div class="field" style="margin-top:14px;"><label>Manager Comments</label><textarea id="prob-outcome-comments" oninput="updateProb('outcomeComments',this.value)" placeholder="Summarise the key reasons for this outcome. Reference specific observations from each check-in.">${esc(cur.probationary.outcomeComments||'')} </textarea></div>
       <div class="field" style="margin-top:10px;"><label>Actual Review Date</label><input type="date" id="prob-actual-date" style="max-width:200px;" oninput="updateProb('actualReviewDate',this.value)" value="${cur.probationary.actualReviewDate||''}"></div>
+      ${followUp}
     </div>`;
+
   // render outcome buttons
   const row=document.getElementById('probOutcomeRow');
   [['pass','✓ Pass'],['extend','⟳ Extend'],['fail','✕ Fail']].forEach(([k,label])=>{
     const div=document.createElement('div');
-    div.className='outcome-opt '+k+(cur.probationary.outcome===k?' selected':'');
+    div.className='outcome-opt '+k+(outcome===k?' selected':'');
     div.textContent=label;
     div.onclick=()=>{cur.probationary.outcome=k;saveDB();renderProbOutcomeSection();};
     row.appendChild(div);
@@ -944,13 +1015,27 @@ function exportJSON(){
   const payload={employee:cur,exportedAt:new Date().toISOString(),version:2};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='review_'+cur.name.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.download=getOrCreateFilename(cur); // stable name matching folder file
   a.click();
 }
 function updateExportLabel(){
   const btn=document.getElementById('exportBtn');if(!btn)return;
   const cur=getCurrent();
   btn.textContent=cur?'⤓ Export '+cur.name.split(' ')[0]:'⤓ Export JSON';
+}
+function migrateEmp(emp){
+  if(emp.review&&!emp.reviews){
+    const y=emp.reviewYear||new Date().getFullYear();
+    emp.reviews={[y]:emp.review};emp.activeReviewYear=y;
+    delete emp.review;delete emp.reviewYear;
+  }
+  if(!emp.probationary.meetings) emp.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
+  // Ensure stable filename is set — if not present, generate now
+  if(!emp._filename) emp._filename = generateFilename(emp);
+  return emp;
+}
+function findDuplicateByName(name, excludeId){
+  return Object.values(DB.employees).find(e=>e.name.trim().toLowerCase()===name.trim().toLowerCase() && e.id!==excludeId);
 }
 function importJSON(evt){
   const file=evt.target.files[0];if(!file)return;
@@ -962,22 +1047,83 @@ function importJSON(evt){
       if(incoming.employee) emp=incoming.employee;
       else if(incoming.employees) emp=Object.values(incoming.employees)[0];
       if(!emp){alert('Could not find employee data in this file.');return;}
-      if(emp.review&&!emp.reviews){
-        const y=emp.reviewYear||new Date().getFullYear();
-        emp.reviews={[y]:emp.review};emp.activeReviewYear=y;
-        delete emp.review;delete emp.reviewYear;
-      }
-      if(!emp.probationary.meetings){
-        emp.probationary.meetings={goalSetting:{date:'',notes:''},day30:{date:'',notes:''},day90:{date:'',notes:''}};
-      }
+      migrateEmp(emp);
+      // Check by ID first
       if(DB.employees[emp.id]){
         if(!confirm(emp.name+' already exists. Replace with the imported version?')) return;
+        DB.employees[emp.id]=emp;
+      } else {
+        // Check by name — catch the duplicate-ID scenario
+        const nameMatch=findDuplicateByName(emp.name, emp.id);
+        if(nameMatch){
+          if(!confirm(emp.name+' already exists in your list (possibly as a duplicate). Replace the existing record with the imported version?')) return;
+          delete DB.employees[nameMatch.id]; // remove the old one
+          DB.employees[emp.id]=emp;
+        } else {
+          DB.employees[emp.id]=emp;
+        }
       }
-      DB.employees[emp.id]=emp;DB.currentId=emp.id;
-      saveDB();renderAll();alert(emp.name+' imported successfully.');
+      DB.currentId=emp.id;
+      saveDB();renderAll();
+      // Check for any remaining duplicates and prompt manager
+      checkAndOfferDedupe();
     }catch(err){alert('Could not read that file: '+err.message);}
   };
   reader.readAsText(file);evt.target.value='';
+}
+function checkAndOfferDedupe(){
+  const dupes=findAllDuplicates();
+  if(dupes.length>0) openDataModal();
+}
+function findAllDuplicates(){
+  const byName={};
+  Object.values(DB.employees).forEach(e=>{
+    const key=e.name.trim().toLowerCase();
+    if(!byName[key]) byName[key]=[];
+    byName[key].push(e);
+  });
+  return Object.values(byName).filter(group=>group.length>1);
+}
+function openDataModal(){
+  const dupes=findAllDuplicates();
+  const wrap=document.getElementById('duplicatesList');
+  if(dupes.length===0){
+    wrap.innerHTML='<div style="background:#E4F4EE;border-radius:8px;padding:12px 14px;font-size:13px;color:var(--green);margin-bottom:4px;">✅ No duplicate employees found.</div>';
+  } else {
+    let html='<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">Duplicate employees found — keep one and remove the other.</div>';
+    dupes.forEach(group=>{
+      html+=`<div style="background:#FFF8E6;border:1px solid #F0D28A;border-radius:8px;padding:12px 14px;margin-bottom:10px;">`;
+      html+=`<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">⚠️ ${esc(group[0].name)} — ${group.length} records</div>`;
+      group.forEach(emp=>{
+        const reviewYears=Object.keys(emp.reviews||{}).sort().join(', ')||'none';
+        const goals=(emp.probationary.goals||[]).length;
+        html+=`<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:12.5px;">
+          <span><strong>${esc(emp.name)}</strong> &nbsp;·&nbsp; Review years: ${reviewYears} &nbsp;·&nbsp; Probation goals: ${goals}</span>
+          <button class="btn-danger" style="padding:4px 10px;font-size:12px;" onclick="removeEmployee('${emp.id}')">Remove</button>
+        </div>`;
+      });
+      html+='</div>';
+    });
+    wrap.innerHTML=html;
+  }
+  document.getElementById('dataModal').showModal();
+}
+function removeEmployee(id){
+  if(!confirm('Remove this record? Make sure you keep the one with the most complete data.')) return;
+  delete DB.employees[id];
+  if(DB.currentId===id){
+    const ids=Object.keys(DB.employees);
+    DB.currentId=ids.length?ids[0]:null;
+  }
+  saveDB();renderAll();
+  openDataModal(); // refresh the modal
+}
+function clearAllData(){
+  if(!confirm('This will remove ALL employees from this browser. Are you sure? Export backups first if needed.')) return;
+  DB={employees:{},currentId:null};
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('dataModal').close();
+  renderAll();
 }
 function exportExcel(){
   const cur=getCurrent();if(!cur)return;
