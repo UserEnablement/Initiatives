@@ -3,482 +3,376 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oliver | Manager Guide — Performance Reviews</title>
+<title>Oliver | Manager Guide — Performance Review</title>
 <style>
 :root{
-  --navy:#0D2931;
-  --navy-2:#144A5B;
-  --teal:#077E7E;
-  --teal-light:#15C7C7;
-  --teal-pale:#EAF7F7;
-  --ink:#1A2B2B;
-  --ink-light:#5C6F6F;
-  --bg:#F4FAFA;
-  --border:#D9E8E8;
-  --green:#2D846C;
-  --amber:#8A6300;
-  --amber-bg:#FFF8E6;
-  --red:#C0392B;
-  --card:#FFFFFF;
+  --navy:#0D2931; --navy-2:#144A5B; --teal:#077E7E; --teal-light:#15C7C7;
+  --teal-pale:#EAF7F7; --ink:#1A2B2B; --ink-light:#5C6F6F;
+  --bg:#F4FAFA; --border:#D9E8E8; --green:#2D846C; --amber-bg:#FFF8E6;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.65;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.65;min-height:100vh;}
 
 /* ── Header ── */
-.guide-header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#1D5F73 100%);color:#fff;padding:48px 40px 40px;position:relative;overflow:hidden;}
-.guide-header::after{content:"";position:absolute;right:-60px;top:-60px;width:320px;height:320px;border-radius:50%;background:rgba(21,199,199,.08);pointer-events:none;}
-.header-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.65;margin-bottom:10px;}
-.guide-header h1{font-size:32px;font-weight:900;letter-spacing:-.5px;line-height:1.2;margin-bottom:10px;}
-.guide-header .subtitle{font-size:15px;opacity:.78;max-width:520px;}
-.teal-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--teal-light);margin-right:8px;vertical-align:middle;}
+.guide-header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#1D5F73 100%);color:#fff;padding:36px 40px 28px;}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.6;margin-bottom:10px;}
+.guide-header h1{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:6px;}
+.guide-header p{font-size:14px;opacity:.75;max-width:480px;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal-light);margin-right:8px;}
 
-/* ── Layout ── */
-.page{max-width:860px;margin:0 auto;padding:40px 24px 80px;}
+/* ── Progress bar ── */
+.progress-bar-wrap{background:rgba(255,255,255,.15);height:4px;}
+.progress-bar-fill{background:var(--teal-light);height:4px;transition:width .4s ease;}
 
-/* ── Cards & sections ── */
-.section{margin-bottom:48px;}
-.section-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-.section-label::after{content:"";flex:1;height:1px;background:var(--border);}
+/* ── Step indicator ── */
+.step-indicator{display:flex;justify-content:center;gap:10px;padding:20px 24px 0;}
+.step-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background .3s;}
+.step-dot.active{background:var(--teal);}
+.step-dot.done{background:var(--teal-light);}
+.step-label{text-align:center;font-size:11.5px;font-weight:700;color:var(--ink-light);padding:6px 24px 20px;letter-spacing:.2px;}
+
+/* ── Pages ── */
+.page{display:none;max-width:760px;margin:0 auto;padding:28px 24px 100px;animation:fadeIn .3s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
 h2{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
-.section-intro{font-size:14px;color:var(--ink-light);margin-bottom:20px;max-width:640px;}
+.lead{font-size:13.5px;color:var(--ink-light);margin-bottom:20px;line-height:1.6;}
 
-/* ── Step cards ── */
-.steps{display:flex;flex-direction:column;gap:16px;}
-.step{display:flex;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;align-items:flex-start;}
-.step-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;}
-.step-body h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.step-body p{font-size:13.5px;color:var(--ink-light);line-height:1.6;}
-.step-body p+p{margin-top:6px;}
-.step-body .code{display:inline-block;background:var(--teal-pale);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-family:monospace;font-size:12.5px;color:var(--teal);margin:2px 0;}
+.section-label{font-size:10.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:"";flex:1;height:1px;background:var(--border);}
 
-/* ── Callout boxes ── */
-.callout{border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;gap:14px;align-items:flex-start;}
-.callout.tip{background:var(--teal-pale);border:1px solid #B3DEDE;}
+/* ── Steps ── */
+.steps{display:flex;flex-direction:column;gap:12px;}
+.step{display:flex;gap:14px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:16px 18px;}
+.num{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;}
+.step h3{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.step p{font-size:13px;color:var(--ink-light);line-height:1.6;}
+.step p+p{margin-top:6px;}
+.code{display:inline;background:var(--teal-pale);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:12px;color:var(--teal);}
+
+/* ── Callouts ── */
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;display:flex;gap:12px;}
 .callout.warn{background:var(--amber-bg);border:1px solid #F0D28A;}
-.callout.info{background:#EEF2FF;border:1px solid #C7D2FE;}
-.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
-.callout h4{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.callout p,.callout li{font-size:13px;color:var(--ink-light);line-height:1.6;}
-.callout ul{padding-left:18px;margin-top:4px;}
+.callout.tip{background:var(--teal-pale);border:1px solid #B3DEDE;}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.callout h4{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:3px;}
+.callout p{font-size:13px;color:var(--ink-light);line-height:1.55;}
 
-/* ── Feature table ── */
-.feature-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:4px;}
-.feat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;}
-.feat-card .feat-icon{font-size:22px;margin-bottom:8px;}
-.feat-card h4{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.feat-card p{font-size:12.5px;color:var(--ink-light);line-height:1.55;}
+/* ── Cheat sheet table ── */
+.ref-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.ref-table th{background:var(--navy);color:#fff;text-align:left;padding:10px 16px;font-size:11.5px;font-weight:800;}
+.ref-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:top;}
+.ref-table tr:last-child td{border-bottom:none;}
+.ref-table td:first-child{font-weight:700;color:var(--navy);width:42%;}
+.ref-table td:last-child{color:var(--ink-light);}
+.ref-table tr:nth-child(even) td{background:#FAFEFE;}
 
-/* ── Tab guide ── */
-.tab-guide{display:flex;flex-direction:column;gap:12px;}
-.tab-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
-.tab-badge{flex-shrink:0;background:var(--navy);color:#fff;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:800;min-width:48px;text-align:center;}
-.tab-row h4{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:3px;}
-.tab-row p{font-size:13px;color:var(--ink-light);line-height:1.6;}
-.tab-row ul{font-size:13px;color:var(--ink-light);padding-left:18px;margin-top:4px;line-height:1.7;}
+/* ── Nav bar (sticky bottom) ── */
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 12px rgba(13,41,49,.07);z-index:10;}
+.nav-bar .page-counter{font-size:12px;color:var(--ink-light);font-weight:600;}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:10px 20px;font-size:13.5px;font-weight:700;transition:opacity .15s;}
+.btn-next{background:var(--teal);color:#fff;}
+.btn-next:hover{opacity:.88;}
+.btn-back{background:transparent;color:var(--ink-light);border:1px solid var(--border);}
+.btn-back:hover{background:var(--teal-pale);}
+.btn-open{background:var(--navy);color:#fff;font-size:14.5px;padding:12px 28px;}
+.btn-open:hover{opacity:.88;}
 
-/* ── SharePoint steps ── */
-.sp-steps{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.sp-step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
-.sp-step .sp-num{font-size:11px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
-.sp-step h4{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.sp-step p{font-size:13px;color:var(--ink-light);line-height:1.6;}
+/* ── Gate screen ── */
+.gate{text-align:center;padding:40px 20px 20px;}
+.gate-icon{font-size:56px;margin-bottom:16px;}
+.gate h2{font-size:22px;margin-bottom:10px;}
+.gate p{font-size:14px;color:var(--ink-light);max-width:420px;margin:0 auto 24px;line-height:1.6;}
+.gate .checklist{text-align:left;max-width:380px;margin:0 auto 28px;display:flex;flex-direction:column;gap:10px;}
+.gate .check-item{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--ink-light);}
+.gate .check-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--teal);flex-shrink:0;margin-top:1px;cursor:pointer;}
+.gate .check-item label{cursor:pointer;line-height:1.5;}
 
-/* ── FAQ ── */
-.faq{display:flex;flex-direction:column;gap:12px;}
-.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;}
-.faq-item h4{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.faq-item p{font-size:13.5px;color:var(--ink-light);line-height:1.6;}
+/* ── Banner ── */
+.banner{background:var(--navy);border-radius:11px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-top:24px;}
+.banner p{color:#fff;font-size:14.5px;font-weight:700;line-height:1.5;flex:1;}
+.banner span{font-size:32px;}
 
-/* ── Print ── */
-@media print{
-  .guide-header{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
-  .page{padding:20px;}
-}
-@media(max-width:640px){
-  .feature-grid,.sp-steps{grid-template-columns:1fr;}
-  .guide-header{padding:32px 20px;}
-  .guide-header h1{font-size:24px;}
-  .page{padding:24px 16px 60px;}
+a{color:var(--teal);}
+@media(max-width:600px){
+  .guide-header{padding:28px 20px 22px;}
+  .guide-header h1{font-size:22px;}
+  .page{padding:20px 16px 100px;}
 }
 </style>
 </head>
 <body>
 
 <div class="guide-header">
-  <div class="header-eyebrow"><span class="teal-dot"></span>Oliver People &amp; Performance</div>
-  <h1>Manager Guide<br>Performance &amp; Probationary Reviews</h1>
-  <p class="subtitle">A step-by-step guide to setting up, completing, and saving reviews for your team — no technical experience needed.</p>
+  <div class="eyebrow"><span class="dot"></span>Oliver People &amp; Performance</div>
+  <h1>Manager Guide — Performance Review</h1>
+  <p>Read this before opening the Performance Review for the first time. It takes about 3 minutes.</p>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+
+<div class="step-indicator" id="stepIndicator"></div>
+<div class="step-label" id="stepLabel"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 0 — What this tool does                          -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-0">
+  <div class="section-label">Before You Begin</div>
+  <h2>What this tool does</h2>
+  <p class="lead">The <strong>Performance Review</strong> helps you run two types of conversations with your team.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num" style="background:var(--navy);">📋</div>
+      <div>
+        <h3>Probationary plans for new starters</h3>
+        <p>Set clear goals from day one. Three structured check-ins at Goal Setting, Day 30, and Day 90 help you track progress and record a formal outcome.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num" style="background:var(--navy);">📊</div>
+      <div>
+        <h3>Annual performance reviews</h3>
+        <p>Four meetings across the year — Goal Setting, Q2, Q3, and Final Review — with objectives, progress tracking, Oliver core values, and a final rating.</p>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:var(--ink-light);margin-top:20px;">The tool saves automatically as you type. Once you link your <strong>Team Reviews</strong> folder on OneDrive — a one-time step covered on the next page — every change saves there too, automatically. Nothing to remember after that.</p>
 </div>
 
-<div class="page">
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 1 — Getting Started                              -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-1">
+  <div class="section-label">Getting Started</div>
+  <h2>Four steps — done once, then it runs itself</h2>
+  <p class="lead">The <strong>Performance Review</strong> runs in your browser via a link — no file to download, no installation, no login.</p>
 
-  <!-- ── What this tool does ── -->
-  <div class="section">
-    <div class="section-label">Overview</div>
-    <h2>What this tool does</h2>
-    <p class="section-intro">The Oliver Review Tool helps you run two types of conversations with your team: a 90-day probationary check-in for new starters, and a structured annual performance review. Everything is stored in a single file that you control.</p>
-
-    <div class="feature-grid">
-      <div class="feat-card">
-        <div class="feat-icon">📋</div>
-        <h4>Probationary Plan</h4>
-        <p>Set clear goals for new starters from day one. Assess progress across six areas and record a formal outcome at the 90-day mark.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📊</div>
-        <h4>Annual Review</h4>
-        <p>Track objectives, four quarterly check-ins, Oliver core values, and a final rating — all in one place, for each year.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">💾</div>
-        <h4>Your data, your file</h4>
-        <p>Data saves automatically while you work. You export a backup file to SharePoint so nothing is lost if you switch device or browser.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Getting started ── -->
-  <div class="section">
-    <div class="section-label">Getting Started</div>
-    <h2>Opening the tool for the first time</h2>
-    <p class="section-intro">The tool is a single HTML file. You open it in your web browser — no installation, no login, no app to download.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h3>Find the file on SharePoint</h3>
-          <p>Your HR team will share a link to the file on SharePoint. Click the link — the tool will open in your browser (Chrome, Edge, or Safari all work fine).</p>
-          <p>You can also download the file and save it to your desktop if you prefer to open it offline. Right-click the link and choose <span class="code">Save link as</span>.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h3>Add your first employee</h3>
-          <p>Click the <strong>+ New Employee</strong> button in the bar at the top of the page. Enter the person's name, job title, and start date, then click <strong>Create</strong>.</p>
-          <p>The tool will take you straight to their Employee Profile. You can switch between team members using the dropdown at the top at any time.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h3>Fill in the Employee Profile first</h3>
-          <p>The Profile tab is the starting point. Make sure the name, job title, manager name, POD/team, and start date are all filled in — these appear on printed reviews and exports.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── The three tabs ── -->
-  <div class="section">
-    <div class="section-label">Using the Tool</div>
-    <h2>The three tabs explained</h2>
-    <p class="section-intro">Each employee record has three tabs. Work through them in order — Profile first, then Probationary, then Performance Review.</p>
-
-    <div class="tab-guide">
-      <div class="tab-row">
-        <div class="tab-badge">👤<br>Profile</div>
-        <div>
-          <h4>Employee Profile</h4>
-          <p>Basic details that appear on all documents. Always start here and keep it up to date if roles or managers change.</p>
-          <ul>
-            <li>Setting the <strong>Start Date</strong> here also pre-fills the probationary plan start date automatically.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="tab-row">
-        <div class="tab-badge">📋<br>Probation</div>
-        <div>
-          <h4>Probationary Goals (90-Day)</h4>
-          <p>For new starters. Use this tab to set expectations from day one and record the formal review outcome around day 70–90.</p>
-          <ul>
-            <li>Set the <strong>Probation Start Date</strong> — the tool calculates the day-90 target date for you.</li>
-            <li>Add goals and describe what success looks like for each one.</li>
-            <li>At the review, rate the employee across six areas and select an outcome: <strong>Pass, Extend, or Fail</strong>.</li>
-            <li>Always write a comment in the Manager Comments box to explain your reasoning.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="tab-row">
-        <div class="tab-badge">📊<br>Review</div>
-        <div>
-          <h4>Performance Review (Annual)</h4>
-          <p>For the full-year review cycle. Each year is stored separately — you can go back and view previous years at any time.</p>
-          <ul>
-            <li>Use the <strong>Review Year</strong> selector at the top to switch between years.</li>
-            <li>Click <strong>+ New Year</strong> at the start of each new review year to create a fresh record without touching the previous year.</li>
-            <li>Complete the four meetings in order: <em>Goal Setting → Q2 Check-in → Q3 Check-in → Final Review</em>. Enter the date of each meeting when it happens — the card will turn teal to confirm it is done.</li>
-            <li>Add objectives early in the year. Give each one a clear description, a weight (all weights must add up to 100%), and a target date.</li>
-            <li>Rate the employee on each of the four Oliver Core Values with a short comment to back it up.</li>
-            <li>Complete the <strong>Final Review</strong> section at year end with an overall rating and comments from both you and the employee.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Saving your work ── -->
-  <div class="section">
-    <div class="section-label">Saving Your Work</div>
-    <h2>How saving works — and why you need a backup</h2>
-    <p class="section-intro">The tool saves automatically every time you type — you will see a green "Saved" notice in the top bar. But this automatic save only works on the browser and device you are currently using. If you clear your browser history, switch to a different computer, or open the tool in a different browser, that automatic save will not be there. To protect your work, you need to save a backup file to OneDrive.</p>
-
-    <div class="callout warn">
-      <div class="callout-icon">⚠️</div>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
       <div>
-        <h4>The automatic save is not enough on its own</h4>
-        <p>Think of the automatic save like a temporary notepad. Your OneDrive backup is your permanent record. Get into the habit of exporting after every review conversation — it takes less than a minute and means your data is always safe.</p>
+        <h3>Open the Performance Review</h3>
+        <p>Go to <a href="https://userenablement.github.io/Initiatives/PerformanceReview/" target="_blank"><strong>userenablement.github.io/Initiatives/PerformanceReview</strong></a> — it opens directly in your browser. <strong>Bookmark it straight away</strong> so you can find it again easily: press <span class="code">Ctrl+D</span> (Windows) or <span class="code">Cmd+D</span> (Mac) and save it to your browser toolbar.</p>
+        <p style="margin-top:6px;"><strong>Chrome or Edge work best</strong> — they support automatic folder saving. If you use Firefox or Safari, the folder-linking feature is not available; use <strong>⤓ Export Backup</strong> after each session instead and upload it to OneDrive manually.</p>
       </div>
     </div>
-  </div>
-
-  <!-- ── OneDrive one-time setup ── -->
-  <div class="section">
-    <div class="section-label">One-Time Setup — Do This First</div>
-    <h2>Create your backup folder on OneDrive</h2>
-    <p class="section-intro">You only need to do this once. It takes about two minutes and gives you a permanent, secure home for your review files that you can access from any device.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h3>Open OneDrive</h3>
-          <p>Go to <strong><a href="https://www.office.com" target="_blank" style="color:var(--teal);">office.com</a></strong> in your browser and sign in with your Oliver work email and password. Once you are in, click the grid icon (⊞) in the top left corner and select <strong>OneDrive</strong> from the list of apps.</p>
-          <p>You can also open OneDrive directly at <span style="font-family:monospace;font-size:12.5px;background:var(--teal-pale);padding:2px 6px;border-radius:4px;">onedrive.com</span> and sign in with your work account.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h3>Create a new folder</h3>
-          <p>Once you are in OneDrive, click <strong>+ New</strong> (top left of the page) and select <strong>Folder</strong> from the dropdown menu.</p>
-          <p>Name the folder something clear, for example: <span style="font-family:monospace;font-size:12.5px;background:var(--teal-pale);padding:2px 6px;border-radius:4px;">Team Reviews</span> — then click <strong>Create</strong>. The folder will appear in your OneDrive file list.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h3>Open the folder and keep this tab open</h3>
-          <p>Click to open your new <strong>Team Reviews</strong> folder. You will see it is empty for now. Keep this browser tab open — you will come back to it each time you save a backup.</p>
-          <p style="margin-top:8px;"><strong>Tip:</strong> Bookmark this folder now so you can find it instantly next time. In your browser, press <span style="font-family:monospace;font-size:12.5px;background:var(--teal-pale);padding:2px 6px;border-radius:4px;">Ctrl + D</span> (Windows) or <span style="font-family:monospace;font-size:12.5px;background:var(--teal-pale);padding:2px 6px;border-radius:4px;">Cmd + D</span> (Mac) to save a bookmark.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Regular backup routine ── -->
-  <div class="section">
-    <div class="section-label">Every Time You Finish a Session</div>
-    <h2>Saving your backup — 3 steps, under 1 minute</h2>
-    <p class="section-intro">Do this at the end of every session where you have added or changed anything in the tool.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h3>Export your backup from the review tool</h3>
-          <p>In the review tool, click the <strong>⤓ Export JSON</strong> button at the top right of the page. Your browser will automatically download a file. It will have a name like:</p>
-          <p><span style="font-family:monospace;font-size:12.5px;background:var(--teal-pale);padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;">review_Jane_Smith_2025-06-30.json</span></p>
-          <p style="margin-top:6px;">This file will appear in your <strong>Downloads</strong> folder — the same place files go when you download anything from the internet.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h3>Upload the file to your OneDrive folder</h3>
-          <p>Switch to your OneDrive browser tab (the <strong>Team Reviews</strong> folder you set up earlier). Click <strong>Upload</strong> at the top of the page, then select <strong>Files</strong>.</p>
-          <p style="margin-top:6px;">A window will open. Go to your <strong>Downloads</strong> folder, find the file you just exported (it will be at the top of the list as the most recent download), select it, and click <strong>Open</strong>.</p>
-          <p style="margin-top:6px;">If a file with the same name already exists, OneDrive will ask if you want to replace it — click <strong>Replace</strong>. OneDrive keeps a version history automatically, so the old version is never lost.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h3>Done — your data is safely backed up</h3>
-          <p>The file is now saved securely in the cloud. You can access it from any device by logging in to OneDrive with your work account.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="callout tip">
-      <div class="callout-icon">✅</div>
+    <div class="step">
+      <div class="num">2</div>
       <div>
-        <h4>A faster way: drag and drop</h4>
-        <p>If you have your OneDrive folder open in one browser tab and your Downloads folder visible, you can simply drag the exported file from Downloads directly into the OneDrive browser tab. This is quicker than clicking Upload every time.</p>
+        <h3>Link your Team Reviews folder — do this first, once</h3>
+        <p>You will see a yellow bar at the top of the tool saying <em>"No folder linked."</em> Click <strong>Link your Team Reviews folder</strong>. A window opens asking you to pick a folder.</p>
+        <p style="margin-top:6px;">If you do not have a <strong>Team Reviews</strong> folder yet: open <a href="https://www.office.com" target="_blank">office.com</a> in a new tab, sign in with your Oliver work email, go to <strong>OneDrive</strong>, click <strong>+ New → Folder</strong>, name it <span class="code">Team Reviews</span>, then come back here and pick it. Once linked, the bar turns green and every change saves there automatically — one file per person, privately, with no extra steps from you.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <h3>Add your team members</h3>
+        <p>Click <strong>+ New Employee</strong> in the bar at the top. Enter their name, job title, and start date. Click <strong>Create</strong>. Repeat for each person. Use the dropdown to switch between them.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div>
+        <h3>Fill in the Profile tab first</h3>
+        <p>Always complete the <strong>👤 Employee Profile</strong> tab before anything else — name, job title, manager, POD, and start date. This appears on all printed reviews and setting the start date pre-fills the probationary plan automatically.</p>
       </div>
     </div>
   </div>
-
-  <!-- ── Restoring ── -->
-  <div class="section">
-    <div class="section-label">Restoring Your Data</div>
-    <h2>Getting your data back on a different device</h2>
-    <p class="section-intro">If you switch computers, clear your browser, or open the tool in a different browser, follow these steps to restore everything.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h3>Download your backup file from OneDrive</h3>
-          <p>Go to <strong>office.com</strong>, sign in, and open <strong>OneDrive</strong>. Open your <strong>Team Reviews</strong> folder. Find your most recent backup file (it will have today's or the most recent date in the name). Click the three dots <strong>( ··· )</strong> next to the file and choose <strong>Download</strong>. The file will go to your Downloads folder.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h3>Open the review tool and import the file</h3>
-          <p>Open the review tool in your browser as normal. At the top right, click <strong>⤒ Import JSON</strong>. A file picker window will open — go to your Downloads folder, select the file you just downloaded, and click <strong>Open</strong>.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h3>All your data is restored</h3>
-          <p>The tool will load all your employees, objectives, check-in notes, and review history exactly as you left them. You can carry on where you left off.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Printing & Excel ── -->
-  <div class="section">
-    <div class="section-label">Sharing &amp; Printing</div>
-    <h2>Exporting and printing a review</h2>
-    <p class="section-intro">You have three options for sharing a completed review.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num" style="background:var(--navy);">🖶</div>
-        <div class="step-body">
-          <h3>Print to PDF or paper</h3>
-          <p>Click the <strong>🖶 Print</strong> button at the top right. This opens your browser's standard print window. To save as a PDF instead of printing on paper, change the printer to <strong>"Save as PDF"</strong> (or "Microsoft Print to PDF" on Windows). This is the cleanest format to share with HR or keep on file.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num" style="background:var(--navy);">⊞</div>
-        <div class="step-body">
-          <h3>Export to Excel</h3>
-          <p>Click the <strong>⊞ Export Excel</strong> button. This downloads a spreadsheet with separate tabs for the profile, probationary plan, objectives, core values and meetings. Useful if HR needs the data in a format they can work with directly.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num" style="background:var(--navy);">⤓</div>
-        <div class="step-body">
-          <h3>Export JSON (your full backup)</h3>
-          <p>The <strong>⤓ Export JSON</strong> button saves everything — all employees, all review years, all notes — into a single backup file. This is what you re-import to restore your work. It is not meant for sharing with HR; it is your personal working file.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── FAQ ── -->
-  <div class="section">
-    <div class="section-label">Frequently Asked Questions</div>
-    <h2>Common questions</h2>
-
-    <div class="faq">
-      <div class="faq-item">
-        <h4>I have more than one person in my team. Can I manage them all in one place?</h4>
-        <p>Yes. Click <strong>+ New Employee</strong> for each team member. Use the dropdown in the top bar to switch between people. When you export a JSON backup, it includes every employee in the tool — so one file backs up your whole team.</p>
-      </div>
-      <div class="faq-item">
-        <h4>It is a new year. How do I start fresh without losing last year's review?</h4>
-        <p>Go to the <strong>Performance Review</strong> tab and click <strong>+ New Year</strong>. Enter the new year and click Add. A completely blank record is created for that year — the previous year is untouched and you can switch back to it any time using the year selector.</p>
-      </div>
-      <div class="faq-item">
-        <h4>I accidentally closed the browser without exporting. Is my work lost?</h4>
-        <p>Almost certainly not — as long as you are on the same browser and the same device, the tool will load your last saved state automatically when you reopen it. Open the tool again and check. If everything is there, export a backup immediately so you are protected going forward.</p>
-      </div>
-      <div class="faq-item">
-        <h4>I switched computers and my data is not there. How do I get it back?</h4>
-        <p>Go to <strong>office.com</strong>, sign in, open <strong>OneDrive</strong>, and find your <strong>Team Reviews</strong> folder. Download your most recent backup file (the one ending in <span style="font-family:monospace;font-size:13px;background:var(--teal-pale);padding:1px 5px;border-radius:3px;">.json</span>). Then open the review tool, click <strong>⤒ Import JSON</strong>, select that file, and click Open. All your data will be restored.</p>
-      </div>
-      <div class="faq-item">
-        <h4>I cannot find my OneDrive or I do not know how to sign in.</h4>
-        <p>Go to <strong><a href="https://www.office.com" target="_blank" style="color:var(--teal);">office.com</a></strong> in your browser and sign in with your Oliver work email (the one you use for Outlook). Once in, click the grid icon in the top left and select <strong>OneDrive</strong>. If you have trouble signing in, contact your IT support team — they can help you access your Microsoft 365 account.</p>
-      </div>
-      <div class="faq-item">
-        <h4>Can another manager see my review data?</h4>
-        <p>No — not unless you deliberately share the file with them. The data lives in your browser and in your personal OneDrive folder. Your OneDrive is private to you by default. Do not store the file in a shared team folder unless that is intentional.</p>
-      </div>
-      <div class="faq-item">
-        <h4>Another manager wants to use this tool. Do they need a separate copy?</h4>
-        <p>Yes — each manager should open the tool independently in their own browser and maintain their own OneDrive backup folder. Each manager's data is completely separate. Do not share a single JSON file between managers, as importing one person's file will overwrite the other's data.</p>
-      </div>
-      <div class="faq-item">
-        <h4>I want to remove an employee who has left the team.</h4>
-        <p>Before deleting, export a JSON backup so you have an archive copy if it is ever needed. Then select the employee from the dropdown, click the red <strong>Delete</strong> button, and confirm. The record is removed from the tool but preserved in any backup file you saved before deleting.</p>
-      </div>
-      <div class="faq-item">
-        <h4>The tool is not working or something looks wrong.</h4>
-        <p>First try refreshing the page (press <span style="font-family:monospace;font-size:13px;background:var(--teal-pale);padding:1px 5px;border-radius:3px;">F5</span> or <span style="font-family:monospace;font-size:13px;background:var(--teal-pale);padding:1px 5px;border-radius:3px;">Cmd + R</span>). If that does not help, try opening the tool in a different browser (Chrome or Edge work best). If you still have an issue, contact your People team with a description of what you were doing when the problem occurred.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Quick reference ── -->
-  <div class="section">
-    <div class="section-label">Quick Reference</div>
-    <h2>Cheat sheet — keep this handy</h2>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:var(--navy);">
-            <th style="color:#fff;text-align:left;padding:11px 16px;font-size:12px;font-weight:800;width:42%;">I want to…</th>
-            <th style="color:#fff;text-align:left;padding:11px 16px;font-size:12px;font-weight:800;">What to do</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Add a new team member</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);">Top bar → <strong>+ New Employee</strong></td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);background:#FAFEFE;">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Switch between team members</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);">Top bar → employee dropdown</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Start a new review year</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);">Performance Review tab → <strong>+ New Year</strong></td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);background:#FAFEFE;">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Save a backup to OneDrive</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);"><strong>⤓ Export JSON</strong> → upload file to your <em>Team Reviews</em> folder on OneDrive</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Restore data on a new device</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);">Download backup from OneDrive → <strong>⤒ Import JSON</strong> in the tool → select file</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);background:#FAFEFE;">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Print or save as PDF</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);"><strong>🖶 Print</strong> → in the print window, change printer to <em>"Save as PDF"</em></td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Share data with HR or People team</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);"><strong>⊞ Export Excel</strong> → send or upload the spreadsheet</td>
-          </tr>
-          <tr>
-            <td style="padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--navy);">Open OneDrive</td>
-            <td style="padding:12px 16px;font-size:13.5px;color:var(--ink-light);"><a href="https://www.office.com" target="_blank" style="color:var(--teal);font-weight:600;">office.com</a> → sign in with your work email → grid icon → OneDrive</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div style="background:var(--navy);border-radius:12px;padding:24px 28px;margin-bottom:40px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-    <div style="flex:1;min-width:220px;">
-      <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--teal-light);margin-bottom:6px;">Remember the golden rule</div>
-      <div style="font-size:16px;font-weight:700;color:#fff;line-height:1.5;">Export a backup to OneDrive every time you finish a session. It takes 30 seconds and means your work is never at risk.</div>
-    </div>
-    <div style="font-size:40px;">💾</div>
-  </div>
-
-  <div style="text-align:center;padding:10px 0 20px;color:var(--ink-light);font-size:12.5px;">
-    Oliver People &amp; Performance &nbsp;·&nbsp; Questions about this tool? Contact your People team.
-  </div>
-
 </div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 2 — Using the tool                               -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="section-label">Using the Tool</div>
+  <h2>The three tabs — work left to right</h2>
+  <p class="lead">Each employee has three tabs. Work through them in order.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num" style="background:var(--navy);">👤</div>
+      <div>
+        <h3>Employee Profile</h3>
+        <p>Basic details used across everything. Always start here and keep it updated if roles or managers change.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num" style="background:var(--navy);">📋</div>
+      <div>
+        <h3>Probationary (90-Day)</h3>
+        <p>Set the probation start date — the Day 90 target is calculated for you. Record the date of each meeting as it happens: <strong>Goal Setting → Day 30 → Day 90</strong>. The Outcome section (pass, extend, or fail) only unlocks once the Day 90 meeting date is entered.</p>
+        <p style="margin-top:8px;">Each goal has a progress tracker with three columns — one per meeting. During or straight after each check-in, select a status for every goal: <strong>🔴 Not started, 🟡 In progress,</strong> or <strong>🟢 On track</strong>, and add a short note on what you observed. Do this at the time — the pattern across the three meetings becomes your evidence when deciding the outcome at day 90.</p>
+        <p style="margin-top:8px;">When you record a <strong>Pass</strong>, the tool will prompt you to move to the Performance Review tab and set up objectives — do this as soon as possible. If you select <strong>Extend</strong>, the tool asks for a new review date and what specifically needs to change during the extension period. If you select <strong>Fail</strong>, contact the People team before taking any further steps.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num" style="background:var(--navy);">📊</div>
+      <div>
+        <h3>Performance Review</h3>
+        <p>Record meeting dates as they happen: <strong>Goal Setting → Q2 → Q3 → Final Review</strong>. Add objectives at the start of the year and update progress at each check-in. Core Values and the Final Review section only appear once the Q3 date is recorded — keeping the form relevant to where you are in the year.</p>
+        <p style="margin-top:6px;">To start a new review year, click <strong>+ New Year</strong> at the top of this tab. Previous years stay on record.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 3 — Keeping your data safe                       -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="section-label">Keeping Your Data Safe</div>
+  <h2>If you linked your folder, you are already covered</h2>
+  <p class="lead">Once your <strong>Team Reviews</strong> folder is linked, the tool writes each person's file there automatically on every change — one file per person, privately. There is nothing else you need to do during a normal session.</p>
+
+  <div class="callout tip">
+    <div class="callout-icon">✅</div>
+    <div>
+      <h4>Folder linked — what this means in practice</h4>
+      <p>The green bar at the top confirms you are connected. Every time you type, the current person's file updates in your Team Reviews folder on OneDrive. When you open the tool next time, it loads everything back automatically.</p>
+    </div>
+  </div>
+
+  <div class="callout warn" style="margin-top:4px;">
+    <div class="callout-icon">⚠️</div>
+    <div>
+      <h4>If the bar is yellow — reconnect before you start</h4>
+      <p>Browsers drop folder permissions when you close and reopen a tab. If you see a yellow bar, click <strong>Reconnect</strong> before making any changes. It takes one click and your data is protected again.</p>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:28px;">If You Are Not Linked</div>
+  <p style="font-size:13.5px;color:var(--ink-light);margin-bottom:16px;">If you are using Firefox or Safari, or have not yet linked a folder, saving is manual. Use <strong>⤓ Export Backup</strong> in the top bar after each session — it downloads a file for the current person. Store it in your Team Reviews folder on OneDrive. To restore on another device, use <strong>⤒ Import JSON</strong> and select that file. One person at a time — they load without affecting anyone else.</p>
+
+  <div class="section-label" style="margin-top:28px;">Switching Devices</div>
+  <p style="font-size:13.5px;color:var(--ink-light);">Open the tool on the new device → click <strong>Link your Team Reviews folder</strong> → pick the same OneDrive folder. The tool reads all your employee files from the folder and loads them in. Done.</p>
+
+  <div class="section-label" style="margin-top:28px;">When a Manager Leaves or Changes Teams</div>
+  <p style="font-size:13.5px;color:var(--ink-light);margin-bottom:10px;">Employee review data is stored in your personal OneDrive folder and does not transfer automatically. If you are leaving or handing over a team, please do one of the following <strong>before your last day</strong>:</p>
+  <div class="callout warn" style="margin-top:0;">
+    <div class="callout-icon">📁</div>
+    <div>
+      <h4>Share your Team Reviews folder with the incoming manager</h4>
+      <p>In OneDrive, right-click your <strong>Team Reviews</strong> folder → <strong>Share</strong> → enter the new manager's Oliver email. They can then download the relevant employee files and import them into the tool. Alternatively, email the individual JSON files directly to Agnes (<a href="mailto:agnes@oliver.com" style="color:var(--teal);">agnes@oliver.com</a>) and she will ensure records are passed to the right person.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 4 — Cheat sheet + gate                           -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="section-label">Quick Reference</div>
+  <h2>Cheat sheet</h2>
+  <p class="lead">Keep this tab open while you are getting started.</p>
+
+  <table class="ref-table">
+    <thead><tr><th>I want to…</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>Open the tool</td><td><a href="https://userenablement.github.io/Initiatives/PerformanceReview/" target="_blank">userenablement.github.io/Initiatives/PerformanceReview</a> — bookmark it (<span style="font-family:monospace;font-size:12px;">Ctrl+D</span> / <span style="font-family:monospace;font-size:12px;">Cmd+D</span>)</td></tr>
+      <tr><td>Add a team member</td><td>Top bar → <strong>+ New Employee</strong></td></tr>
+      <tr><td>Switch between people</td><td>Top bar → employee dropdown</td></tr>
+      <tr><td>Start a new review year</td><td>Performance Review tab → <strong>+ New Year</strong></td></tr>
+      <tr><td>Save automatically</td><td>Link your Team Reviews folder → green bar confirms it's active — nothing else needed</td></tr>
+      <tr><td>Save manually (no folder linked)</td><td><strong>⤓ Export Backup</strong> → one file per person, store in Team Reviews on OneDrive</td></tr>
+      <tr><td>Switch to a new device</td><td>Open tool → <strong>Link your Team Reviews folder</strong> → pick the same OneDrive folder — loads everything</td></tr>
+      <tr><td>Print or save as PDF</td><td><strong>🖶 Print</strong> → change printer to <em>Save as PDF</em></td></tr>
+      <tr><td>Share with People team</td><td><strong>⊞ Export Excel</strong></td></tr>
+      <tr><td>Open OneDrive</td><td><a href="https://www.office.com" target="_blank">office.com</a> → sign in → grid icon → OneDrive</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner">
+    <p>Link your Team Reviews folder once — then saving is automatic, private, and invisible. Nothing else to remember.</p>
+    <span>💾</span>
+  </div>
+
+  <!-- Confirmation gate -->
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:8px;">
+    <div style="font-size:14.5px;font-weight:800;color:var(--navy);margin-bottom:6px;">Before you open the Performance Review</div>
+    <p style="font-size:13px;color:var(--ink-light);margin-bottom:16px;">Please confirm you have read and understood the guide.</p>
+    <div class="gate checklist" style="padding:0;max-width:100%;margin:0 0 20px;">
+      <div class="check-item"><input type="checkbox" id="c1" onchange="checkGate()"><label for="c1">I know how to add employees and switch between them</label></div>
+      <div class="check-item"><input type="checkbox" id="c2" onchange="checkGate()"><label for="c2">I understand the three tabs and when to use each one</label></div>
+      <div class="check-item"><input type="checkbox" id="c3" onchange="checkGate()"><label for="c3">I will link my Team Reviews folder when I first open the tool so my data saves automatically</label></div>
+    </div>
+    <button class="btn-open" id="openToolBtn" onclick="openTool()" disabled style="opacity:.4;width:100%;text-align:center;">Open the Performance Review →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- NAV BAR                                               -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="nav-bar">
+  <button class="btn-back" id="backBtn" onclick="goBack()" style="visibility:hidden;">← Back</button>
+  <span class="page-counter" id="pageCounter"></span>
+  <button class="btn-next" id="nextBtn" onclick="goNext()">Next →</button>
+</div>
+
+<script>
+const PAGES = [
+  'What it does',
+  'Getting started',
+  'Using the tool',
+  'Keeping data safe',
+  'Cheat sheet'
+];
+const TOTAL = PAGES.length;
+let current = 0;
+
+// Replace with actual path to the performance review tool
+const TOOL_PATH = 'https://userenablement.github.io/Initiatives/PerformanceReview/';
+
+function render(){
+  // Pages
+  document.querySelectorAll('.page').forEach((p,i)=>{
+    p.classList.toggle('active', i===current);
+  });
+
+  // Progress bar
+  document.getElementById('progressFill').style.width = ((current/(TOTAL-1))*100)+'%';
+
+  // Step dots
+  const ind = document.getElementById('stepIndicator');
+  ind.innerHTML = PAGES.map((_,i)=>`<div class="step-dot ${i<current?'done':i===current?'active':''}"></div>`).join('');
+
+  // Step label
+  document.getElementById('stepLabel').textContent = PAGES[current];
+
+  // Page counter
+  document.getElementById('pageCounter').textContent = (current+1)+' of '+TOTAL;
+
+  // Back button
+  document.getElementById('backBtn').style.visibility = current>0?'visible':'hidden';
+
+  // Next button
+  const nextBtn = document.getElementById('nextBtn');
+  if(current===TOTAL-1){
+    nextBtn.style.display='none';
+  } else {
+    nextBtn.style.display='';
+    nextBtn.textContent = current===TOTAL-2 ? 'Finish →' : 'Next →';
+  }
+}
+
+function goNext(){ if(current<TOTAL-1){ current++; render(); window.scrollTo(0,0); } }
+function goBack(){ if(current>0){ current--; render(); window.scrollTo(0,0); } }
+
+function checkGate(){
+  const all = ['c1','c2','c3'].every(id=>document.getElementById(id).checked);
+  const btn = document.getElementById('openToolBtn');
+  btn.disabled = !all;
+  btn.style.opacity = all ? '1' : '.4';
+}
+
+function openTool(){
+  window.open(TOOL_PATH,'_blank');
+}
+
+render();
+</script>
 </body>
 </html>
