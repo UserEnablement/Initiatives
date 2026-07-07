@@ -98,7 +98,7 @@ input[type=text],input[type=date],input[type=number],select{width:100%;}
 .rag-btn.r{border-color:#E8B4B8;color:#C0392B;}
 .rag-btn.r.sel{background:#FBEAE8;border-color:#C0392B;}
 .rag-btn.a{border-color:#F0D28A;color:#8A6300;}
-.rag-btn.a.sel{background:#F5C842;border-color:#C9A227;color:#5A3D00;}
+.rag-btn.a.sel{background:#FEF9C3;border-color:#C9A227;color:#7A5800;}
 .rag-btn.g{border-color:#A8D5C2;color:#2D846C;}
 .rag-btn.g.sel{background:#E4F4EE;border-color:#2D846C;}
 .rag-note{width:100%;font-size:12px;min-height:38px;margin-top:2px;}
@@ -460,6 +460,8 @@ async function loadFromFolder(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
     renderAll();
     if(loaded > 0) flashSaved('Loaded ' + loaded + ' employee file' + (loaded>1?'s':'') + ' from ' + folderName);
+    // Check for duplicates after loading from folder
+    checkAndOfferDedupe();
   }catch(e){ console.error('loadFromFolder error', e); }
 }
 
@@ -1198,6 +1200,9 @@ Object.values(DB.employees).forEach(emp=>{
 });
 if(!DB.currentId&&Object.keys(DB.employees).length) DB.currentId=Object.keys(DB.employees)[0];
 renderAll();
+
+// Check for duplicates on startup and prompt manager if found
+checkAndOfferDedupe();
 
 // Attempt silent folder reconnect (overrides local data if folder grants permission)
 tryReconnectFolder();
