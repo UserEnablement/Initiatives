@@ -320,7 +320,7 @@ header {
     <div class="header-product">Oliver Admin</div>
     <div class="header-title">Training Data Generator</div>
   </div>
-  <span class="header-badge">Bedrock Quarry · v3</span>
+  <span class="header-badge">Springfield Nuclear · v3</span>
 </header>
 
 <div class="container">
@@ -388,13 +388,13 @@ header {
 
 <script>
 // ── Data pools ───────────────────────────────────────────────────────────────
-const FM = ['Harold','Cliff','Rex','Dale','Grant','Wade','Kirk','Ross','Brent','Troy','Gene','Floyd','Vern','Glen','Earl'];
-const FF = ['Sandra','Marlene','Joyce','Donna','Lorna','Eileen','Trudy','Faye','Norma','Bev','Shirley','Glenda','Phyllis','Marge','Wanda'];
-const LN = ['Quartz','Granite','Shale','Basalt','Feldspar','Sediment','Pumice','Obsidian','Marble','Gneiss','Schist','Diorite','Tuff','Calcite','Pebble'];
-const STREETS = ['Quarry Road','Cobblestone Lane','Bedrock Avenue','Slate Street','Boulder Drive','Gravel Way','Limestone Crescent','Sandstone Court'];
-const POS_MGMT = ['Operations Manager','Quarry Manager','HR Manager','Finance Director','Safety Director'];
+const FM = ['Homer','Ned','Moe','Barney','Waylon','Lenny','Carl','Kent','Seymour','Clancy','Julius','Herschel','Abraham','Artie','Gil'];
+const FF = ['Marge','Selma','Patty','Maude','Edna','Helen','Luann','Manjula','Agnes','Cookie','Ruth','Judy','Ginger','Brandine','Lurleen'];
+const LN = ['Simpson','Flanders','Szyslak','Wiggum','Skinner','Krabappel','Muntz','Hibbert','VanHouten','Bouvier','Lovejoy','Nahasapeemapetilon','Spuckler','Leonard','Terwilliger'];
+const STREETS = ['Evergreen Terrace','Walnut Street','Flanders Court','Duff Drive','Kwik-E-Mart Lane','Springfield Boulevard','Shelbyville Road','Elm Street'];
+const POS_MGMT = ['Plant Manager','Operations Manager','HR Manager','Finance Director','Safety Director'];
 const POS_SAL  = ['Site Supervisor','Payroll Coordinator','Office Administrator','Benefits Analyst','Safety Coordinator'];
-const POS_HRLY = ['Equipment Operator','Rock Loader','Quarry Driver','Labourer','Mechanic'];
+const POS_HRLY = ['Reactor Technician','Control Room Operator','Maintenance Worker','Labourer','Mechanic'];
 const POS_PT   = ['Part-Time Assistant','Seasonal Labourer','Administrative Relief','Yard Attendant'];
 const MARITAL  = ['Single','Married','Common-Law','Single Parent'];
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -405,6 +405,24 @@ const CARRIERS = [
 ];
 const DEP_BENEFITS = ['Dental','Extended Health','Vision','Prescription Drugs'];
 const VOL_BENEFITS = ['Basic Life Insurance','Accidental Death & Dismemberment','Long Term Disability','Short Term Disability','Critical Illness'];
+const HYBRID_BENEFITS = ['Basic Life Insurance','Accidental Death & Dismemberment','Long Term Disability'];
+const AGE_BANDS = ['<30','30-39','40-49','50-59','60-64','65+'];
+
+// Sample (not exhaustive) age-banded rate rows — illustrates the age band / gender / smoker status
+// structure described in KB A2.7. A real Benefit Master record needs the full table entered.
+function genHybridRates() {
+  const combos = [
+    { ageBand: '<30',   gender: 'Male',   smoker: 'Non-Smoker' },
+    { ageBand: '<30',   gender: 'Female', smoker: 'Smoker' },
+    { ageBand: '60-64', gender: 'Male',   smoker: 'Smoker' },
+    { ageBand: '60-64', gender: 'Female', smoker: 'Non-Smoker' },
+  ];
+  return combos.map(c => {
+    const idx = AGE_BANDS.indexOf(c.ageBand);
+    let base = 0.05 + idx * 0.08 + (c.gender === 'Male' ? 0.02 : 0) + (c.smoker === 'Smoker' ? 0.15 : 0);
+    return { ...c, rate: base.toFixed(2) };
+  });
+}
 
 // ── Alphanumeric benefit code generator ─────────────────────────────────────
 // Matches typical Oliver Admin patterns: 2-4 alpha prefix + 2-4 alphanumeric suffix
@@ -438,7 +456,7 @@ function randBenefitCode(group) {
 
 function randPlanCode(clsName) {
   const abbr = clsName.replace(/[^A-Za-z]/g,'').slice(0,4).toUpperCase();
-  return `BQC-${abbr}`;
+  return `SNPP-${abbr}`;
 }
 
 // ── Utility ──────────────────────────────────────────────────────────────────
@@ -449,7 +467,7 @@ function randDOB(mn,mx) { const y=new Date().getFullYear()-rand(mn,mx); return f
 function randHire() { return fmtDate(new Date(rand(2019,2024),rand(0,11),rand(1,28))); }
 function randEff()  { return `01-${MONTHS[rand(0,11)]}-${rand(2022,2025)}`; }
 function randPhone(){ return `555-${rand(300,499)}-${rand(1000,9999)}`; }
-function randEmail(f,l){ return `${f.toLowerCase()}.${l.toLowerCase()}@bedrockquarry.example`; }
+function randEmail(f,l){ return `${f.toLowerCase()}.${l.toLowerCase()}@springfieldnuclear.example`; }
 function randPostal(){ const L='ABCEGHJKLMNPRSTVXY'; return `T${rand(0,9)}${pick(L.split(''))} ${rand(0,9)}${pick(L.split(''))}${rand(0,9)}`; }
 function randName(g){ return { first: g==='Male'?pick(FM):pick(FF), last: pick(LN) }; }
 function randGender(){ return Math.random()>.5?'Male':'Female'; }
@@ -479,16 +497,24 @@ function newSeed() {
   ];
   const planBase = pick(PLANS);
   const planCode = randPlanCode(planBase.clsName);
-  const planName = `Bedrock ${planBase.clsName} Benefit Plan`;
+  const planName = `Springfield ${planBase.clsName} Benefit Plan`;
 
   const carrier_vol = CARRIERS[0];
   const carrier_dep = CARRIERS[1];
+  const carrier_hyb = CARRIERS[2];
   const bgroup_vol = pick(VOL_BENEFITS);
   const bgroup_dep = pick(DEP_BENEFITS);
+  const bgroup_hyb = pick(HYBRID_BENEFITS);
   const bcode_vol  = randBenefitCode(bgroup_vol);
   const bcode_dep  = randBenefitCode(bgroup_dep);
+  const bcode_hyb  = randBenefitCode(bgroup_hyb);
   const pol_vol    = randPol(carrier_vol.code);
   const pol_dep    = randPol(carrier_dep.code);
+  const pol_hyb    = randPol(carrier_hyb.code);
+  const hybridRates = genHybridRates();
+  const bcode_vtry = randBenefitCode(bgroup_vol);
+  const pol_vtry    = randPol(carrier_vol.code);
+  const vtryAmount  = pick(['$25,000','$50,000','$75,000','$100,000']);
   const effDate    = randEff();
   const marital    = pick(MARITAL);
   const depType    = depTypeFromMarital(marital);
@@ -496,10 +522,12 @@ function newSeed() {
   SEED = {
     g, first, last,
     plan: { ...planBase, code: planCode, name: planName },
-    carrier_vol, carrier_dep,
-    bgroup_vol, bgroup_dep,
-    bcode_vol, bcode_dep,
-    pol_vol, pol_dep,
+    carrier_vol, carrier_dep, carrier_hyb,
+    bgroup_vol, bgroup_dep, bgroup_hyb,
+    bcode_vol, bcode_dep, bcode_hyb,
+    pol_vol, pol_dep, pol_hyb,
+    hybridRates,
+    bcode_vtry, pol_vtry, vtryAmount,
     effDate, marital, depType,
     salary:   randSalary(planBase.cls),
     position: pick(planBase.positions),
@@ -520,11 +548,10 @@ function newSeed() {
 }
 
 // ── Block generators ─────────────────────────────────────────────────────────
-function genBenefitMasterBlock() {
+function genBenefitMasterBlock(mode) {
+  mode = mode || 'single';
   const isSalaryBased = !['Critical Illness','Accidental Death & Dismemberment'].includes(SEED.bgroup_vol);
-  return {
-    heading: '① Benefit Master — Plan Administration → Benefits Management → VIEW BENEFITS MASTER',
-    groups: [
+  const groups = [
       {
         title: `Volume-based benefit · ${SEED.bgroup_vol}`,
         icon: '📊',
@@ -556,6 +583,31 @@ function genBenefitMasterBlock() {
           {l:'Agent Rate',             v:'$0.00'},
         ]
       },
+  ];
+
+  if (mode === 'all') {
+    groups.push({
+      title: `Hybrid (age-based) benefit · ${SEED.bgroup_hyb}`,
+      icon: '📈',
+      callout: {type:'info', text:'A hybrid benefit prices coverage from an age-banded rate table instead of a single flat or salary-based rate. Enter every age band / gender / smoker-status row shown below in the Default Rates section after clicking Create — this is a sample, not the full table.'},
+      fields: [
+        {l:'Benefit Code',           v:SEED.bcode_hyb, h:true, n:'Letters and numbers — must be unique across the Benefit Master'},
+        {l:'Description',            v:`${SEED.bgroup_hyb} — Age-Banded Schedule`},
+        {l:'Benefit Group',          v:SEED.bgroup_hyb, h:true},
+        {l:'Primary Benefit Type',   v:'Volume'},
+        {l:'Secondary Benefit Type', v:'Hybrid (Age-Based)', h:true, n:'This is what distinguishes a hybrid benefit from a standard Volume benefit'},
+        {l:'Effective Date',         v:SEED.effDate, h:true},
+        {l:'Carrier',                v:SEED.carrier_hyb.name, h:true},
+        {l:'Policy Number',          v:SEED.pol_hyb},
+        ...SEED.hybridRates.map(r => ({
+          l: `Rate — ${r.ageBand} · ${r.gender} · ${r.smoker}`,
+          v: `$${r.rate} per $1,000`,
+        })),
+      ]
+    });
+  }
+
+  groups.push(
       {
         title: `Dependent-based benefit · ${SEED.bgroup_dep}`,
         icon: '👨‍👩‍👧‍👦',
@@ -578,7 +630,29 @@ function genBenefitMasterBlock() {
           {l:'Single Parent — Rate',  v:`$${SEED.spRate+SEED.adminAdd}.00/month`, h:true},
         ]
       }
-    ]
+  );
+
+  if (mode === 'all') {
+    groups.push({
+      title: `Voluntary (optional) benefit · ${SEED.bgroup_vol} — Optional Top-Up`,
+      icon: '🧩',
+      callout: {type:'note', text:"Optional benefits aren't entered for individual members here. Once this benefit is added to a Benefit Plan as Optional (Admin_07), a member who opts in is added manually on their Health and Benefit Details page — the Voluntary Benefits region — where the TPA selects the benefit, enters the effective date and coverage amount, and Oliver calculates the premium."},
+      fields: [
+        {l:'Benefit Code',           v:SEED.bcode_vtry, h:true},
+        {l:'Description',            v:`${SEED.bgroup_vol} — Optional Top-Up`},
+        {l:'Benefit Group',          v:SEED.bgroup_vol, h:true},
+        {l:'Primary Benefit Type',   v:'Volume'},
+        {l:'Coverage Type',          v:'Optional', h:true, n:'Core benefits auto-apply to every member; Optional benefits require the member to opt in first'},
+        {l:'Effective Date',         v:SEED.effDate, h:true},
+        {l:'Carrier',                v:SEED.carrier_vol.name, h:true},
+        {l:'Policy Number',          v:SEED.pol_vtry},
+      ]
+    });
+  }
+
+  return {
+    heading: '① Benefit Master — Plan Administration → Benefits Management → VIEW BENEFITS MASTER',
+    groups
   };
 }
 
@@ -614,8 +688,8 @@ function genEmployerBlock() {
         icon: '🏢',
         callout: {type:'warn', text:`Select Regular on Step 1. On Step 3, assign Class ${SEED.plan.cls} (${SEED.plan.clsName}) and link it to plan ${SEED.plan.code}.`},
         fields: [
-          {l:'Employer Code',           v:'BQC', h:true, n:'Use existing Bedrock Quarry employer or create a division'},
-          {l:'Employer Name',           v:'Bedrock Quarry & Construction Ltd.'},
+          {l:'Employer Code',           v:'SNPP', h:true, n:'Use existing Springfield Nuclear Power Plant employer or create a division'},
+          {l:'Employer Name',           v:'Springfield Nuclear Power Plant'},
           {l:'Effective Date',          v:SEED.effDate, h:true, n:'Members cannot be enrolled with dates earlier than this'},
           {l:'Class to assign',         v:`${SEED.plan.cls} — ${SEED.plan.clsName}`, h:true},
           {l:'Benefit Plan for class',  v:SEED.plan.code, h:true},
@@ -630,13 +704,13 @@ const SCENARIOS = [
   {
     id:'add-benefit-master', module:'benefits', icon:'📊',
     title:'Add a benefit to the Benefit Master',
-    desc:'Volume-based and dependent-based records with rates and carrier details',
+    desc:'Volume, hybrid (age-based), dependent, and voluntary records — toggle which types to include',
     userGuide:'Admin_06 → 6.4 & 6.5', prereqIds:[],
     generate() {
       newSeed();
       return { title:'Add Benefits to the Benefit Master', icon:'📊',
         subtitle:'Admin_06 → Plan Administration → Benefits Management → VIEW BENEFITS MASTER',
-        prereqs:[], main: genBenefitMasterBlock() };
+        prereqs:[], main: genBenefitMasterBlock(benefitMasterMode) };
     }
   },
   {
@@ -686,7 +760,7 @@ const SCENARIOS = [
                 {l:'Gender',           v:SEED.g},
                 {l:'Date of Birth',    v:SEED.dob,     n:'Format: DD-MON-YYYY'},
                 {l:'Address',          v:SEED.address},
-                {l:'City',             v:'Bedrock'},
+                {l:'City',             v:'Springfield'},
                 {l:'Province',         v:'AB'},
                 {l:'Postal Code',      v:SEED.postal},
                 {l:'Email',            v:SEED.email},
@@ -708,7 +782,7 @@ const SCENARIOS = [
             { title:'Step 4 — Employment Details', icon:'💼',
               callout:null,
               fields:[
-                {l:'Current Employer', v:'Bedrock Quarry & Construction Ltd. (BQC)', h:true},
+                {l:'Current Employer', v:'Springfield Nuclear Power Plant (SNPP)', h:true},
                 {l:'Employee Number',  v:SEED.empNum},
                 {l:'Position',         v:SEED.position},
                 {l:'Hire Date',        v:SEED.hireDate, h:true, n:'Waiting period calculated from this date'},
@@ -739,6 +813,14 @@ const SCENARIOS = [
                 {l:'Dependent Type',      v:SEED.depType, n:`Rate tier for ${SEED.bgroup_dep}`},
                 {l:'Review & Confirm',    v:'Verify all details, then click Submit'},
               ]},
+            { title:'After enrolment — Voluntary Benefit Opt-In', icon:'🧩',
+              callout:{type:'note', text:'This is a separate action, not part of the 9-step wizard. From Member Details, click the blue tick (✓) on the Plan Summary row to open Health and Benefit Details, then go to the Voluntary Benefits region.'},
+              fields:[
+                {l:'Optional Benefit',   v:`${SEED.bcode_vtry} — ${SEED.bgroup_vol} — Optional Top-Up`, h:true, n:'Only appears here once added to the Benefit Plan with Coverage Type: Optional'},
+                {l:'Effective Date',     v:SEED.effDate},
+                {l:'Coverage Amount',    v:SEED.vtryAmount, h:true},
+                {l:'Premium',            v:'Calculated automatically by Oliver from the coverage amount and rate table', n:'No manual entry — click Create and Oliver computes it'},
+              ]},
           ]
         }
       };
@@ -758,6 +840,15 @@ function getPrereqs(sid) { return (PREREQ_MAP[sid]||[]).map(k=>({...PREREQ_DEFS[
 // ── State ────────────────────────────────────────────────────────────────────
 let activeModule='all', activeScenario=null, currentOutputData=null;
 let prereqStatus={}, openSections={};
+let benefitMasterMode='single'; // 'single' | 'all' — used only by the add-benefit-master scenario
+
+function setBenefitMasterMode(mode) {
+  benefitMasterMode = mode;
+  if (currentOutputData && activeScenario === 'add-benefit-master') {
+    currentOutputData.main = genBenefitMasterBlock(benefitMasterMode);
+    renderOutput();
+  }
+}
 
 // ── Scenario picker ──────────────────────────────────────────────────────────
 function filterModule(mod,el) {
@@ -812,6 +903,17 @@ function renderOutput() {
       </div></div>`;
   }
 
+  let benefitModeToggleHTML='';
+  if (activeScenario === 'add-benefit-master') {
+    benefitModeToggleHTML = `<div class="prereq-section">
+      <h3>Benefit types to include</h3>
+      <div class="module-tabs" style="margin-bottom:0;">
+        <div class="module-tab ${benefitMasterMode==='single'?'active':''}" onclick="setBenefitMasterMode('single')">Single (Volume + Dependent)</div>
+        <div class="module-tab ${benefitMasterMode==='all'?'active':''}" onclick="setBenefitMasterMode('all')">All types (Volume, Hybrid, Dependent, Voluntary)</div>
+      </div>
+    </div>`;
+  }
+
   let blocksHTML='';
   if(d.prereqs&&d.prereqs.length) {
     d.prereqs.forEach(p=>{
@@ -837,6 +939,7 @@ function renderOutput() {
         <button class="btn btn-accent" onclick="downloadTXT()">⬇️ Download .txt</button>
         <span class="usage-hint">Click any field to copy its value</span>
       </div>
+      ${benefitModeToggleHTML}
       ${prereqToggleHTML}
       <div class="card-body">${blocksHTML}</div>
     </div>`;
@@ -915,7 +1018,7 @@ function downloadTXT() {
     });
     txt+='\n';
   });
-  txt+=`\nOliver Admin Training Data Generator · Bedrock Quarry Scenario · v3`;
+  txt+=`\nOliver Admin Training Data Generator · Springfield Nuclear Scenario · v3`;
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
   a.download=`oliver-training-${activeScenario}-${Date.now()}.txt`;
