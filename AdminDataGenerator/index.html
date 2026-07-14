@@ -399,9 +399,35 @@ const POS_PT   = ['Part-Time Assistant','Seasonal Labourer','Administrative Reli
 const MARITAL  = ['Single','Married','Common-Law','Single Parent'];
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const CARRIERS = [
-  {code:'CPI', name:'Cedar Peak Insurance'},
-  {code:'NLH', name:'Northern Lights Health'},
-  {code:'AFP', name:'Aurora Financial Protection'},
+  {code:'ASO', name:'Administrative Services Only'},
+  {code:'AIG', name:'American International Group'},
+  {code:'BXL', name:'BLUE CROSS LIFE'},
+  {code:'CLA', name:'Canada Life Assurance'},
+  {code:'CHB', name:'CHUBB'},
+  {code:'CLS', name:'ClaimSecure'},
+  {code:'COI', name:'Co-operators Insurance'},
+  {code:'DSJ', name:'Desjardins Insurance'},
+  {code:'DLG', name:'DIALOGUE'},
+  {code:'EML', name:'EmpireLife'},
+  {code:'GSC', name:'GREEN SHIELD CANADA'},
+  {code:'HWD', name:'HOMEWOOD'},
+  {code:'IAF', name:'iA Financial Group'},
+  {code:'LWC', name:'LIFEWORKS CANADA LTD'},
+  {code:'MBC', name:'Manitoba Blue Cross'},
+  {code:'MNL', name:'MANULIFE'},
+  {code:'MSP', name:'MSP'},
+  {code:'OCB', name:'OCIBP'},
+  {code:'PBC', name:'Pacific Bluecross'},
+  {code:'RBC', name:'Royal Bank of Canada'},
+  {code:'RSA', name:'RSA'},
+  {code:'SBC', name:'SASKATCHEWAN BLUE CROSS'},
+  {code:'SFI', name:'SELF-INSURED'},
+  {code:'SHP', name:'SHEPELL'},
+  {code:'SSQ', name:'SSQ'},
+  {code:'SUM', name:'Strategic Underwriting Managers Inc.'},
+  {code:'SLF', name:'Sun Life Financial'},
+  {code:'VNG', name:'VENNGO'},
+  {code:'WAW', name:'Wawanesa'},
 ];
 const DEP_BENEFITS = ['Dental','Extended Health','Vision','Prescription Drugs'];
 const VOL_BENEFITS = ['Basic Life Insurance','Accidental Death & Dismemberment','Long Term Disability','Short Term Disability','Critical Illness'];
@@ -499,9 +525,9 @@ function newSeed() {
   const planCode = randPlanCode(planBase.clsName);
   const planName = `Springfield ${planBase.clsName} Benefit Plan`;
 
-  const carrier_vol = CARRIERS[0];
-  const carrier_dep = CARRIERS[1];
-  const carrier_hyb = CARRIERS[2];
+  const carrier_vol = pick(CARRIERS);
+  const carrier_dep = pick(CARRIERS);
+  const carrier_hyb = pick(CARRIERS);
   const bgroup_vol = pick(VOL_BENEFITS);
   const bgroup_dep = pick(DEP_BENEFITS);
   const bgroup_hyb = pick(HYBRID_BENEFITS);
