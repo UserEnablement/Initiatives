@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oliver | Performance &amp; Probationary Reviews</title>
+<title> Performance &amp; Probationary Reviews</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -162,7 +162,7 @@ footer.note{font-size:11.5px;color:var(--ink-light);text-align:center;padding:20
 
 <header class="top no-print">
   <div>
-    <h1><span class="brand-dot"></span>Oliver — Performance &amp; Probationary Reviews</h1>
+    <h1><span class="brand-dot"></span> Performance &amp; Probationary Reviews</h1>
     <div class="sub">Goal setting, check-ins and review tracking for managers &nbsp;·&nbsp; <a href="https://userenablement.github.io/Initiatives/ManagerPerformanceReviewGuide/" target="_blank" style="color:var(--teal-light);font-weight:700;">📖 Manager Guide</a></div>
   </div>
   <div class="toolbar">
@@ -325,7 +325,7 @@ const PROB_AREAS = [
   {key:'learningRampUp',    name:'Learning & Ramp-Up',      desc:'How quickly the person becomes productive in the role.',              indicators:'Learns tools and processes quickly and applies them independently.'},
   {key:'communication',     name:'Communication & Teamwork',desc:'Clarity, responsiveness, and collaboration with others.',             indicators:'Gives timely updates, asks questions early, works well with others.'},
   {key:'reliability',       name:'Reliability & Ownership', desc:'Follow-through, accountability, and dependability.',                  indicators:'Owns tasks, meets commitments, and escalates issues appropriately.'},
-  {key:'valuesBehaviour',   name:'Values & Behaviour',      desc:'Observable behaviours aligned to Oliver\'s core values.',            indicators:'Demonstrates expected behaviours in day-to-day work.'}
+  {key:'valuesBehaviour',   name:'Values & Behaviour',      desc:'Observable behaviours aligned to core values.',                       indicators:'Demonstrates expected behaviours in day-to-day work.'}
 ];
 
 const RATING_SCALE = ['Below Expectations','Developing','Meets Expectations','Exceeds Expectations'];
@@ -873,12 +873,12 @@ function renderFinalReviewSection(){
   const finalMeetingDone=!!(rev.meetings.q3&&rev.meetings.q3.date);
   if(!finalMeetingDone){
     wrap.innerHTML=`
-      <div class="section-title">Oliver Core Values</div>
+      <div class="section-title"> Core Values</div>
       <div class="locked-section"><div class="lock-icon">🔒</div><p><strong>Core Values and Final Review are available once the Q3 Check-in date is recorded above.</strong><br>Complete all quarterly check-ins first.</p></div>`;
     return;
   }
   wrap.innerHTML=`
-    <div class="section-title">Oliver Core Values</div>
+    <div class="section-title"> Core Values</div>
     <div class="values-grid" id="coreValuesGrid"></div>
     <div class="section-title">Final Review</div>
     <div class="card">
